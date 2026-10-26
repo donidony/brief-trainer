@@ -1,0 +1,1767 @@
+<!doctype html>
+<!--
+  BRIEF TRAINER — LEARNING COPY
+  Open this file in a browser to play; open it in a text editor to learn.
+  HTML = structure. CSS = appearance. JavaScript = behavior.
+  Comments explain the code but are not shown on the game page.
+  Read CODE-GUIDE.md for a tour and small practice exercises.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Learn how your offline letter sorting game works.">
+  <title>Brief Trainer — Learning copy</title>
+  <!-- CSS: change the visual appearance inside this style block. -->
+  <style>
+/* GLOBAL THEME: fonts, page colors and reusable CSS variables. A variable such as --green is read with var(--green). */
+:root {
+  font-family:Arial,Helvetica,sans-serif;
+  color:#24352e;
+  background:#f4f3ed;
+  font-synthesis:none;
+  --green:#254f3e;
+  --yellow:#f4c54c
+}
+* {
+  box-sizing:border-box
+}
+body {
+  margin:0
+}
+button,select,input {
+  font:inherit
+}
+button,select {
+  cursor:pointer
+}
+button {
+  border:1px solid #cfd6cb;
+  background:#fffefa;
+  color:inherit;
+  border-radius:7px;
+  padding:9px 13px
+}
+button:hover {
+  filter:brightness(.96)
+}
+button:focus-visible,select:focus-visible,input:focus-visible {
+  outline:3px solid #2278bc;
+  outline-offset:2px
+}
+button:disabled {
+  cursor:default;
+  opacity:.55
+}
+/* HEADER: brand name and the Edit addresses / New round buttons. */
+header {
+  margin:auto;
+  padding:16px 24px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:15px
+}
+.brand {
+  display:flex;
+  align-items:center;
+  gap:11px
+}
+.logo {
+  background:var(--yellow);
+  font-size:23px;
+  border-radius:10px;
+  padding:7px 11px
+}
+.brand b {
+  font-size:19px
+}
+.brand small {
+  display:block;
+  color:#728076;
+  margin-top:3px;
+  font-size:11px
+}
+.header-actions {
+  display:flex;
+  gap:7px;
+  font-size:12px
+}
+main {
+  padding:0 24px 25px
+}
+.intro {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:20px;
+  margin:3px 0 17px
+}
+.eyebrow {
+  font-size:9px;
+  letter-spacing:1.8px;
+  font-weight:bold;
+  text-transform:uppercase;
+  color:#6d7e70
+}
+h1 {
+  font-size:27px;
+  letter-spacing:-.8px;
+  margin:6px 0
+}
+.intro p {
+  margin:0;
+  color:#69776c;
+  font-size:12px
+}
+.stats {
+  display:flex;
+  gap:27px;
+  flex-shrink:0
+}
+.stat strong {
+  font-size:23px;
+  display:block
+}
+.stat span {
+  font-size:9px;
+  color:#6d7e70
+}
+/* LETTER AND CONTROLS: CSS Grid arranges the letter, feedback and settings side by side. position:sticky keeps controls nearby while scrolling on large screens. */
+.desk {
+  display:grid;
+  grid-template-columns:minmax(230px,1fr) minmax(230px,1.2fr) minmax(280px,1fr);
+  gap:25px;
+  background:#e8ece4;
+  border:1px solid #d7ded2;
+  border-radius:11px;
+  padding:14px 18px;
+  position:sticky;
+  top:0;
+  z-index:10;
+  box-shadow:0 3px 10px #1c352210
+}
+.desk h2 {
+  font-size:10px;
+  font-weight:normal;
+  text-transform:uppercase;
+  letter-spacing:1px;
+  color:#6b7b6d;
+  margin:0 0 7px
+}
+.envelope {
+  background:#fffdf7;
+  border:1px solid #dfddce;
+  box-shadow:0 3px 8px #293b2810;
+  padding:9px 44px 9px 13px;
+  position:relative;
+  border-radius:3px;
+  min-height:68px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:0 8px;
+  align-content:center;
+  align-items:baseline
+}
+.stamp {
+  position:absolute;
+  right:10px;
+  top:10px;
+  border:2px dotted #a1ad97;
+  padding:4px;
+  font-size:15px;
+  color:#738269
+}
+.envelope small {
+  display:block;
+  flex-basis:100%;
+  color:#8c9387;
+  font-size:8px;
+  letter-spacing:1px;
+  margin:0 0 3px
+}
+.address {
+  font-size:18px;
+  font-weight:bold;
+  line-height:1.3;
+  overflow-wrap:anywhere
+}
+.number {
+  font-size:20px
+}
+.primary {
+  background:var(--green);
+  color:white;
+  border-color:var(--green)
+}
+.desk-actions {
+  display:flex;
+  gap:7px
+}
+.desk-actions button {
+  font-size:12px
+}
+.next {
+  margin-left:auto
+}
+.feedback {
+  min-height:35px;
+  font-size:11px;
+  line-height:1.4;
+  padding-top:8px
+}
+.feedback.good {
+  color:#236043
+}
+.feedback.bad {
+  color:#9a3a29
+}
+.progress {
+  height:4px;
+  background:#ced8c9;
+  border-radius:4px;
+  margin:6px 0;
+  overflow:hidden
+}
+.progress span {
+  display:block;
+  height:100%;
+  background:var(--green)
+}
+.round-label {
+  font-size:10px;
+  display:flex;
+  justify-content:space-between;
+  color:#687b68
+}
+.settings {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:6px 10px;
+  align-content:start
+}
+.settings label {
+  font-size:10px;
+  display:grid;
+  gap:5px
+}
+.settings select {
+  font-size:11px;
+  padding:8px 5px;
+  border:1px solid #c6d1c0;
+  background:#f8faf5;
+  border-radius:5px;
+  color:#24352e;
+  width:100%
+}
+.note {
+  grid-column:1/-1;
+  font-size:10px;
+  line-height:1.4;
+  color:#73816e;
+  margin:0
+}
+.shelves {
+  margin-top:15px;
+  min-width:0
+}
+.view-toolbar {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:15px;
+  margin-bottom:10px
+}
+.view-toolbar b {
+  font-size:13px
+}
+.view-toolbar small {
+  font-size:10px;
+  color:#7b8274;
+  margin-left:10px
+}
+.zoom-tools {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-size:11px
+}
+.zoom-tools input {
+  width:110px;
+  accent-color:#254f3e
+}
+.zoom-tools button {
+  font-size:10px;
+  padding:5px 9px
+}
+.workbench {
+  overflow:auto;
+  border-radius:9px;
+  border:1px solid #ccc9bd;
+  background:#dcd9cf;
+  scrollbar-width:thin
+}
+/* FULL TABLE: four equal columns. There are no section tabs. Zoom changes this container width; the workbench provides horizontal scrolling. */
+.cabinet-bank {
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  width:100%;
+  gap:5px;
+  padding:7px;
+  align-items:stretch
+}
+/* ONE VERTICAL COLUMN: a header plus four equally aligned shelf levels. --pocket-height controls divider height. The extra 74px reserves space for the row heading, number labels and street rail. */
+.cabinet {
+  --pocket-height:83px;
+  display:grid;
+  grid-template-rows:26px repeat(4,calc(var(--pocket-height) + 74px));
+  align-content:start;
+  min-width:0;
+  background:#dedacf;
+  border:5px solid #f2f0e6;
+  border-top-width:7px;
+  border-bottom-width:10px;
+  box-shadow:0 2px 4px #27352a30
+}
+.cabinet-heading {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  background:#f2f0e6;
+  font-size:10px;
+  padding:0 3px 7px;
+  color:#555f50;
+  gap:5px
+}
+.cabinet-heading small {
+  font-size:8px;
+  color:#7d8273
+}
+.shelf-row {
+  padding:0;
+  background:#dedacf
+}
+.row-heading {
+  height:17px;
+  font-size:8px;
+  padding:3px 5px 0;
+  color:#858577;
+  background:#d9d6ca;
+  display:flex;
+  justify-content:space-between
+}
+.slot-line {
+  display:grid;
+  gap:0;
+  min-width:0;
+  background:linear-gradient(#282f29,#666b5a 72%,#c0bcaa);
+  padding:0 2px
+}
+/* ONE CLICKABLE SLOT: transparent button containing the colored pocket and the number label below it. The street rail is created separately underneath the row. */
+.slot {
+  min-width:0;
+  padding:0;
+  border:0;
+  border-radius:0;
+  background:transparent;
+  display:flex;
+  flex-direction:column;
+  position:relative;
+  color:#25352b;
+  overflow:visible
+}
+.slot:disabled {
+  opacity:1
+}
+.slot .pocket {
+  position:relative;
+  display:block;
+  width:100%;
+  height:var(--pocket-height);
+  flex-shrink:0;
+  border-left:2px solid var(--folder);
+  border-right:1px solid #1116;
+  border-radius:4px 0 0 0;
+  background:linear-gradient(105deg,#1117 0%,#0000 65%),linear-gradient(15deg,var(--folder),#0000 60%);
+  box-shadow:inset 2px 0 #fff3
+}
+.slot .pocket:after {
+  content:'';
+  position:absolute;
+  inset:17px 13% 0 23%;
+  border-radius:0 7px 0 0;
+  background:linear-gradient(35deg,#0002,#0000);
+  border-right:1px solid #fff2;
+  transform:skewY(-20deg)
+}
+.slot .label {
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex:1;
+  width:100%;
+  height:38px;
+  flex:0 0 38px;
+  padding:3px 0 2px;
+  background:#f3e7b9;
+  border-right:1px solid #cbbf92;
+  border-top:3px solid #e9dec3;
+  font-size:clamp(7px,.64vw,11px);
+  font-weight:bold;
+  line-height:1.05;
+  overflow-wrap:anywhere;
+  white-space:normal;
+  color:#3e4234
+}
+.slot .label.compound {
+  font-size:clamp(6px,.55vw,9px)
+}
+/* ADDRESS STRIP: street names align to the same grid as the slots above. A street-group can span several neighboring slots. */
+.street-rail {
+  display:grid;
+  gap:0;
+  background:#f3e7b9;
+  padding:0 2px;
+  border-bottom:7px solid #aaa692;
+  min-height:19px
+}
+.street-group {
+  min-width:0;
+  font-size:clamp(6px,.58vw,10px);
+  font-weight:normal;
+  text-align:center;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  padding:2px 1px;
+  border-right:1px solid #cbbf92;
+  color:#454b38
+}
+.slot:hover .pocket,.slot:focus-visible .pocket {
+  filter:brightness(1.4)
+}
+.slot:hover .label {
+  background:#fff9db
+}
+.slot.correct {
+  outline:3px solid #21a35a;
+  outline-offset:-1px;
+  z-index:2
+}
+.slot.wrong {
+  outline:3px solid #e34c39;
+  outline-offset:-1px;
+  z-index:2
+}
+.slot.hinted {
+  outline:3px solid #ed8021;
+  outline-offset:-1px;
+  z-index:2
+}
+.shelf-help {
+  font-size:11px;
+  line-height:1.5;
+  color:#75806e;
+  margin:9px 2px 0
+}
+.inspect {
+  min-height:35px;
+  display:flex;
+  align-items:center;
+  background:#ebece3;
+  border:1px solid #dde0d2;
+  border-radius:6px;
+  padding:7px 12px;
+  font-size:12px;
+  color:#4d5f4e;
+  margin-top:10px
+}
+.footer {
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  font-size:10px;
+  color:#82907d;
+  margin-top:18px
+}
+/* ADDRESS EDITOR: a native modal dialog. ::backdrop styles the dimmed background. */
+dialog {
+  border:0;
+  border-radius:15px;
+  width:min(950px,94vw);
+  max-height:90vh;
+  padding:25px;
+  color:#24352e;
+  box-shadow:0 20px 100px #0004
+}
+dialog::backdrop {
+  background:#1c302b99
+}
+dialog h2 {
+  margin:0;
+  font-size:23px
+}
+dialog p {
+  font-size:13px;
+  color:#68796b;
+  line-height:1.5
+}
+.dialog-head {
+  display:flex;
+  justify-content:space-between;
+  gap:20px
+}
+.edit-tools {
+  display:flex;
+  gap:8px;
+  margin:15px 0;
+  flex-wrap:wrap
+}
+input {
+  border:1px solid #cbd5c7;
+  border-radius:5px;
+  padding:8px;
+  min-width:0
+}
+.edit-tools input {
+  flex:1
+}
+.edit-scroll {
+  max-height:49vh;
+  overflow:auto
+}
+table {
+  border-collapse:collapse;
+  width:100%;
+  font-size:12px
+}
+td,th {
+  padding:7px;
+  border-bottom:1px solid #e0e5db;
+  text-align:left
+}
+td input {
+  width:100%
+}
+th {
+  position:sticky;
+  top:0;
+  background:#edf1e9
+}
+td:first-child {
+  white-space:nowrap
+}
+#edit-status {
+  font-size:12px;
+  min-height:18px
+}
+.dialog-bottom {
+  margin-top:18px;
+  display:flex;
+  justify-content:flex-end;
+  gap:10px
+}
+[hidden] {
+  display:none!important
+}
+@media(min-width:1700px) {
+  .cabinet {
+    --pocket-height:105px
+  }
+}
+/* RESPONSIVE RULES: use a simpler controls layout on smaller screens. A minimum table width keeps slots usable; scroll sideways to reach all columns. */
+@media(max-width:950px) {
+  header {
+    padding:14px 15px
+  }
+  .brand small {
+    display:none
+  }
+  main {
+    padding:0 12px 20px
+  }
+  .desk {
+    grid-template-columns:1fr 1.1fr;
+    gap:12px;
+    position:static
+  }
+  .settings {
+    grid-column:1/-1;
+    grid-template-columns:1fr 1fr 1fr;
+    align-items:end
+  }
+  .settings .note {
+    grid-column:auto
+  }
+  .cabinet-bank {
+    min-width:1050px
+  }
+  .intro p {
+    font-size:11px
+  }
+  .intro h1 {
+    font-size:23px
+  }
+  .stats {
+    gap:16px
+  }
+  .view-toolbar small {
+    display:none
+  }
+  .slot .label {
+    font-size:9px
+  }
+  .slot .label.compound {
+    font-size:8px
+  }
+  .street-group {
+    font-size:8px
+  }
+}
+@media(max-width:560px) {
+  .intro {
+    display:block
+  }
+  .stats {
+    margin-top:10px;
+    gap:28px
+  }
+  .stat strong {
+    font-size:20px
+  }
+  .desk {
+    grid-template-columns:1fr;
+    padding:12px
+  }
+  .settings {
+    grid-column:auto;
+    grid-template-columns:1fr 1fr
+  }
+  .settings .note {
+    grid-column:1/-1
+  }
+  .envelope {
+    min-height:63px
+  }
+  .header-actions {
+    gap:4px
+  }
+  .header-actions button {
+    padding:7px;
+    font-size:10px
+  }
+  .brand b {
+    font-size:16px
+  }
+  .logo {
+    font-size:19px;
+    padding:6px 8px
+  }
+  .view-toolbar {
+    align-items:start
+  }
+  .view-toolbar b {
+    font-size:11px
+  }
+  .zoom-tools {
+    gap:5px;
+    font-size:10px
+  }
+  .zoom-tools input {
+    width:70px
+  }
+  .footer {
+    display:block;
+    line-height:1.8
+  }
+}
+/* ACCESSIBILITY: respect the player preference for reduced animation. */
+@media(prefers-reduced-motion:reduce) {
+  * {
+    scroll-behavior:auto!important
+  }
+}
+  </style>
+</head>
+<body>
+  <!-- HEADER: brand and action buttons. -->
+  <header>
+    <div class="brand">
+      <span class="logo" aria-hidden="true">
+        ✉
+      </span>
+      <div>
+        <b>
+          Brief Trainer
+        </b>
+        <small>
+          Your addresses. Your shelf. Your rhythm.
+        </small>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button id="edit">
+        Edit addresses
+      </button>
+      <button id="restart">
+        New round
+      </button>
+    </div>
+  </header>
+  <!-- MAIN PAGE: instructions, counters, current letter and the sorting table. -->
+  <main>
+    <div class="intro">
+      <div>
+        <div class="eyebrow">
+          A little practice for your daily route
+        </div>
+        <h1>
+          Know every letter’s place.
+        </h1>
+        <p>
+          Read the address. Find its slot. Build your memory.
+        </p>
+      </div>
+      <div class="stats">
+        <div class="stat">
+          <strong id="score">
+            0
+          </strong>
+          <span>
+            LETTERS SORTED
+          </span>
+        </div>
+        <div class="stat">
+          <strong id="accuracy">
+            —
+          </strong>
+          <span>
+            ACCURACY
+          </span>
+        </div>
+        <div class="stat">
+          <strong id="streak">
+            0
+          </strong>
+          <span>
+            STREAK
+          </span>
+        </div>
+      </div>
+    </div>
+    <div class="play-area">
+      <!-- GAME CONTROLS: JavaScript finds elements using their id attributes. -->
+      <aside class="desk">
+        <div class="letter-panel">
+          <h2 id="task-heading">
+            Your next letter
+          </h2>
+          <div class="envelope" id="letter">
+            <div class="stamp" aria-hidden="true">
+              ✉
+            </div>
+            <small>
+              PLEASE DELIVER TO
+            </small>
+            <div class="address" id="street">
+            </div>
+            <div class="address number" id="number">
+            </div>
+          </div>
+        </div>
+        <div class="action-panel">
+          <div class="desk-actions">
+            <button id="hint">
+              Show me
+            </button>
+            <button id="skip">
+              Skip
+            </button>
+            <button class="primary next" id="next" hidden>
+              Next letter →
+            </button>
+          </div>
+          <div class="feedback" id="feedback" role="status" aria-live="polite">
+            Choose the matching slot on the shelf.
+          </div>
+          <div class="progress">
+            <span id="progress">
+            </span>
+          </div>
+          <div class="round-label">
+            <span id="round-label">
+              Letter 1 of 20
+            </span>
+            <span id="best">
+            </span>
+          </div>
+        </div>
+        <div class="settings">
+          <label>
+            Letters to practice
+            <select id="scope">
+              <option value="all" selected>
+                All four sections
+              </option>
+              <option value="1">
+                Section 1 · Top
+              </option>
+              <option value="2">
+                Section 2 · Second level
+              </option>
+              <option value="3">
+                Section 3 · Third level
+              </option>
+              <option value="4">
+                Section 4 · Bottom
+              </option>
+            </select>
+          </label>
+          <label>
+            How to practice
+            <select id="mode">
+              <option value="practice">
+                Practice · labels visible
+              </option>
+              <option value="memory">
+                Memory · labels hidden
+              </option>
+            </select>
+          </label>
+          <p class="note" id="mode-note">
+            Your numbering: sections top to bottom; rows left to right. All positions stay visible.
+          </p>
+        </div>
+      </aside>
+      <section class="shelves" aria-label="Your sorting shelf">
+        <div class="view-toolbar">
+          <div>
+            <b>
+              Your complete sorting table
+            </b>
+            <small>
+              Sections top to bottom · Rows left to right
+            </small>
+          </div>
+          <div class="zoom-tools">
+            <label for="zoom">
+              Zoom
+            </label>
+            <input id="zoom" type="range" min="100" max="250" step="10" value="100">
+            <output id="zoom-value" for="zoom">
+              100%
+            </output>
+            <button id="fit">
+              Fit table
+            </button>
+          </div>
+        </div>
+        <div class="workbench" id="workbench">
+          <!-- JavaScript renderShelf() fills this initially empty container. -->
+          <div class="cabinet-bank" id="shelf">
+          </div>
+        </div>
+        <div class="inspect" id="inspect" aria-live="polite">
+          Hover over or focus a slot to read its full address here.
+        </div>
+        <p class="shelf-help">
+          Your numbering: Section 1 is the top level and Section 4 is the bottom level. Row 1 is far left and Row 4 is far right. Zoom in for larger labels; on smaller screens, move sideways across the table.
+        </p>
+      </section>
+    </div>
+    <div class="footer">
+      <span id="data-info">
+      </span>
+      <span>
+        Works offline · Progress stays in this browser
+      </span>
+    </div>
+  </main>
+  <!-- ADDRESS EDITOR: hidden until showModal() is called. -->
+  <dialog id="editor">
+    <div class="dialog-head">
+      <h2>
+        Your address labels
+      </h2>
+      <button id="close-editor" aria-label="Close address editor">
+        ✕
+      </button>
+    </div>
+    <p>
+      Your document numbering is preserved: sections run top to bottom, rows run left to right. Labels include St, Ha, Pa and *. Each item separated by | became a separate slot. Edit uncertain or repeated labels here; shelf positions stay fixed. Changes start a new round.
+    </p>
+    <div class="edit-tools">
+      <input id="search" placeholder="Find a street or number…" aria-label="Search address labels">
+      <button id="export">
+        Export backup
+      </button>
+      <button id="import">
+        Import backup
+      </button>
+      <input id="file" type="file" accept="application/json,.json" hidden>
+    </div>
+    <div class="edit-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>
+              Section ↓ / Row → / Slot
+            </th>
+            <th>
+              Street
+            </th>
+            <th>
+              Number including St / Pa
+            </th>
+          </tr>
+        </thead>
+        <tbody id="edit-body">
+        </tbody>
+      </table>
+    </div>
+    <p id="edit-status" role="status">
+    </p>
+    <div class="dialog-bottom">
+      <button id="cancel-edit">
+        Cancel
+      </button>
+      <button class="primary" id="save-edit">
+        Save changes
+      </button>
+    </div>
+  </dialog>
+  <!-- JAVASCRIPT: runs after the HTML controls above have been created. -->
+  <script>
+'use strict';
+/* DATA AND SETTINGS: the original address list is returned by the function at the end of this script. ROUND_SIZE is the number of letters per round. */
+const ORIGINAL = originalAddresses();
+const ROUND_SIZE = 20;
+/* DOM HELPERS: $("score") means document.getElementById("score"). STORE names the localStorage entry. This learning copy has its own storage key. */
+const $=id=>document.getElementById(id),STORE='brief-trainer-learning-v1',names=['Far left','Middle left','Middle right','Far right'];
+/* WORKING DATA: clone the original so editing labels does not change the built-in defaults. best tracks the best round result. */
+let slots=structuredClone(ORIGINAL),best=0,storageOK=true;
+/*
+ * Validate an imported or saved address list before using it.
+ * The length, IDs, section, row and slot positions must match this table.
+ * Only street and number labels may change through the editor.
+ */
+function valid(data) {
+  return Array.isArray(data)&&data.length===ORIGINAL.length&&data.every((s,i)=>s.id===ORIGINAL[i].id&&s.section===ORIGINAL[i].section&&s.row===ORIGINAL[i].row&&s.position===ORIGINAL[i].position&&typeof s.street==='string'&&s.street.trim()&&typeof s.number==='string'&&s.number.trim()&&s.street.length<200&&s.number.length<100)
+}
+/* RESTORE: load a saved list only when valid(). saved?.best uses optional chaining, so missing saved data does not crash the game. */
+try {
+  const saved=JSON.parse(localStorage.getItem(STORE)||'null');
+  if(saved&&valid(saved.slots))slots=saved.slots;
+  if(Number.isFinite(saved?.best) && saved.roundSize === ROUND_SIZE)best=Math.max(0,saved.best)
+}
+catch(e) {
+  storageOK=false
+}
+/*
+ * Save current address labels and the best score in this browser.
+ * JSON.stringify converts JavaScript objects into text.
+ * Return false if storage is blocked; the game can still run.
+ */
+function persist() {
+  try {
+    localStorage.setItem(STORE,JSON.stringify( {
+      slots,best,roundSize:ROUND_SIZE
+    }
+    ));
+    return true
+  }
+  catch(e) {
+    storageOK=false;
+    return false
+  }
+}
+/* GAME STATE: scope chooses the training area; mode shows/hides labels; queue holds the round; current is the active letter. completed counts finished letters. helped, hadError and answered track the current letter. draft is the editor copy. section is a leftover marker used by hints; it does not control which shelves are visible. */
+let section=1,scope='all',mode='practice',queue=[],current=null,completed=0,score=0,attempts=0,streak=0,helped=false,answered=false,done=false,hadError=false,draft=[];
+/* ADDRESS COMPARISON: ignore surrounding spaces and letter case. Keep St, Ha, Pa, ranges and * as part of the address. The separator joins street and number into one comparable string. */
+const key=s=>s.street.trim().toLocaleLowerCase('de-AT')+'|'+s.number.replace(/\s+/g,' ').trim().toLocaleLowerCase('de-AT');
+/*
+ * Small helper: create an HTML element, give it text and a CSS class.
+ * textContent treats address labels as text rather than HTML.
+ */
+function el(tag,text,cls) {
+  const n=document.createElement(tag);
+  if(text!==undefined)n.textContent=text;
+  if(cls)n.className=cls;
+  return n
+}
+/*
+ * Find every slot matching the current letter. If the source has
+ * duplicate identical addresses, either matching slot is accepted.
+ */
+function allMatches() {
+  return current?slots.filter(s=>key(s)===key(current)):[]
+}
+/*
+ * Build the entire visible table from the address data.
+ * IMPORTANT: n is a horizontal column, called Row in your numbering.
+ * r is a vertical level, called Section in your numbering.
+ * Outer loop: Row 1 (far left) to Row 4 (far right).
+ * Inner loop: Section 1 (top) to Section 4 (bottom).
+ * The buttons contain a colored pocket ABOVE a house-number label.
+ * The street rail goes BELOW those buttons and groups adjacent labels
+ * with the same street. The physical slots keep their original order.
+ */
+function renderShelf() {
+  const shelf=$('shelf');
+  shelf.replaceChildren();
+  $('inspect').textContent=mode==='practice'?'Hover over or focus a slot to read its full address here.':'Memory mode · Find the address by its position. Use Show me if you need help.';
+  for(let n=1;n<=4;n++) {
+    const cabinet=el('section',undefined,'cabinet');
+    cabinet.dataset.row=String(n);
+    cabinet.style.gridColumn=String(n);
+    cabinet.setAttribute('aria-label','Row '+n+' '+names[n-1]);
+    const heading=el('div',undefined,'cabinet-heading');
+    heading.append(el('b','Row '+n),el('small',names[n-1]));
+    cabinet.append(heading);
+    for(let r=1;r<=4;r++) {
+      const row=el('div',undefined,'shelf-row');
+      row.dataset.section=String(r);
+      row.dataset.row=String(n);
+      row.style.gridRow=String(r+1);
+      const members=slots.filter(s=>s.section===r&&s.row===n);
+      const h=el('div',undefined,'row-heading');
+      h.append(el('span','Section '+r+' · '+['Top','Second','Third','Bottom'][r-1]),el('span',members.length+' slots'));
+      row.append(h);
+      const line=el('div',undefined,'slot-line'),rail=el('div',undefined,'street-rail');
+      line.style.gridTemplateColumns=rail.style.gridTemplateColumns=`repeat(${members.length},minmax(0,1fr))`;
+      members.forEach(s=> {
+        const b=el('button',undefined,'slot');b.dataset.id=s.id;     b.style.setProperty('--folder',['#e8b83c','#28725c','#284b72','#e8b83c'][r-1]);     const pocket=el('span',undefined,'pocket');pocket.setAttribute('aria-hidden','true');     b.append(pocket,el('span',mode==='practice'?s.number:'?', 'label'+(s.number.length>4?' compound':'')));     const label=mode==='practice'?`${s.street} ${s.number}. Section ${r}, row ${n}, slot ${s.position}`:`Section ${r}, row ${n}, slot ${s.position}`;     b.setAttribute('aria-label',label);if(mode==='practice')b.title=s.street+' '+s.number;     const inspect=()=> {
+          $('inspect').textContent=mode==='practice'?`${s.street} ${s.number}  ·  Section ${r}, row ${n}, slot ${s.position}`:`Section ${r}, row ${n}, slot ${s.position}`
+        }
+        ;     b.onpointerenter=inspect;b.onfocus=inspect;b.onclick=()=>choose(s,b);line.append(b);
+      }
+      );
+      let first=0;
+      while(first<members.length) {
+        let last=first+1;
+        while(last<members.length&&members[last].street===members[first].street)last++;
+        const label=el('span',mode==='practice'?members[first].street:'', 'street-group');
+        label.style.gridColumn=`${first+1} / ${last+1}`;
+        if(mode==='practice')label.title=members[first].street;
+        rail.append(label);
+        first=last;
+      }
+      row.append(line,rail);
+      cabinet.append(row);
+    }
+    shelf.append(cabinet);
+  }
+}
+/*
+ * Change the width of the whole shelf bank.
+ * 100 means fit the table; 180 means 180 percent wide.
+ * The surrounding workbench lets the player scroll sideways.
+ */
+function setZoom(value) {
+  $('zoom').value=String(value);
+  $('zoom-value').textContent=value+'%';
+  $('shelf').style.width=value+'%'
+}
+/* ZOOM EVENTS: input fires while the slider moves. Fit table restores 100 percent width and returns to the left edge. */
+$('zoom').oninput=e=>setZoom(e.target.value);
+$('fit').onclick=()=> {
+  setZoom(100);
+  $('workbench').scrollLeft=0
+}
+;
+/*
+ * Update slot outlines and disabled states.
+ * Green means answered; orange means a hint; red is applied in choose().
+ * All matching duplicate slots get the same outline.
+ */
+function paint() {
+  document.querySelectorAll('.slot').forEach(b=> {
+    b.disabled=answered||done;b.classList.remove('correct','hinted');if((answered||helped)&&allMatches().some(s=>s.id===b.dataset.id))b.classList.add(answered?'correct':'hinted')
+  }
+  )
+}
+/*
+ * Put a message in the feedback area.
+ * The optional kind selects the good or bad CSS text color.
+ * The HTML role=status lets assistive technology announce updates.
+ */
+function feedback(text,kind='') {
+  $('feedback').textContent=text;
+  $('feedback').className='feedback '+kind
+}
+/*
+ * Refresh the score, accuracy, streak and progress bar.
+ * Accuracy here means first-try successes divided by letters attempted.
+ * Hints and skipped letters count as attempts without earning points.
+ */
+function stats() {
+  $('score').textContent=score;
+  $('accuracy').textContent=attempts?Math.round(score/attempts*100)+'%':'—';
+  $('streak').textContent=streak;
+  $('best').textContent='Best '+best+'/'+ROUND_SIZE;
+  $('progress').style.width=completed/ROUND_SIZE*100+'%';
+  $('round-label').textContent=done?'Round complete':`Letter ${completed+1} of ${ROUND_SIZE}`
+}
+/*
+ * Prepare one letter without resetting the whole round.
+ * Clear the per-letter flags, display its address, rebuild the shelf
+ * and update the counters. completed is also the queue index.
+ */
+function nextQuestion() {
+  answered=false;
+  helped=false;
+  hadError=false;
+  current=queue[completed];
+  $('street').textContent=current.street;
+  $('number').textContent=current.number;
+  $('next').hidden=true;
+  $('hint').disabled=false;
+  $('skip').disabled=false;
+  $('task-heading').textContent='Your next letter';
+  feedback('Choose the matching slot on the shelf.');
+  renderShelf();
+  stats()
+}
+/*
+ * Start a round from the selected training area.
+ * Make a copy of the available slots, then shuffle it using Fisher-Yates.
+ * Take ROUND_SIZE entries. If the pool is smaller, allow repeats.
+ * Reset counters and display the first letter.
+ */
+function newRound() {
+  $('next').textContent='Next letter →';
+  const pool=slots.filter(s=>scope==='all'||s.section===Number(scope));
+  const shuffle=[...pool];
+  for(let i=shuffle.length-1;i>0;i--) {
+    const j=Math.floor(Math.random()*(i+1));
+    [shuffle[i],shuffle[j]]=[shuffle[j],shuffle[i]]
+  }
+  queue=shuffle.slice(0,ROUND_SIZE);
+  while(queue.length<ROUND_SIZE)queue.push(pool[Math.floor(Math.random()*pool.length)]);
+  completed=score=attempts=streak=0;
+  done=false;
+  if(scope!=='all')section=Number(scope);
+  nextQuestion()
+}
+/*
+ * Handle a click on a slot: s is the address record; b is its button.
+ * Compare address keys rather than just the house number.
+ * Award a point only for a first correct answer without a hint.
+ * An incorrect choice gives feedback and lets the player try again.
+ * Block further choices once the letter is answered.
+ */
+function choose(s,b) {
+  if(answered||done)return;
+  if(key(s)===key(current)) {
+    answered=true;
+    if(!hadError&&!helped) {
+      score++;
+      streak++;
+      attempts++
+    }
+    else streak=0;
+    feedback(helped?'Found it. Try remembering that position for next time.':hadError?'That’s the place. You’ll see this address again.':'Correct! Letter sorted.','good');
+    $('next').hidden=false;
+    $('hint').disabled=$('skip').disabled=true;
+    paint();
+    stats();
+    $('next').focus()
+  }
+  else {
+    if(!hadError&&!helped)attempts++;
+    hadError=true;
+    streak=0;
+    b.classList.add('wrong');
+    setTimeout(()=>b.classList.remove('wrong'),700);
+    feedback('Try another slot, or use “Show me” to learn the position.','bad');
+    stats()
+  }
+}
+/*
+ * Reveal the target without awarding a point.
+ * Outline it and scroll it into view when the table is zoomed in.
+ * The player still selects the slot to place the letter.
+ */
+function hint() {
+  if(answered||done)return;
+  if(!hadError&&!helped)attempts++;
+  helped=true;
+  streak=0;
+  const target=allMatches()[0];
+  section=target.section;
+  renderShelf();
+  paint();
+  const b=document.querySelector(`[data-id="${target.id}"]`);
+  b?.scrollIntoView( {
+    block:'nearest',inline:'center',behavior:'auto'
+  }
+  );
+  feedback(`Section ${target.section}, row ${target.row}, slot ${target.position}. Select the outlined slot to place this letter.`);
+  stats()
+}
+/*
+ * End the round and save the best result.
+ * Display the final score and make the Next button start another round.
+ */
+function finish() {
+  done=true;
+  current=null;
+  best=Math.max(best,score);
+  persist();
+  $('task-heading').textContent='Round complete';
+  $('street').textContent=score===ROUND_SIZE?'Perfect sorting!':'A little better every round.';
+  $('number').textContent=score+' / '+ROUND_SIZE;
+  feedback('First-try answers count toward your score. Start another round to keep practicing.','good');
+  $('next').textContent='Play another round →';
+  $('next').hidden=false;
+  $('hint').disabled=$('skip').disabled=true;
+  paint();
+  stats()
+}
+/* NEXT BUTTON: move forward after an answer. After the final letter, show the results; from the results screen, start again. */
+$('next').onclick=()=> {
+  if(done) {
+    $('next').textContent='Next letter →';
+    newRound();
+    return
+  }
+  completed++;
+  if(completed===ROUND_SIZE)finish();
+  else nextQuestion()
+}
+;
+/* HINT AND SKIP EVENTS: assign functions to buttons. Skip reveals the answer and enables Next without earning a point. */
+$('hint').onclick=hint;
+$('skip').onclick=()=> {
+  if(answered||done)return;
+  if(!hadError&&!helped)attempts++;
+  helped=true;
+  streak=0;
+  const t=allMatches()[0];
+  section=t.section;
+  renderShelf();
+  answered=true;
+  paint();
+  feedback(`Skipped: section ${t.section}, row ${t.row}, slot ${t.position}. The matching slot is outlined.`);
+  $('next').hidden=false;
+  $('hint').disabled=$('skip').disabled=true;
+  stats()
+}
+;
+/* SETTINGS EVENTS: New round, training area and practice/memory changes start fresh rounds. Changing a dropdown does not hide the other shelves. */
+$('restart').onclick=()=> {
+  $('next').textContent='Next letter →';
+  newRound()
+}
+;
+$('scope').onchange=e=> {
+  scope=e.target.value;
+  newRound()
+}
+;
+$('mode').onchange=e=> {
+  mode=e.target.value;
+  $('mode-note').textContent=mode==='memory'?'Labels are hidden, including hover and accessibility labels. Use Show me if you need help.':'Your numbering: sections top to bottom; rows left to right. All positions stay visible.';
+  newRound()
+}
+;
+/*
+ * Build the address editor from draft, a temporary copy of slots.
+ * Filter the visible records using the search field.
+ * Typing changes draft only; Save applies it and Cancel discards it.
+ */
+function renderEditor() {
+  const body=$('edit-body');
+  body.replaceChildren();
+  const q=$('search').value.toLowerCase();
+  draft.forEach(s=> {
+    if(!(s.street+' '+s.number).toLowerCase().includes(q))return;const tr=el('tr');tr.append(el('td',`${s.section} / ${s.row} / ${s.position}`));for(const field of ['street','number']) {
+      const cell=el('td'),input=el('input');input.value=s[field];input.setAttribute('aria-label',`${field} for section ${s.section} row ${s.row} slot ${s.position}`);input.oninput=()=>s[field]=input.value;cell.append(input);tr.append(cell)
+    }
+    body.append(tr)
+  }
+  )
+}
+/* EDITOR EVENTS: opening makes a deep copy; closing or cancelling leaves the saved labels alone. Search changes which draft rows are displayed. */
+$('edit').onclick=()=> {
+  draft=structuredClone(slots);
+  $('search').value='';
+  $('edit-status').textContent='';
+  renderEditor();
+  $('editor').showModal()
+}
+;
+$('search').oninput=renderEditor;
+for(const id of ['close-editor','cancel-edit'])$(id).onclick=()=>$('editor').close();
+/* SAVE EVENT: validate first, trim extra spaces, replace slots, persist to browser storage, then start a fresh round. Keep a backup if storage is unavailable. */
+$('save-edit').onclick=()=> {
+  if(!valid(draft)) {
+    $('edit-status').textContent='Every slot needs a street and a number. Please fill any empty fields.';
+    return
+  }
+  slots=draft.map(s=>( {
+    ...s,street:s.street.trim(),number:s.number.trim()
+  }
+  ));
+  const saved=persist();
+  $('editor').close();
+  newRound();
+  if(!saved)feedback('Changes are active, but this browser cannot save them. Export a backup from Edit addresses.')
+}
+;
+/* BACKUP EVENTS: export the draft to a local JSON file using a temporary Blob URL. Import reads a selected file, parses its JSON, validates it and loads a draft. Imported labels are applied only when Save changes is clicked. */
+$('export').onclick=()=> {
+  if(!valid(draft)) {
+    $('edit-status').textContent='Fill in all labels before exporting.';
+    return
+  }
+  const blob=new Blob([JSON.stringify(draft,null,2)], {
+    type:'application/json'
+  }
+  ),url=URL.createObjectURL(blob),a=el('a');
+  a.href=url;
+  a.download='brief-trainer-addresses.json';
+  a.click();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+  $('edit-status').textContent='Backup exported.'
+}
+;
+$('import').onclick=()=>$('file').click();
+$('file').onchange=async e=> {
+  const f=e.target.files[0];
+  if(!f)return;
+  try {
+    const data=JSON.parse(await f.text());
+    if(!valid(data))throw Error();
+    draft=data;
+    $('search').value='';
+    renderEditor();
+    $('edit-status').textContent='Backup loaded. Click Save changes to apply.'
+  }
+  catch(err) {
+    $('edit-status').textContent='That backup is not valid for this shelf layout.'
+  }
+  e.target.value=''
+}
+;
+/* STARTUP: show the dataset size, start the first round and explain any browser-storage limitation. */
+$('data-info').textContent=`${slots.length} slots · 4 sections · Your uploaded layout`;
+newRound();
+if(!storageOK)feedback('Browser storage is unavailable. You can still play; export any address edits to keep them.');
+
+/*
+ * ADDRESS DATA APPENDIX
+ * This function declaration can be called earlier in the script (hoisting).
+ * Each object is ONE slot, including compound labels such as "33 St 1".
+ * section: vertical level, 1 top to 4 bottom.
+ * row: horizontal column, 1 far left to 4 far right.
+ * position: slot order from left to right inside that intersection.
+ * id: unique stable identity, e.g. s1r1p1.
+ * number is a STRING so letters, St, Pa and ranges stay intact.
+ * The array order is used to render the slots; keep records in slot order.
+ * For a different table, replace this entire dataset and use a new STORE key.
+ * Keep the real address list out of screenshots of code that you post publicly.
+ */
+function originalAddresses() {
+  return [
+    {"id": "s1r1p1", "section": 1, "row": 1, "position": 1, "street": "Wallrißstraße", "number": "43"},
+    {"id": "s1r1p2", "section": 1, "row": 1, "position": 2, "street": "Wallrißstraße", "number": "41"},
+    {"id": "s1r1p3", "section": 1, "row": 1, "position": 3, "street": "Wallrißstraße", "number": "39"},
+    {"id": "s1r1p4", "section": 1, "row": 1, "position": 4, "street": "Wallrißstraße", "number": "37"},
+    {"id": "s1r1p5", "section": 1, "row": 1, "position": 5, "street": "Wallrißstraße", "number": "37"},
+    {"id": "s1r1p6", "section": 1, "row": 1, "position": 6, "street": "Alsegger Straß", "number": "33 St 1"},
+    {"id": "s1r1p7", "section": 1, "row": 1, "position": 7, "street": "Alsegger Straß", "number": "33 St 2"},
+    {"id": "s1r1p8", "section": 1, "row": 1, "position": 8, "street": "Herbeckstraße", "number": "36"},
+    {"id": "s1r1p9", "section": 1, "row": 1, "position": 9, "street": "Herbeckstraße", "number": "38"},
+    {"id": "s1r1p10", "section": 1, "row": 1, "position": 10, "street": "Herbeckstraße", "number": "40"},
+    {"id": "s1r1p11", "section": 1, "row": 1, "position": 11, "street": "Withauergasse", "number": "6"},
+    {"id": "s1r1p12", "section": 1, "row": 1, "position": 12, "street": "Withauergasse", "number": "8"},
+    {"id": "s1r1p13", "section": 1, "row": 1, "position": 13, "street": "Withauergasse", "number": "10"},
+    {"id": "s1r1p14", "section": 1, "row": 1, "position": 14, "street": "Wallrißstraße", "number": "45 St 1"},
+    {"id": "s1r1p15", "section": 1, "row": 1, "position": 15, "street": "Herbeckstraße", "number": "46"},
+    {"id": "s1r1p16", "section": 1, "row": 1, "position": 16, "street": "Herbeckstraße", "number": "50"},
+    {"id": "s1r1p17", "section": 1, "row": 1, "position": 17, "street": "Herbeckstraße", "number": "52"},
+    {"id": "s1r1p18", "section": 1, "row": 1, "position": 18, "street": "Herbeckstraße", "number": "54"},
+    {"id": "s1r1p19", "section": 1, "row": 1, "position": 19, "street": "Herbeckstraße", "number": "56"},
+    {"id": "s1r2p1", "section": 1, "row": 2, "position": 1, "street": "Herbeckstraße", "number": "58"},
+    {"id": "s1r2p2", "section": 1, "row": 2, "position": 2, "street": "Herbeckstraße", "number": "60"},
+    {"id": "s1r2p3", "section": 1, "row": 2, "position": 3, "street": "Herbeckstraße", "number": "62"},
+    {"id": "s1r2p4", "section": 1, "row": 2, "position": 4, "street": "Herbeckstraße", "number": "68"},
+    {"id": "s1r2p5", "section": 1, "row": 2, "position": 5, "street": "Herbeckstraße", "number": "70"},
+    {"id": "s1r2p6", "section": 1, "row": 2, "position": 6, "street": "Herbeckstraße", "number": "72"},
+    {"id": "s1r2p7", "section": 1, "row": 2, "position": 7, "street": "Erndtgasse", "number": "8"},
+    {"id": "s1r2p8", "section": 1, "row": 2, "position": 8, "street": "Erndtgasse", "number": "14"},
+    {"id": "s1r2p9", "section": 1, "row": 2, "position": 9, "street": "Wallrißstraße", "number": "67"},
+    {"id": "s1r2p10", "section": 1, "row": 2, "position": 10, "street": "Wallrißstraße", "number": "63"},
+    {"id": "s1r2p11", "section": 1, "row": 2, "position": 11, "street": "Wallrißstraße", "number": "47 Ha 1"},
+    {"id": "s1r2p12", "section": 1, "row": 2, "position": 12, "street": "Wallrißstraße", "number": "47 Ha 2"},
+    {"id": "s1r2p13", "section": 1, "row": 2, "position": 13, "street": "Wallrißstraße", "number": "47 Ha 3"},
+    {"id": "s1r2p14", "section": 1, "row": 2, "position": 14, "street": "Wallrißstraße", "number": "47"},
+    {"id": "s1r2p15", "section": 1, "row": 2, "position": 15, "street": "Wallrißstraße", "number": "59"},
+    {"id": "s1r2p16", "section": 1, "row": 2, "position": 16, "street": "Messerschmidtgasse", "number": "14"},
+    {"id": "s1r3p1", "section": 1, "row": 3, "position": 1, "street": "Messerschmidtgasse", "number": "12"},
+    {"id": "s1r3p2", "section": 1, "row": 3, "position": 2, "street": "Erndtgasse", "number": "13"},
+    {"id": "s1r3p3", "section": 1, "row": 3, "position": 3, "street": "Erndtgasse", "number": "9-11"},
+    {"id": "s1r3p4", "section": 1, "row": 3, "position": 4, "street": "Erndtgasse", "number": "7"},
+    {"id": "s1r3p5", "section": 1, "row": 3, "position": 5, "street": "Herbeckstraße", "number": "80"},
+    {"id": "s1r3p6", "section": 1, "row": 3, "position": 6, "street": "Herbeckstraße", "number": "82"},
+    {"id": "s1r3p7", "section": 1, "row": 3, "position": 7, "street": "Herbeckstraße", "number": "84"},
+    {"id": "s1r3p8", "section": 1, "row": 3, "position": 8, "street": "Herbeckstraße", "number": "86"},
+    {"id": "s1r3p9", "section": 1, "row": 3, "position": 9, "street": "Herbeckstraße", "number": "88"},
+    {"id": "s1r3p10", "section": 1, "row": 3, "position": 10, "street": "Herbeckstraße", "number": "90"},
+    {"id": "s1r3p11", "section": 1, "row": 3, "position": 11, "street": "Herbeckstraße", "number": "92"},
+    {"id": "s1r3p12", "section": 1, "row": 3, "position": 12, "street": "Herbeckstraße", "number": "94"},
+    {"id": "s1r3p13", "section": 1, "row": 3, "position": 13, "street": "Herbeckstraße", "number": "96"},
+    {"id": "s1r3p14", "section": 1, "row": 3, "position": 14, "street": "Herbeckstraße", "number": "98"},
+    {"id": "s1r3p15", "section": 1, "row": 3, "position": 15, "street": "Herbeckstraße", "number": "100"},
+    {"id": "s1r3p16", "section": 1, "row": 3, "position": 16, "street": "Scheibenbergstraße", "number": "8"},
+    {"id": "s1r3p17", "section": 1, "row": 3, "position": 17, "street": "Wallrißstraße", "number": "91"},
+    {"id": "s1r3p18", "section": 1, "row": 3, "position": 18, "street": "Wallrißstraße", "number": "89"},
+    {"id": "s1r3p19", "section": 1, "row": 3, "position": 19, "street": "Wallrißstraße", "number": "87"},
+    {"id": "s1r3p20", "section": 1, "row": 3, "position": 20, "street": "Wallrißstraße", "number": "85"},
+    {"id": "s1r3p21", "section": 1, "row": 3, "position": 21, "street": "Wallrißstraße", "number": "81"},
+    {"id": "s1r3p22", "section": 1, "row": 3, "position": 22, "street": "Wallrißstraße", "number": "83"},
+    {"id": "s1r4p1", "section": 1, "row": 4, "position": 1, "street": "Wallrißstraße", "number": "79"},
+    {"id": "s1r4p2", "section": 1, "row": 4, "position": 2, "street": "Wallrißstraße", "number": "77"},
+    {"id": "s1r4p3", "section": 1, "row": 4, "position": 3, "street": "Wallrißstraße", "number": "75"},
+    {"id": "s1r4p4", "section": 1, "row": 4, "position": 4, "street": "Wallrißstraße", "number": "73"},
+    {"id": "s1r4p5", "section": 1, "row": 4, "position": 5, "street": "Wallrißstraße", "number": "71"},
+    {"id": "s1r4p6", "section": 1, "row": 4, "position": 6, "street": "Bastiengasse", "number": "50"},
+    {"id": "s1r4p7", "section": 1, "row": 4, "position": 7, "street": "Bastiengasse", "number": "52"},
+    {"id": "s1r4p8", "section": 1, "row": 4, "position": 8, "street": "Bastiengasse", "number": "54"},
+    {"id": "s1r4p9", "section": 1, "row": 4, "position": 9, "street": "Bastiengasse", "number": "56"},
+    {"id": "s1r4p10", "section": 1, "row": 4, "position": 10, "street": "Bastiengasse", "number": "58"},
+    {"id": "s1r4p11", "section": 1, "row": 4, "position": 11, "street": "Bastiengasse", "number": "105"},
+    {"id": "s1r4p12", "section": 1, "row": 4, "position": 12, "street": "Bastiengasse", "number": "103b"},
+    {"id": "s1r4p13", "section": 1, "row": 4, "position": 13, "street": "Bastiengasse", "number": "103a"},
+    {"id": "s1r4p14", "section": 1, "row": 4, "position": 14, "street": "Bastiengasse", "number": "101"},
+    {"id": "s1r4p15", "section": 1, "row": 4, "position": 15, "street": "Bastiengasse", "number": "99"},
+    {"id": "s1r4p16", "section": 1, "row": 4, "position": 16, "street": "Bastiengasse", "number": "97"},
+    {"id": "s1r4p17", "section": 1, "row": 4, "position": 17, "street": "Bastiengasse", "number": "95"},
+    {"id": "s1r4p18", "section": 1, "row": 4, "position": 18, "street": "Bastiengasse", "number": "93"},
+    {"id": "s1r4p19", "section": 1, "row": 4, "position": 19, "street": "Bastiengasse", "number": "91"},
+    {"id": "s1r4p20", "section": 1, "row": 4, "position": 20, "street": "Eckpergasse", "number": "25"},
+    {"id": "s1r4p21", "section": 1, "row": 4, "position": 21, "street": "Eckpergasse", "number": "26"},
+    {"id": "s1r4p22", "section": 1, "row": 4, "position": 22, "street": "Bastiengasse", "number": "85"},
+    {"id": "s1r4p23", "section": 1, "row": 4, "position": 23, "street": "Bastiengasse", "number": "83"},
+    {"id": "s2r1p1", "section": 2, "row": 1, "position": 1, "street": "Bastiengasse", "number": "81"},
+    {"id": "s2r1p2", "section": 2, "row": 1, "position": 2, "street": "Bastiengasse", "number": "79"},
+    {"id": "s2r1p3", "section": 2, "row": 1, "position": 3, "street": "Scheibenbergstraße", "number": "33"},
+    {"id": "s2r1p4", "section": 2, "row": 1, "position": 4, "street": "Scheibenbergstraße", "number": "31"},
+    {"id": "s2r1p5", "section": 2, "row": 1, "position": 5, "street": "Scheibenbergstraße", "number": "29"},
+    {"id": "s2r1p6", "section": 2, "row": 1, "position": 6, "street": "Scheibenbergstraße", "number": "27"},
+    {"id": "s2r1p7", "section": 2, "row": 1, "position": 7, "street": "Scheibenbergstraße", "number": "25"},
+    {"id": "s2r1p8", "section": 2, "row": 1, "position": 8, "street": "Scheibenbergstraße", "number": "23"},
+    {"id": "s2r1p9", "section": 2, "row": 1, "position": 9, "street": "Scheibenbergstraße", "number": "21"},
+    {"id": "s2r1p10", "section": 2, "row": 1, "position": 10, "street": "Scheibenbergstraße", "number": "19"},
+    {"id": "s2r1p11", "section": 2, "row": 1, "position": 11, "street": "Wallrißstraße", "number": "94"},
+    {"id": "s2r1p12", "section": 2, "row": 1, "position": 12, "street": "Wallrißstraße", "number": "94*"},
+    {"id": "s2r1p13", "section": 2, "row": 1, "position": 13, "street": "Wallrißstraße", "number": "96"},
+    {"id": "s2r1p14", "section": 2, "row": 1, "position": 14, "street": "Wallrißstraße", "number": "98"},
+    {"id": "s2r1p15", "section": 2, "row": 1, "position": 15, "street": "Wallrißstraße", "number": "100"},
+    {"id": "s2r1p16", "section": 2, "row": 1, "position": 16, "street": "Wallrißstraße", "number": "102"},
+    {"id": "s2r1p17", "section": 2, "row": 1, "position": 17, "street": "Eckpergasse", "number": "8"},
+    {"id": "s2r1p18", "section": 2, "row": 1, "position": 18, "street": "Eckpergasse", "number": "6"},
+    {"id": "s2r1p19", "section": 2, "row": 1, "position": 19, "street": "Eckpergasse", "number": "4"},
+    {"id": "s2r1p20", "section": 2, "row": 1, "position": 20, "street": "Eckpergasse", "number": "2"},
+    {"id": "s2r1p21", "section": 2, "row": 1, "position": 21, "street": "Herbeckstraße", "number": "108"},
+    {"id": "s2r1p22", "section": 2, "row": 1, "position": 22, "street": "Herbeckstraße", "number": "104"},
+    {"id": "s2r2p1", "section": 2, "row": 2, "position": 1, "street": "Scheibenbergstraße", "number": "11"},
+    {"id": "s2r2p2", "section": 2, "row": 2, "position": 2, "street": "Scheibenbergstraße", "number": "13"},
+    {"id": "s2r2p3", "section": 2, "row": 2, "position": 3, "street": "Scheibenbergstraße", "number": "15"},
+    {"id": "s2r2p4", "section": 2, "row": 2, "position": 4, "street": "Wallrißstraße", "number": "97"},
+    {"id": "s2r2p5", "section": 2, "row": 2, "position": 5, "street": "Wallrißstraße", "number": "99"},
+    {"id": "s2r2p6", "section": 2, "row": 2, "position": 6, "street": "Wallrißstraße", "number": "101"},
+    {"id": "s2r2p7", "section": 2, "row": 2, "position": 7, "street": "Wallrißstraße", "number": "103"},
+    {"id": "s2r2p8", "section": 2, "row": 2, "position": 8, "street": "Eckpergasse", "number": "12"},
+    {"id": "s2r2p9", "section": 2, "row": 2, "position": 9, "street": "Eckpergasse", "number": "14"},
+    {"id": "s2r2p10", "section": 2, "row": 2, "position": 10, "street": "Eckpergasse", "number": "16"},
+    {"id": "s2r2p11", "section": 2, "row": 2, "position": 11, "street": "Eckpergasse", "number": "18"},
+    {"id": "s2r2p12", "section": 2, "row": 2, "position": 12, "street": "Eckpergasse", "number": "20-22"},
+    {"id": "s2r2p13", "section": 2, "row": 2, "position": 13, "street": "Eckpergasse", "number": "24"},
+    {"id": "s2r2p14", "section": 2, "row": 2, "position": 14, "street": "Eckpergasse", "number": "23"},
+    {"id": "s2r2p15", "section": 2, "row": 2, "position": 15, "street": "Eckpergasse", "number": "21"},
+    {"id": "s2r2p16", "section": 2, "row": 2, "position": 16, "street": "Eckpergasse", "number": "19"},
+    {"id": "s2r2p17", "section": 2, "row": 2, "position": 17, "street": "Eckpergasse", "number": "17"},
+    {"id": "s2r2p18", "section": 2, "row": 2, "position": 18, "street": "Eckpergasse", "number": "15"},
+    {"id": "s2r2p19", "section": 2, "row": 2, "position": 19, "street": "Eckpergasse", "number": "13"},
+    {"id": "s2r2p20", "section": 2, "row": 2, "position": 20, "street": "Eckpergasse", "number": "11"},
+    {"id": "s2r2p21", "section": 2, "row": 2, "position": 21, "street": "Eckpergasse", "number": "7"},
+    {"id": "s2r2p22", "section": 2, "row": 2, "position": 22, "street": "Eckpergasse", "number": "5"},
+    {"id": "s2r2p23", "section": 2, "row": 2, "position": 23, "street": "Eckpergasse", "number": "3"},
+    {"id": "s2r2p24", "section": 2, "row": 2, "position": 24, "street": "Eckpergasse", "number": "1"},
+    {"id": "s2r2p25", "section": 2, "row": 2, "position": 25, "street": "Herbeckstraße", "number": "114-116"},
+    {"id": "s2r2p26", "section": 2, "row": 2, "position": 26, "street": "Herbeckstraße", "number": "118"},
+    {"id": "s2r3p1", "section": 2, "row": 3, "position": 1, "street": "Herbeckstraße", "number": "120"},
+    {"id": "s2r3p2", "section": 2, "row": 3, "position": 2, "street": "Herbeckstraße", "number": "122"},
+    {"id": "s2r3p3", "section": 2, "row": 3, "position": 3, "street": "Herbeckstraße", "number": "124"},
+    {"id": "s2r3p4", "section": 2, "row": 3, "position": 4, "street": "Herbeckstraße", "number": "126"},
+    {"id": "s2r3p5", "section": 2, "row": 3, "position": 5, "street": "Herbeckstraße", "number": "128"},
+    {"id": "s2r3p6", "section": 2, "row": 3, "position": 6, "street": "Herbeckstraße", "number": "130"},
+    {"id": "s2r3p7", "section": 2, "row": 3, "position": 7, "street": "Herbeckstraße", "number": "132"},
+    {"id": "s2r3p8", "section": 2, "row": 3, "position": 8, "street": "Herbeckstraße", "number": "134"},
+    {"id": "s2r3p9", "section": 2, "row": 3, "position": 9, "street": "Naffgasse", "number": "1-3"},
+    {"id": "s2r3p10", "section": 2, "row": 3, "position": 10, "street": "Naffgasse", "number": "4"},
+    {"id": "s2r3p11", "section": 2, "row": 3, "position": 11, "street": "Naffgasse", "number": "6"},
+    {"id": "s2r3p12", "section": 2, "row": 3, "position": 12, "street": "Naffgasse", "number": "5"},
+    {"id": "s2r3p13", "section": 2, "row": 3, "position": 13, "street": "Naffgasse", "number": "7"},
+    {"id": "s2r3p14", "section": 2, "row": 3, "position": 14, "street": "Naffgasse", "number": "9"},
+    {"id": "s2r3p15", "section": 2, "row": 3, "position": 15, "street": "Naffgasse", "number": "8"},
+    {"id": "s2r3p16", "section": 2, "row": 3, "position": 16, "street": "Naffgasse", "number": "10-12"},
+    {"id": "s2r3p17", "section": 2, "row": 3, "position": 17, "street": "Naffgasse", "number": "11"},
+    {"id": "s2r3p18", "section": 2, "row": 3, "position": 18, "street": "Naffgasse", "number": "13"},
+    {"id": "s2r3p19", "section": 2, "row": 3, "position": 19, "street": "Naffgasse", "number": "15"},
+    {"id": "s2r3p20", "section": 2, "row": 3, "position": 20, "street": "Naffgasse", "number": "17"},
+    {"id": "s2r3p21", "section": 2, "row": 3, "position": 21, "street": "Naffgasse", "number": "14"},
+    {"id": "s2r3p22", "section": 2, "row": 3, "position": 22, "street": "Naffgasse", "number": "16"},
+    {"id": "s2r4p1", "section": 2, "row": 4, "position": 1, "street": "Naffgasse", "number": "18"},
+    {"id": "s2r4p2", "section": 2, "row": 4, "position": 2, "street": "Naffgasse", "number": "19"},
+    {"id": "s2r4p3", "section": 2, "row": 4, "position": 3, "street": "Naffgasse", "number": "21"},
+    {"id": "s2r4p4", "section": 2, "row": 4, "position": 4, "street": "Naffgasse", "number": "22"},
+    {"id": "s2r4p5", "section": 2, "row": 4, "position": 5, "street": "Wallrißstraße", "number": "128"},
+    {"id": "s2r4p6", "section": 2, "row": 4, "position": 6, "street": "Wallrißstraße", "number": "129"},
+    {"id": "s2r4p7", "section": 2, "row": 4, "position": 7, "street": "Wallrißstraße", "number": "126"},
+    {"id": "s2r4p8", "section": 2, "row": 4, "position": 8, "street": "Wallrißstraße", "number": "124"},
+    {"id": "s2r4p9", "section": 2, "row": 4, "position": 9, "street": "Wallrißstraße", "number": "127"},
+    {"id": "s2r4p10", "section": 2, "row": 4, "position": 10, "street": "Wallrißstraße", "number": "122"},
+    {"id": "s2r4p11", "section": 2, "row": 4, "position": 11, "street": "Wallrißstraße", "number": "125"},
+    {"id": "s2r4p12", "section": 2, "row": 4, "position": 12, "street": "Wallrißstraße", "number": "123"},
+    {"id": "s2r4p13", "section": 2, "row": 4, "position": 13, "street": "Wallrißstraße", "number": "120"},
+    {"id": "s2r4p14", "section": 2, "row": 4, "position": 14, "street": "Wallrißstraße", "number": "118"},
+    {"id": "s2r4p15", "section": 2, "row": 4, "position": 15, "street": "Wallrißstraße", "number": "116"},
+    {"id": "s2r4p16", "section": 2, "row": 4, "position": 16, "street": "Wallrißstraße", "number": "121"},
+    {"id": "s2r4p17", "section": 2, "row": 4, "position": 17, "street": "Wallrißstraße", "number": "114"},
+    {"id": "s2r4p18", "section": 2, "row": 4, "position": 18, "street": "Wallrißstraße", "number": "112"},
+    {"id": "s2r4p19", "section": 2, "row": 4, "position": 19, "street": "Wallrißstraße", "number": "117-119"},
+    {"id": "s2r4p20", "section": 2, "row": 4, "position": 20, "street": "Wallrißstraße", "number": "110"},
+    {"id": "s2r4p21", "section": 2, "row": 4, "position": 21, "street": "Wallrißstraße", "number": "115"},
+    {"id": "s2r4p22", "section": 2, "row": 4, "position": 22, "street": "Wallrißstraße", "number": "113"},
+    {"id": "s3r1p1", "section": 3, "row": 1, "position": 1, "street": "Wallrißstraße", "number": "108"},
+    {"id": "s3r1p2", "section": 3, "row": 1, "position": 2, "street": "Wallrißstraße", "number": "111"},
+    {"id": "s3r1p3", "section": 3, "row": 1, "position": 3, "street": "Wallrißstraße", "number": "106"},
+    {"id": "s3r1p4", "section": 3, "row": 1, "position": 4, "street": "Wallrißstraße", "number": "104*"},
+    {"id": "s3r1p5", "section": 3, "row": 1, "position": 5, "street": "Wallrißstraße", "number": "109"},
+    {"id": "s3r1p6", "section": 3, "row": 1, "position": 6, "street": "Wallrißstraße", "number": "107"},
+    {"id": "s3r1p7", "section": 3, "row": 1, "position": 7, "street": "Dürwaringstraße", "number": "59 St 1"},
+    {"id": "s3r1p8", "section": 3, "row": 1, "position": 8, "street": "Dürwaringstraße", "number": "59 St 2"},
+    {"id": "s3r1p9", "section": 3, "row": 1, "position": 9, "street": "Dürwaringstraße", "number": "59 St 3"},
+    {"id": "s3r1p10", "section": 3, "row": 1, "position": 10, "street": "Dürwaringstraße", "number": "54"},
+    {"id": "s3r1p11", "section": 3, "row": 1, "position": 11, "street": "Dürwaringstraße", "number": "52"},
+    {"id": "s3r1p12", "section": 3, "row": 1, "position": 12, "street": "Dürwaringstraße", "number": "50"},
+    {"id": "s3r1p13", "section": 3, "row": 1, "position": 13, "street": "Dürwaringstraße", "number": "48"},
+    {"id": "s3r1p14", "section": 3, "row": 1, "position": 14, "street": "Dürwaringstraße", "number": "46"},
+    {"id": "s3r1p15", "section": 3, "row": 1, "position": 15, "street": "Dürwaringstraße", "number": "44"},
+    {"id": "s3r1p16", "section": 3, "row": 1, "position": 16, "street": "Dürwaringstraße", "number": "44*"},
+    {"id": "s3r1p17", "section": 3, "row": 1, "position": 17, "street": "Dürwaringstraße", "number": "42"},
+    {"id": "s3r1p18", "section": 3, "row": 1, "position": 18, "street": "Dürwaringstraße", "number": "40"},
+    {"id": "s3r1p19", "section": 3, "row": 1, "position": 19, "street": "Bastiengasse", "number": "109"},
+    {"id": "s3r1p20", "section": 3, "row": 1, "position": 20, "street": "Bastiengasse", "number": "107 St 1"},
+    {"id": "s3r1p21", "section": 3, "row": 1, "position": 21, "street": "Bastiengasse", "number": "107 St 2"},
+    {"id": "s3r1p22", "section": 3, "row": 1, "position": 22, "street": "Bastiengasse", "number": "60"},
+    {"id": "s3r1p23", "section": 3, "row": 1, "position": 23, "street": "Dürwaringstraße", "number": "47"},
+    {"id": "s3r1p24", "section": 3, "row": 1, "position": 24, "street": "Dürwaringstraße", "number": "45 St1"},
+    {"id": "s3r2p1", "section": 3, "row": 2, "position": 1, "street": "Dürwaringstraße", "number": "45 St 2"},
+    {"id": "s3r2p2", "section": 3, "row": 2, "position": 2, "street": "Dürwaringstraße", "number": "45 St 3"},
+    {"id": "s3r2p3", "section": 3, "row": 2, "position": 3, "street": "Bastiengasse", "number": "111"},
+    {"id": "s3r2p4", "section": 3, "row": 2, "position": 4, "street": "Bastiengasse", "number": "62"},
+    {"id": "s3r2p5", "section": 3, "row": 2, "position": 5, "street": "Bastiengasse", "number": "64"},
+    {"id": "s3r2p6", "section": 3, "row": 2, "position": 6, "street": "Bastiengasse", "number": "113"},
+    {"id": "s3r2p7", "section": 3, "row": 2, "position": 7, "street": "Bastiengasse", "number": "115"},
+    {"id": "s3r2p8", "section": 3, "row": 2, "position": 8, "street": "Bastiengasse", "number": "117"},
+    {"id": "s3r2p9", "section": 3, "row": 2, "position": 9, "street": "Bastiengasse", "number": "68"},
+    {"id": "s3r2p10", "section": 3, "row": 2, "position": 10, "street": "Bastiengasse", "number": "70"},
+    {"id": "s3r2p11", "section": 3, "row": 2, "position": 11, "street": "Bastiengasse", "number": "72"},
+    {"id": "s3r2p12", "section": 3, "row": 2, "position": 12, "street": "Bastiengasse", "number": "74"},
+    {"id": "s3r2p13", "section": 3, "row": 2, "position": 13, "street": "Bastiengasse", "number": "119"},
+    {"id": "s3r2p14", "section": 3, "row": 2, "position": 14, "street": "Bastiengasse", "number": "76 St 1"},
+    {"id": "s3r2p15", "section": 3, "row": 2, "position": 15, "street": "Naaffgasse", "number": "32*"},
+    {"id": "s3r2p16", "section": 3, "row": 2, "position": 16, "street": "Naaffgasse", "number": "30"},
+    {"id": "s3r2p17", "section": 3, "row": 2, "position": 17, "street": "Naaffgasse", "number": "28"},
+    {"id": "s3r2p18", "section": 3, "row": 2, "position": 18, "street": "Naaffgasse", "number": "26"},
+    {"id": "s3r2p19", "section": 3, "row": 2, "position": 19, "street": "Dürwaringstraße", "number": "63"},
+    {"id": "s3r2p20", "section": 3, "row": 2, "position": 20, "street": "Dürwaringstraße", "number": "65"},
+    {"id": "s3r2p21", "section": 3, "row": 2, "position": 21, "street": "Dürwaringstraße", "number": "67"},
+    {"id": "s3r2p22", "section": 3, "row": 2, "position": 22, "street": "Dürwaringstraße", "number": "73"},
+    {"id": "s3r2p23", "section": 3, "row": 2, "position": 23, "street": "Dürwaringstraße", "number": "56-58"},
+    {"id": "s3r2p24", "section": 3, "row": 2, "position": 24, "street": "Dürwaringstraße", "number": "75"},
+    {"id": "s3r2p25", "section": 3, "row": 2, "position": 25, "street": "Dürwaringstraße", "number": "60"},
+    {"id": "s3r2p26", "section": 3, "row": 2, "position": 26, "street": "Dürwaringstraße", "number": "62"},
+    {"id": "s3r2p27", "section": 3, "row": 2, "position": 27, "street": "Dürwaringstraße", "number": "64"},
+    {"id": "s3r2p28", "section": 3, "row": 2, "position": 28, "street": "Dürwaringstraße", "number": "66"},
+    {"id": "s3r3p1", "section": 3, "row": 3, "position": 1, "street": "Dürwaringstraße", "number": "68"},
+    {"id": "s3r3p2", "section": 3, "row": 3, "position": 2, "street": "Dürwaringstraße", "number": "70"},
+    {"id": "s3r3p3", "section": 3, "row": 3, "position": 3, "street": "Dürwaringstraße", "number": "72"},
+    {"id": "s3r3p4", "section": 3, "row": 3, "position": 4, "street": "Dürwaringstraße", "number": "74"},
+    {"id": "s3r3p5", "section": 3, "row": 3, "position": 5, "street": "Dürwaringstraße", "number": "76"},
+    {"id": "s3r3p6", "section": 3, "row": 3, "position": 6, "street": "Dürwaringstraße", "number": "83"},
+    {"id": "s3r3p7", "section": 3, "row": 3, "position": 7, "street": "Dürwaringstraße", "number": "83a"},
+    {"id": "s3r3p8", "section": 3, "row": 3, "position": 8, "street": "Dürwaringstraße", "number": "83a"},
+    {"id": "s3r3p9", "section": 3, "row": 3, "position": 9, "street": "Dürwaringstraße", "number": "83a Pa 26"},
+    {"id": "s3r3p10", "section": 3, "row": 3, "position": 10, "street": "KLG", "number": "Pa 33"},
+    {"id": "s3r3p11", "section": 3, "row": 3, "position": 11, "street": "Schafbergstraße", "number": "Pa 33"},
+    {"id": "s3r3p12", "section": 3, "row": 3, "position": 12, "street": "Schafbergstraße", "number": "Pa 31"},
+    {"id": "s3r3p13", "section": 3, "row": 3, "position": 13, "street": "Dürwaringstraße", "number": "85"},
+    {"id": "s3r3p14", "section": 3, "row": 3, "position": 14, "street": "Dürwaringstraße", "number": "80"},
+    {"id": "s3r3p15", "section": 3, "row": 3, "position": 15, "street": "Dürwaringstraße", "number": "82"},
+    {"id": "s3r3p16", "section": 3, "row": 3, "position": 16, "street": "Dürwaringstraße", "number": "87"},
+    {"id": "s3r3p17", "section": 3, "row": 3, "position": 17, "street": "Blaselgasse", "number": "1"},
+    {"id": "s3r3p18", "section": 3, "row": 3, "position": 18, "street": "Blaselgasse", "number": "4"},
+    {"id": "s3r3p19", "section": 3, "row": 3, "position": 19, "street": "Blaselgasse", "number": "3"},
+    {"id": "s3r3p20", "section": 3, "row": 3, "position": 20, "street": "Blaselgasse", "number": "5"},
+    {"id": "s3r3p21", "section": 3, "row": 3, "position": 21, "street": "Blaselgasse", "number": "7"},
+    {"id": "s3r3p22", "section": 3, "row": 3, "position": 22, "street": "Blaselgasse", "number": "6"},
+    {"id": "s3r3p23", "section": 3, "row": 3, "position": 23, "street": "Blaselgasse", "number": "8"},
+    {"id": "s3r3p24", "section": 3, "row": 3, "position": 24, "street": "Blaselgasse", "number": "10"},
+    {"id": "s3r3p25", "section": 3, "row": 3, "position": 25, "street": "Blaselgasse", "number": "12"},
+    {"id": "s3r3p26", "section": 3, "row": 3, "position": 26, "street": "Blaselgasse", "number": "11"},
+    {"id": "s3r3p27", "section": 3, "row": 3, "position": 27, "street": "Blaselgasse", "number": "14"},
+    {"id": "s3r3p28", "section": 3, "row": 3, "position": 28, "street": "Naaffgasse", "number": "35"},
+    {"id": "s3r3p29", "section": 3, "row": 3, "position": 29, "street": "Blaselgasse", "number": "29"},
+    {"id": "s3r3p30", "section": 3, "row": 3, "position": 30, "street": "Naaffgasse", "number": "33"},
+    {"id": "s3r3p31", "section": 3, "row": 3, "position": 31, "street": "Naaffgasse", "number": "31"},
+    {"id": "s3r4p1", "section": 3, "row": 4, "position": 1, "street": "Bastiengasse", "number": "78"},
+    {"id": "s3r4p2", "section": 3, "row": 4, "position": 2, "street": "Naaffgasse", "number": "34"},
+    {"id": "s3r4p3", "section": 3, "row": 4, "position": 3, "street": "Naaffgasse", "number": "36"},
+    {"id": "s3r4p4", "section": 3, "row": 4, "position": 4, "street": "Naaffgasse", "number": "38-40"},
+    {"id": "s3r4p5", "section": 3, "row": 4, "position": 5, "street": "Naaffgasse", "number": "41"},
+    {"id": "s3r4p6", "section": 3, "row": 4, "position": 6, "street": "Naaffgasse", "number": "50"},
+    {"id": "s3r4p7", "section": 3, "row": 4, "position": 7, "street": "Naaffgasse", "number": "54"},
+    {"id": "s3r4p8", "section": 3, "row": 4, "position": 8, "street": "Naaffgasse", "number": "43"},
+    {"id": "s3r4p9", "section": 3, "row": 4, "position": 9, "street": "Naaffgasse", "number": "45"},
+    {"id": "s3r4p10", "section": 3, "row": 4, "position": 10, "street": "Naaffgasse", "number": "56"},
+    {"id": "s3r4p11", "section": 3, "row": 4, "position": 11, "street": "Naaffgasse", "number": "58"},
+    {"id": "s3r4p12", "section": 3, "row": 4, "position": 12, "street": "Naaffgasse", "number": "66"},
+    {"id": "s3r4p13", "section": 3, "row": 4, "position": 13, "street": "Naaffgasse", "number": "47"},
+    {"id": "s3r4p14", "section": 3, "row": 4, "position": 14, "street": "Naaffgasse", "number": "68-72"},
+    {"id": "s3r4p15", "section": 3, "row": 4, "position": 15, "street": "Naaffgasse", "number": "74"},
+    {"id": "s3r4p16", "section": 3, "row": 4, "position": 16, "street": "Naaffgasse", "number": "55"},
+    {"id": "s3r4p17", "section": 3, "row": 4, "position": 17, "street": "Sonnenbadweg", "number": "4"},
+    {"id": "s3r4p18", "section": 3, "row": 4, "position": 18, "street": "Sonnenbadweg", "number": "22"},
+    {"id": "s3r4p19", "section": 3, "row": 4, "position": 19, "street": "Sonnenbadweg", "number": "28"},
+    {"id": "s3r4p20", "section": 3, "row": 4, "position": 20, "street": "Sonnenbadweg", "number": "33"},
+    {"id": "s3r4p21", "section": 3, "row": 4, "position": 21, "street": "Sonnenbadweg", "number": "31"},
+    {"id": "s3r4p22", "section": 3, "row": 4, "position": 22, "street": "Sonnenbadweg", "number": "29"},
+    {"id": "s3r4p23", "section": 3, "row": 4, "position": 23, "street": "Sonnenbadweg", "number": "27"},
+    {"id": "s3r4p24", "section": 3, "row": 4, "position": 24, "street": "Sonnenbadweg", "number": "23"},
+    {"id": "s3r4p25", "section": 3, "row": 4, "position": 25, "street": "Sonnenbadweg", "number": "21"},
+    {"id": "s3r4p26", "section": 3, "row": 4, "position": 26, "street": "Sonnenbadweg", "number": "16"},
+    {"id": "s4r1p1", "section": 4, "row": 1, "position": 1, "street": "Sonnenbadweg", "number": "18"},
+    {"id": "s4r1p2", "section": 4, "row": 1, "position": 2, "street": "Sonnenbadweg", "number": "15"},
+    {"id": "s4r1p3", "section": 4, "row": 1, "position": 3, "street": "Sonnenbadweg", "number": "13"},
+    {"id": "s4r1p4", "section": 4, "row": 1, "position": 4, "street": "Sonnenbadweg", "number": "11 Pa 9"},
+    {"id": "s4r1p5", "section": 4, "row": 1, "position": 5, "street": "Sonnenbadweg", "number": "11 Pa"},
+    {"id": "s4r1p6", "section": 4, "row": 1, "position": 6, "street": "Sonnenbadweg", "number": "11 Pa"},
+    {"id": "s4r1p7", "section": 4, "row": 1, "position": 7, "street": "Sonnenbadweg", "number": "5 Pa 4"},
+    {"id": "s4r1p8", "section": 4, "row": 1, "position": 8, "street": "Sonnenbadweg", "number": "5 Pa 5"},
+    {"id": "s4r1p9", "section": 4, "row": 1, "position": 9, "street": "Sonnenbadweg", "number": "5 Pa 6"},
+    {"id": "s4r1p10", "section": 4, "row": 1, "position": 10, "street": "Sonnenbadweg", "number": "5 Pa 7"},
+    {"id": "s4r1p11", "section": 4, "row": 1, "position": 11, "street": "Sonnenbadweg", "number": "5 Pa"},
+    {"id": "s4r1p12", "section": 4, "row": 1, "position": 12, "street": "Naaffgasse", "number": "76"},
+    {"id": "s4r1p13", "section": 4, "row": 1, "position": 13, "street": "Brunenstubenweg", "number": "26a"},
+    {"id": "s4r1p14", "section": 4, "row": 1, "position": 14, "street": "Brunenstubenweg", "number": "26b"},
+    {"id": "s4r1p15", "section": 4, "row": 1, "position": 15, "street": "Brunenstubenweg", "number": "28"},
+    {"id": "s4r1p16", "section": 4, "row": 1, "position": 16, "street": "Knorrweg", "number": "1"},
+    {"id": "s4r1p17", "section": 4, "row": 1, "position": 17, "street": "Knorrweg", "number": "2"},
+    {"id": "s4r1p18", "section": 4, "row": 1, "position": 18, "street": "Knorrweg", "number": "4"},
+    {"id": "s4r1p19", "section": 4, "row": 1, "position": 19, "street": "Naaffgasse", "number": "86"},
+    {"id": "s4r1p20", "section": 4, "row": 1, "position": 20, "street": "Molnargasse", "number": "32"},
+    {"id": "s4r1p21", "section": 4, "row": 1, "position": 21, "street": "Molnargasse", "number": "34"},
+    {"id": "s4r1p22", "section": 4, "row": 1, "position": 22, "street": "Molnargasse", "number": "36"},
+    {"id": "s4r1p23", "section": 4, "row": 1, "position": 23, "street": "Naaffgasse", "number": "84"},
+    {"id": "s4r1p24", "section": 4, "row": 1, "position": 24, "street": "Naaffgasse", "number": "82"},
+    {"id": "s4r1p25", "section": 4, "row": 1, "position": 25, "street": "Naaffgasse", "number": "80"},
+    {"id": "s4r1p26", "section": 4, "row": 1, "position": 26, "street": "Naaffgasse", "number": "78"},
+    {"id": "s4r2p1", "section": 4, "row": 2, "position": 1, "street": "Naaffgasse", "number": "76a"},
+    {"id": "s4r2p2", "section": 4, "row": 2, "position": 2, "street": "Naaffgasse", "number": "71 St"},
+    {"id": "s4r2p3", "section": 4, "row": 2, "position": 3, "street": "Naaffgasse", "number": "71 St"},
+    {"id": "s4r2p4", "section": 4, "row": 2, "position": 4, "street": "Naaffgasse", "number": "71 St 3"},
+    {"id": "s4r2p5", "section": 4, "row": 2, "position": 5, "street": "Naaffgasse", "number": "71 St 4"},
+    {"id": "s4r2p6", "section": 4, "row": 2, "position": 6, "street": "Naaffgasse", "number": "73"},
+    {"id": "s4r2p7", "section": 4, "row": 2, "position": 7, "street": "Naaffgasse", "number": "77"},
+    {"id": "s4r2p8", "section": 4, "row": 2, "position": 8, "street": "Naaffgasse", "number": "81"},
+    {"id": "s4r2p9", "section": 4, "row": 2, "position": 9, "street": "Molnargasse", "number": "26"},
+    {"id": "s4r2p10", "section": 4, "row": 2, "position": 10, "street": "Molnargasse", "number": "22-24"},
+    {"id": "s4r2p11", "section": 4, "row": 2, "position": 11, "street": "Molnargasse", "number": "20"},
+    {"id": "s4r2p12", "section": 4, "row": 2, "position": 12, "street": "Molnargasse", "number": "18"},
+    {"id": "s4r2p13", "section": 4, "row": 2, "position": 13, "street": "Molnargasse", "number": "16"},
+    {"id": "s4r2p14", "section": 4, "row": 2, "position": 14, "street": "Molnargasse", "number": "10"},
+    {"id": "s4r2p15", "section": 4, "row": 2, "position": 15, "street": "Molnargasse", "number": "8"},
+    {"id": "s4r2p16", "section": 4, "row": 2, "position": 16, "street": "Molnargasse", "number": "4"},
+    {"id": "s4r2p17", "section": 4, "row": 2, "position": 17, "street": "Schönbrunner Graben", "number": "104"},
+    {"id": "s4r2p18", "section": 4, "row": 2, "position": 18, "street": "Schönbrunner Graben", "number": "102"},
+    {"id": "s4r2p19", "section": 4, "row": 2, "position": 19, "street": "Schönbrunner Graben", "number": "100"},
+    {"id": "s4r2p20", "section": 4, "row": 2, "position": 20, "street": "Schönbrunner Graben", "number": "98"},
+    {"id": "s4r2p21", "section": 4, "row": 2, "position": 21, "street": "Schönbrunner Graben", "number": "96"},
+    {"id": "s4r2p22", "section": 4, "row": 2, "position": 22, "street": "Schönbrunner Graben", "number": "94"},
+    {"id": "s4r2p23", "section": 4, "row": 2, "position": 23, "street": "Schönbrunner Graben", "number": "92"},
+    {"id": "s4r2p24", "section": 4, "row": 2, "position": 24, "street": "Schönbrunner Graben", "number": "90"},
+    {"id": "s4r2p25", "section": 4, "row": 2, "position": 25, "street": "Weißdornweg", "number": "3"},
+    {"id": "s4r2p26", "section": 4, "row": 2, "position": 26, "street": "Weißdornweg", "number": "5 St 8"},
+    {"id": "s4r2p27", "section": 4, "row": 2, "position": 27, "street": "Weißdornweg", "number": "5 St 7"},
+    {"id": "s4r2p28", "section": 4, "row": 2, "position": 28, "street": "Weißdornweg", "number": "5 St 6"},
+    {"id": "s4r2p29", "section": 4, "row": 2, "position": 29, "street": "Weißdornweg", "number": "5 St 5"},
+    {"id": "s4r2p30", "section": 4, "row": 2, "position": 30, "street": "Weißdornweg", "number": "11"},
+    {"id": "s4r2p31", "section": 4, "row": 2, "position": 31, "street": "Weißdornweg", "number": "18"},
+    {"id": "s4r2p32", "section": 4, "row": 2, "position": 32, "street": "Weißdornweg", "number": "16"},
+    {"id": "s4r2p33", "section": 4, "row": 2, "position": 33, "street": "Weißdornweg", "number": "14"},
+    {"id": "s4r2p34", "section": 4, "row": 2, "position": 34, "street": "Weißdornweg", "number": "10"},
+    {"id": "s4r2p35", "section": 4, "row": 2, "position": 35, "street": "Weißdornweg", "number": "8"},
+    {"id": "s4r3p1", "section": 4, "row": 3, "position": 1, "street": "Weißdornweg", "number": "6"},
+    {"id": "s4r3p2", "section": 4, "row": 3, "position": 2, "street": "Weißdornweg", "number": "4"},
+    {"id": "s4r3p3", "section": 4, "row": 3, "position": 3, "street": "Schönbrunner Graben", "number": "82"},
+    {"id": "s4r3p4", "section": 4, "row": 3, "position": 4, "street": "Schönbrunner Graben", "number": "80"},
+    {"id": "s4r3p5", "section": 4, "row": 3, "position": 5, "street": "Schönbrunner Graben", "number": "29*"},
+    {"id": "s4r3p6", "section": 4, "row": 3, "position": 6, "street": "Schönbrunner Graben", "number": "24a"},
+    {"id": "s4r3p7", "section": 4, "row": 3, "position": 7, "street": "Schönbrunner Graben", "number": "24"},
+    {"id": "s4r3p8", "section": 4, "row": 3, "position": 8, "street": "KLG Schaf", "number": "Pa  19"},
+    {"id": "s4r3p9", "section": 4, "row": 3, "position": 9, "street": "Schönbrunner Graben", "number": "22"},
+    {"id": "s4r3p10", "section": 4, "row": 3, "position": 10, "street": "Schönbrunner Graben", "number": "20"},
+    {"id": "s4r3p11", "section": 4, "row": 3, "position": 11, "street": "KLG Schafberglidung", "number": "Pa 15"},
+    {"id": "s4r3p12", "section": 4, "row": 3, "position": 12, "street": "KLG Schafberglidung", "number": "Pa 14"},
+    {"id": "s4r3p13", "section": 4, "row": 3, "position": 13, "street": "KLG Schafberglidung", "number": "Pa 13"},
+    {"id": "s4r3p14", "section": 4, "row": 3, "position": 14, "street": "KLG Schafberglidung", "number": "Pa 11"},
+    {"id": "s4r3p15", "section": 4, "row": 3, "position": 15, "street": "KLG Schaf", "number": "Pa 10"},
+    {"id": "s4r3p16", "section": 4, "row": 3, "position": 16, "street": "KLG 18a", "number": "Pa 3"},
+    {"id": "s4r3p17", "section": 4, "row": 3, "position": 17, "street": "KLG Schafberg", "number": "Pa 7"},
+    {"id": "s4r3p18", "section": 4, "row": 3, "position": 18, "street": "KLG Schafberg", "number": "Pa 6"},
+    {"id": "s4r3p19", "section": 4, "row": 3, "position": 19, "street": "KLG Schafberg", "number": "Pa 5"},
+    {"id": "s4r3p20", "section": 4, "row": 3, "position": 20, "street": "Schönbrunner Graben", "number": "18"},
+    {"id": "s4r3p21", "section": 4, "row": 3, "position": 21, "street": "Schönbrunner Graben", "number": "16a"},
+    {"id": "s4r3p22", "section": 4, "row": 3, "position": 22, "street": "Schönbrunner Graben", "number": "16"},
+    {"id": "s4r3p23", "section": 4, "row": 3, "position": 23, "street": "Schönbrunner Graben", "number": "14"},
+    {"id": "s4r3p24", "section": 4, "row": 3, "position": 24, "street": "Schönbrunner Graben", "number": "8"},
+    {"id": "s4r3p25", "section": 4, "row": 3, "position": 25, "street": "Schönbrunner Graben", "number": "6"},
+    {"id": "s4r3p26", "section": 4, "row": 3, "position": 26, "street": "Schönbrunner Graben", "number": "4"},
+    {"id": "s4r3p27", "section": 4, "row": 3, "position": 27, "street": "Utopiaweg", "number": "12"},
+    {"id": "s4r3p28", "section": 4, "row": 3, "position": 28, "street": "Utopiaweg", "number": "1"},
+    {"id": "s4r3p29", "section": 4, "row": 3, "position": 29, "street": "Utopiaweg", "number": "8"},
+    {"id": "s4r4p1", "section": 4, "row": 4, "position": 1, "street": "Utopiaweg", "number": "6 Pa"},
+    {"id": "s4r4p2", "section": 4, "row": 4, "position": 2, "street": "Utopiaweg", "number": "4 Pa"},
+    {"id": "s4r4p3", "section": 4, "row": 4, "position": 3, "street": "Utopiaweg", "number": "2"},
+    {"id": "s4r4p4", "section": 4, "row": 4, "position": 4, "street": "Josef redl gasse", "number": "4a Pa 18"},
+    {"id": "s4r4p5", "section": 4, "row": 4, "position": 5, "street": "Josef redl gasse", "number": "8"},
+    {"id": "s4r4p6", "section": 4, "row": 4, "position": 6, "street": "Josef bindtner gasse", "number": "4"},
+    {"id": "s4r4p7", "section": 4, "row": 4, "position": 7, "street": "Josef bindtner gasse", "number": "5"},
+    {"id": "s4r4p8", "section": 4, "row": 4, "position": 8, "street": "Josef bindtner gasse", "number": "6"},
+    {"id": "s4r4p9", "section": 4, "row": 4, "position": 9, "street": "Josef bindtner gasse", "number": "7"},
+    {"id": "s4r4p10", "section": 4, "row": 4, "position": 10, "street": "Josef bindtner gasse", "number": "8"},
+    {"id": "s4r4p11", "section": 4, "row": 4, "position": 11, "street": "Josef bindtner gasse", "number": "9"},
+    {"id": "s4r4p12", "section": 4, "row": 4, "position": 12, "street": "Landenburghöhe 47", "number": "12 Pa 10"},
+    {"id": "s4r4p13", "section": 4, "row": 4, "position": 13, "street": "Landenburghöhe", "number": "49"},
+    {"id": "s4r4p14", "section": 4, "row": 4, "position": 14, "street": "Josef redl gasse", "number": "10 Pa"},
+    {"id": "s4r4p15", "section": 4, "row": 4, "position": 15, "street": "Josef redl gasse", "number": "10b"},
+    {"id": "s4r4p16", "section": 4, "row": 4, "position": 16, "street": "Josef redl gasse", "number": "10d Pa 9"},
+    {"id": "s4r4p17", "section": 4, "row": 4, "position": 17, "street": "Josef redl gasse", "number": "10d Pa 10"},
+    {"id": "s4r4p18", "section": 4, "row": 4, "position": 18, "street": "Josef redl gasse", "number": "10e"},
+    {"id": "s4r4p19", "section": 4, "row": 4, "position": 19, "street": "Josef redl gasse", "number": "10 Pa 1"},
+    {"id": "s4r4p20", "section": 4, "row": 4, "position": 20, "street": "Josef redl gasse", "number": "12 Pa 1"},
+    {"id": "s4r4p21", "section": 4, "row": 4, "position": 21, "street": "Josef redl gasse", "number": "12 Pa 17"},
+    {"id": "s4r4p22", "section": 4, "row": 4, "position": 22, "street": "Josef redl gasse", "number": "12 Pa 16"},
+    {"id": "s4r4p23", "section": 4, "row": 4, "position": 23, "street": "Josef redl gasse", "number": "14"},
+    {"id": "s4r4p24", "section": 4, "row": 4, "position": 24, "street": "Josef redl gasse", "number": "2"}
+  ];
+}
+
+  </script>
+</body>
+</html>
