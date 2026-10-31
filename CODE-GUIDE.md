@@ -143,7 +143,7 @@ slots.filter(s => s.section === r && s.row === n)
 
 Label groups are explicit data. Two neighboring blocks both labeled Sonnenbadweg stay separate when they have different `labelGroup` IDs. Do not merge them by street name. The source list currently defines 147 printed blocks across the 16 shelf bands.
 
-The `.slot` button contains the colored `.pocket` first, then the house-number `.label`. The separate `.street-rail` follows the entire line of buttons. Both use the same compact, equal-slot CSS grid to keep numbers under their pockets and street blocks under their intended numbers. Full names wrap across lines rather than being shortened with CSS ellipses. All four columns fit the available screen width at 100%. Zoom increases the table width for closer inspection; Fit table restores the full view. Photo measurements remain in the data for reference and do not force the table to become wider.
+The `.slot` button contains the colored `.pocket` first, then the house-number `.label`. The separate `.street-rail` follows the entire line of buttons. Both use the same compact, equal-slot CSS grid to keep numbers under their pockets and street blocks under their intended numbers. Full street names use scalable single-line labels that fit their printed blocks. All four columns fit the available screen width at 100%. Zoom increases the table width for closer inspection; Fit table restores the full view. Photo measurements remain in the data for reference and do not force the table to become wider.
 
 ## Important state variables
 
