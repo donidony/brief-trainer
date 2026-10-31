@@ -301,7 +301,7 @@ h1 {
   background:#dcd9cf;
   scrollbar-width:thin
 }
-/* FULL TABLE: four equal columns. There are no section tabs. Zoom scales this container; the workbench provides horizontal scrolling. */
+/* FULL TABLE: four equal columns. There are no section tabs. Zoom changes this container width; the workbench provides horizontal scrolling. */
 .cabinet-bank {
   display:grid;
   grid-template-columns:repeat(4,minmax(0,1fr));
@@ -309,13 +309,13 @@ h1 {
   gap:5px;
   padding:7px;
   align-items:stretch;
-  min-width:1800px
+  min-width:0
 }
 /* ONE VERTICAL COLUMN: a header plus four equally aligned shelf levels. --pocket-height controls divider height. The extra 131px reserves space for the row heading, number labels and street rail. */
 .cabinet {
   --pocket-height:83px;
   display:grid;
-  grid-template-rows:26px repeat(4,calc(var(--pocket-height) + 131px));
+  grid-template-rows:26px repeat(4,calc(var(--pocket-height) + 111px));
   align-content:start;
   min-width:0;
   background:#dedacf;
@@ -401,8 +401,8 @@ h1 {
   justify-content:center;
   flex:1;
   width:100%;
-  height:50px;
-  flex:0 0 50px;
+  height:38px;
+  flex:0 0 38px;
   padding:3px 0 2px;
   background:#f3e7b9;
   border-right:1px solid #cbbf92;
@@ -419,13 +419,15 @@ h1 {
 }
 .building-number {
   display:block;
-  white-space:nowrap;
-  line-height:1.15;
-  font-size:11px
+  white-space:normal;
+  overflow-wrap:anywhere;
+  line-height:1.05;
+  font-size:clamp(5px,.42vw,9px);
+  max-width:100%
 }
 .building-suffix {
   display:block;
-  font-size:9px;
+  font-size:clamp(4px,.34vw,7px);
   white-space:normal;
   overflow-wrap:normal;
   line-height:1.15
@@ -440,12 +442,12 @@ h1 {
   background:#f3e7b9;
   padding:0 2px;
   border-bottom:7px solid #aaa692;
-  height:64px;
+  height:56px;
   align-items:stretch
 }
 .street-group {
   min-width:0;
-  font-size:10px;
+  font-size:clamp(5px,.4vw,8px);
   font-weight:normal;
   text-align:center;
   white-space:normal;
@@ -620,7 +622,7 @@ td:first-child {
     grid-column:auto
   }
   .cabinet-bank {
-    min-width:1800px
+    min-width:0
   }
   .intro p {
     font-size:11px
@@ -641,7 +643,7 @@ td:first-child {
     font-size:8px
   }
   .street-group {
-    font-size:8px
+    font-size:5px
   }
 }
 @media(max-width:560px) {
@@ -866,19 +868,19 @@ td:first-child {
               Your table · photo label layout
             </b>
             <small>
-              Slot proportions measured from your photos
+              All four columns together
             </small>
           </div>
           <div class="zoom-tools">
             <label for="zoom">
               Zoom
             </label>
-            <input id="zoom" type="range" min="20" max="200" step="10" value="100">
+            <input id="zoom" type="range" min="100" max="250" step="10" value="100">
             <output id="zoom-value" for="zoom">
               100%
             </output>
             <button id="fit">
-              Reset zoom
+              Fit table
             </button>
           </div>
         </div>
@@ -891,7 +893,7 @@ td:first-child {
           Hover over or focus a slot to read its full address here.
         </div>
         <p class="shelf-help">
-          Your numbering: Section 1 is the top level and Section 4 is the bottom level. Row 1 is far left and Row 4 is far right. Slot widths and repeated street-label blocks follow your close-up photos. Zoom out for an overview or move sideways to read each label. Each session includes every slot in the selected area once.
+          Your numbering: Section 1 is the top level and Section 4 is the bottom level. Row 1 is far left and Row 4 is far right. The whole table fits the screen at 100%. Zoom in if you want larger labels; Fit table returns to the full view. Repeated street-label blocks stay separate. Each session includes every slot in the selected area once.
         </p>
       </section>
     </div>
@@ -1079,12 +1081,6 @@ function numberLabel(s) {
 function renderShelf() {
   const shelf=$('shelf');
   shelf.replaceChildren();
-  let cabinetMinimum=0;
-  for(let level=1;level<=4;level++)for(let column=1;column<=4;column++) {
-    const required=Math.max(...ORIGINAL.filter(item=>item.section===level&&item.row===column).map(item=>slotMinimum(item)/(item.photoEnd-item.photoStart)));
-    cabinetMinimum=Math.max(cabinetMinimum,required+16);
-  }
-  shelf.style.minWidth=(cabinetMinimum*4+29)+'px';
   $('inspect').textContent=mode==='practice'?'Hover over or focus a slot to read its full address here.':'Memory mode · Find the address by its position. Use Show me if you need help.';
   for(let n=1;n<=4;n++) {
     const cabinet=el('section',undefined,'cabinet');
@@ -1105,11 +1101,7 @@ function renderShelf() {
       row.append(h);
       const line=el('div',undefined,'slot-line'),rail=el('div',undefined,'street-rail');
       const groups=printedGroups(members);
-      const columns=members.map(item=> {
-        const source=ORIGINAL.find(original=>original.id===item.id);     return `minmax(0,${source.photoEnd-source.photoStart}fr)`;
-      }
-      );
-      line.style.gridTemplateColumns=rail.style.gridTemplateColumns=columns.join(' ');
+      line.style.gridTemplateColumns=rail.style.gridTemplateColumns=`repeat(${members.length},minmax(0,1fr))`;
       members.forEach(s=> {
         const b=el('button',undefined,'slot');b.dataset.id=s.id;     b.style.setProperty('--folder',['#e8b83c','#28725c','#284b72','#e8b83c'][r-1]);     const pocket=el('span',undefined,'pocket');pocket.setAttribute('aria-hidden','true');     b.append(pocket,numberLabel(s));     const label=mode==='practice'?`${s.street} ${s.number}. Section ${r}, row ${n}, slot ${s.position}`:`Section ${r}, row ${n}, slot ${s.position}`;     b.setAttribute('aria-label',label);if(mode==='practice')b.title=s.street+' '+s.number;     const inspect=()=> {
           $('inspect').textContent=mode==='practice'?`${s.street} ${s.number}  ·  Section ${r}, row ${n}, slot ${s.position}`:`Section ${r}, row ${n}, slot ${s.position}`
@@ -1134,14 +1126,14 @@ function renderShelf() {
   }
 }
 /*
- * Scale the whole shelf bank without changing its measured proportions.
- * 100 means original size; 20 gives an overview at one fifth of the size.
+ * Change the width of the whole shelf bank.
+ * 100 fits all four columns; 180 means 180 percent wide.
  * The surrounding workbench lets the player scroll sideways.
  */
 function setZoom(value) {
   $('zoom').value=String(value);
   $('zoom-value').textContent=value+'%';
-  $('shelf').style.zoom=String(Number(value)/100)
+  $('shelf').style.width=value+'%'
 }
 /* ZOOM EVENTS: input fires while the slider moves. Fit table restores 100 percent scale and returns to the left edge. */
 $('zoom').oninput=e=>setZoom(e.target.value);
