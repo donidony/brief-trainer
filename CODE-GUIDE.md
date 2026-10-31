@@ -98,7 +98,9 @@ Search for **ADDRESS DATA APPENDIX** near the end of the file. `originalAddresse
 | `position` | The slot number from left to right inside that level and column |
 | `id` | A unique identity combining section, row and position |
 | `street` | The street label |
-| `number` | The complete building label, stored as text |
+| `number` | The building label, stored as text; obscured suffixes are kept as visible in the photo |
+| `labelGroup` | Identifies the separate printed block on the real shelf |
+| `labelText` | Street text displayed underneath that printed block |
 
 `"33 St 1"` is one `number` value and one slot. It stays distinct from `"33 St 2"`. Labels such as `"6 Pa"`, `"103b"` and `"9-11"` also remain intact. The game does not expand a hyphenated label into multiple slots.
 
@@ -126,6 +128,7 @@ For small label corrections, the game's **Edit addresses** button is easier than
 | `key(s)` | Produces a comparable street-and-number string, ignoring case and extra spaces |
 | `el(tag, text, cls)` | Creates a page element, with optional text and CSS class |
 | `allMatches()` | Finds all slots matching the current letter, including duplicates |
+| `printedGroups()` | Keeps the original printed street-label blocks separate, including repeated street names |
 | `renderShelf()` | Draws all four columns and four levels, with labels underneath |
 | `paint()` | Adds correct/hint outlines and disables answered slots |
 | `setZoom(value)` | Changes the entire shelf bank's width |
@@ -144,7 +147,9 @@ Inside `renderShelf()`, `n` means the left-to-right column, your **Row**. `r` me
 slots.filter(s => s.section === r && s.row === n)
 ```
 
-The `.slot` button contains the colored `.pocket` first, then the house-number `.label`. The separate `.street-rail` follows the entire line of buttons. This is why the addresses sit underneath the dividers.
+Label groups are explicit data. Two neighboring blocks both labeled Sonnenbadweg stay separate when they have different `labelGroup` IDs. Do not merge them by street name. The source list currently defines 147 printed blocks across the 16 shelf bands.
+
+The `.slot` button contains the colored `.pocket` first, then the house-number `.label`. The separate `.street-rail` follows the entire line of buttons. Both use the same weighted CSS grid to keep numbers under their pockets and street blocks under their intended numbers. Full names wrap across lines rather than being shortened with CSS ellipses. The minimum table width is 1800 pixels so labels stay readable; smaller screens can scroll sideways.
 
 ## Important state variables
 
@@ -202,11 +207,11 @@ $('my-fit-button').onclick = () => {
 };
 ```
 
-Zoom in and move sideways, then click your new button. It should restore the full-table view and move back to the left edge. This repeats the existing Fit table behavior, making it a small exercise in connecting HTML and JavaScript.
+Zoom in and move sideways, then click your new button. It should restore the full-table view and move back to the left edge. This repeats the existing Reset zoom behavior, making it a small exercise in connecting HTML and JavaScript.
 
 ## Saved edits and experiments
 
-The learning copy uses the storage name `brief-trainer-learning-v1`. The normal game uses `brief-trainer-v1`, so this copy does not deliberately overwrite the normal game's saved entry. Browsers differ in how they handle storage for local files; export address backups before relying on it.
+The learning copy uses the storage name `brief-trainer-learning-photo-v1`. The normal game uses `brief-trainer-photo-layout-v1`, so this copy does not deliberately overwrite the normal game's saved entry. Browsers differ in how they handle storage for local files; export address backups before relying on it.
 
 Saved address edits can override changes you make to the built-in labels. To start a fresh experiment, change `STORE` to a new name such as `brief-trainer-learning-test2`, then refresh. This leaves the earlier entry intact. To reuse corrected labels from the regular game, export its address backup and import it into the learning copy, then Save changes.
 

@@ -1,6 +1,6 @@
 # Brief Trainer
 
-A browser game for practicing the address positions on a letter-sorting table. The current layout contains 395 slots. All four columns stay visible together, with addresses underneath the dividers.
+A browser game for practicing the address positions on a letter-sorting table. The current layout contains 399 slots. All four columns stay together, with addresses underneath the dividers. The photo-based layout preserves 147 separate printed street-label blocks, including repeated names. Names wrap in full instead of being shortened with ellipses; narrower screens can scroll across the table.
 
 ## Play
 
@@ -26,3 +26,7 @@ The game stores edits and best scores in the current browser. They do not automa
 ## Learn and modify
 
 Read `CODE-GUIDE.md` and open `learning.html` in a text editor. No build tools or external libraries are required. The learning copy has a separate browser-storage entry and a `ROUND_SIZE` setting.
+
+## Photo label layout
+
+Each address record includes `labelGroup` and `labelText`. These preserve the real printed boundaries instead of merging adjacent matching street names. For example, Sonnenbadweg is repeated over separate blocks in Section 4 Row 1. The photo layout uses a new storage entry so the earlier slot list cannot shift the new labels. Earlier browser data is retained under its previous entry. Incomplete photographed parcel and Stiege suffixes remain as visible; no hidden numbers are invented.

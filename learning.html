@@ -308,13 +308,14 @@ h1 {
   width:100%;
   gap:5px;
   padding:7px;
-  align-items:stretch
+  align-items:stretch;
+  min-width:1800px
 }
-/* ONE VERTICAL COLUMN: a header plus four equally aligned shelf levels. --pocket-height controls divider height. The extra 74px reserves space for the row heading, number labels and street rail. */
+/* ONE VERTICAL COLUMN: a header plus four equally aligned shelf levels. --pocket-height controls divider height. The extra 119px reserves space for the row heading, number labels and street rail. */
 .cabinet {
   --pocket-height:83px;
   display:grid;
-  grid-template-rows:26px repeat(4,calc(var(--pocket-height) + 74px));
+  grid-template-rows:26px repeat(4,calc(var(--pocket-height) + 119px));
   align-content:start;
   min-width:0;
   background:#dedacf;
@@ -406,7 +407,7 @@ h1 {
   background:#f3e7b9;
   border-right:1px solid #cbbf92;
   border-top:3px solid #e9dec3;
-  font-size:clamp(7px,.64vw,11px);
+  font-size:11px;
   font-weight:bold;
   line-height:1.05;
   overflow-wrap:anywhere;
@@ -414,28 +415,36 @@ h1 {
   color:#3e4234
 }
 .slot .label.compound {
-  font-size:clamp(6px,.55vw,9px)
+  font-size:9px
 }
-/* ADDRESS STRIP: street names align to the same grid as the slots above. A street-group can span several neighboring slots. */
+/* ADDRESS STRIP: street names align to the same grid as the slots above. A street-group can span several neighboring slots. Explicit photo groups preserve repeated names. Full names wrap; CSS does not shorten them with ellipses. */
 .street-rail {
   display:grid;
   gap:0;
   background:#f3e7b9;
   padding:0 2px;
   border-bottom:7px solid #aaa692;
-  min-height:19px
+  height:64px;
+  align-items:stretch
 }
 .street-group {
   min-width:0;
-  font-size:clamp(6px,.58vw,10px);
+  font-size:10px;
   font-weight:normal;
   text-align:center;
-  overflow:hidden;
-  text-overflow:ellipsis;
-  white-space:nowrap;
-  padding:2px 1px;
-  border-right:1px solid #cbbf92;
-  color:#454b38
+  white-space:normal;
+  overflow-wrap:anywhere;
+  line-height:1.12;
+  padding:4px 2px;
+  border-left:1px solid #b9ad83;
+  border-right:1px solid #e5d8ae;
+  color:#454b38;
+  display:flex;
+  align-items:center;
+  justify-content:center
+}
+.street-group:first-child {
+  border-left:0
 }
 .slot:hover .pocket,.slot:focus-visible .pocket {
   filter:brightness(1.4)
@@ -594,7 +603,7 @@ td:first-child {
     grid-column:auto
   }
   .cabinet-bank {
-    min-width:1050px
+    min-width:1800px
   }
   .intro p {
     font-size:11px
@@ -837,10 +846,10 @@ td:first-child {
         <div class="view-toolbar">
           <div>
             <b>
-              Your complete sorting table
+              Your table · photo label layout
             </b>
             <small>
-              Sections top to bottom · Rows left to right
+              Printed label blocks kept separate
             </small>
           </div>
           <div class="zoom-tools">
@@ -852,7 +861,7 @@ td:first-child {
               100%
             </output>
             <button id="fit">
-              Fit table
+              Reset zoom
             </button>
           </div>
         </div>
@@ -865,7 +874,7 @@ td:first-child {
           Hover over or focus a slot to read its full address here.
         </div>
         <p class="shelf-help">
-          Your numbering: Section 1 is the top level and Section 4 is the bottom level. Row 1 is far left and Row 4 is far right. Zoom in for larger labels; on smaller screens, move sideways across the table.
+          Your numbering: Section 1 is the top level and Section 4 is the bottom level. Row 1 is far left and Row 4 is far right. Repeated street labels follow separate blocks in your photos. Names wrap in full; move sideways across the table on smaller screens.
         </p>
       </section>
     </div>
@@ -888,7 +897,7 @@ td:first-child {
       </button>
     </div>
     <p>
-      Your document numbering is preserved: sections run top to bottom, rows run left to right. Labels include St, Ha, Pa and *. Each item separated by | became a separate slot. Edit uncertain or repeated labels here; shelf positions stay fixed. Changes start a new round.
+      Your document numbering is preserved: sections run top to bottom, rows run left to right. Labels include St, Ha, Pa and *. Street-label blocks follow the photos and stay separate even when the street repeats. Incomplete printed suffixes remain as visible on the labels. Edit uncertain or repeated labels here; shelf positions stay fixed. Changes start a new round.
     </p>
     <div class="edit-tools">
       <input id="search" placeholder="Find a street or number…" aria-label="Search address labels">
@@ -937,7 +946,7 @@ td:first-child {
 const ORIGINAL = originalAddresses();
 const ROUND_SIZE = 20;
 /* DOM HELPERS: $("score") means document.getElementById("score"). STORE names the localStorage entry. This learning copy has its own storage key. */
-const $=id=>document.getElementById(id),STORE='brief-trainer-learning-v1',names=['Far left','Middle left','Middle right','Far right'];
+const $=id=>document.getElementById(id),STORE='brief-trainer-learning-photo-v1',names=['Far left','Middle left','Middle right','Far right'];
 /* WORKING DATA: clone the original so editing labels does not change the built-in defaults. best tracks the best round result. */
 let slots=structuredClone(ORIGINAL),best=0,storageOK=true;
 /*
@@ -950,9 +959,9 @@ function valid(data) {
 }
 /* RESTORE: load a saved list only when valid(). saved?.best uses optional chaining, so missing saved data does not crash the game. */
 try {
-  const saved=JSON.parse(localStorage.getItem(STORE)||'null');
+  const saved=JSON.parse(localStorage.getItem(STORE)||localStorage.getItem('brief-trainer-v1')||'null');
   if(saved&&valid(saved.slots))slots=saved.slots;
-  if(Number.isFinite(saved?.best) && saved.roundSize === ROUND_SIZE)best=Math.max(0,saved.best)
+  if(Number.isFinite(saved?.best))best=Math.max(0,saved.best)
 }
 catch(e) {
   storageOK=false
@@ -965,7 +974,7 @@ catch(e) {
 function persist() {
   try {
     localStorage.setItem(STORE,JSON.stringify( {
-      slots,best,roundSize:ROUND_SIZE
+      slots,best
     }
     ));
     return true
@@ -996,6 +1005,30 @@ function el(tag,text,cls) {
 function allMatches() {
   return current?slots.filter(s=>key(s)===key(current)):[]
 }
+// Explicit printed boundaries, not just matching street names, define the label strip.
+// A saved backup can edit labels but cannot erase a real boundary between printed blocks.
+/*
+ * Read explicit printed label boundaries from the original data.
+ * Do not merge adjacent blocks just because their street names match.
+ * Keep real boundaries even when a backup edits the text.
+ */
+function printedGroups(members) {
+  const groups=[];
+  let first=0;
+  while(first<members.length) {
+    const source=ORIGINAL.find(item=>item.id===members[first].id);
+    const groupId=source.labelGroup;
+    let last=first+1;
+    while(last<members.length&&ORIGINAL.find(item=>item.id===members[last].id).labelGroup===groupId&&members[last].street===members[first].street)last++;
+    const text=members[first].street===source.street?source.labelText:members[first].street;
+    groups.push( {
+      id:groupId,first,count:last-first,text
+    }
+    );
+    first=last;
+  }
+  return groups;
+}
 /*
  * Build the entire visible table from the address data.
  * IMPORTANT: n is a horizontal column, called Row in your numbering.
@@ -1003,8 +1036,7 @@ function allMatches() {
  * Outer loop: Row 1 (far left) to Row 4 (far right).
  * Inner loop: Section 1 (top) to Section 4 (bottom).
  * The buttons contain a colored pocket ABOVE a house-number label.
- * The street rail goes BELOW those buttons and groups adjacent labels
- * with the same street. The physical slots keep their original order.
+ * The street rail goes BELOW those buttons and preserves each separate printed label block, including repeated streets. The physical slots keep their original order.
  */
 function renderShelf() {
   const shelf=$('shelf');
@@ -1028,7 +1060,16 @@ function renderShelf() {
       h.append(el('span','Section '+r+' · '+['Top','Second','Third','Bottom'][r-1]),el('span',members.length+' slots'));
       row.append(h);
       const line=el('div',undefined,'slot-line'),rail=el('div',undefined,'street-rail');
-      line.style.gridTemplateColumns=rail.style.gridTemplateColumns=`repeat(${members.length},minmax(0,1fr))`;
+      const groups=printedGroups(members);
+      // Give isolated street labels more room, like the wider labeled pockets in the real table.
+      // Both rails share one weighted grid, so every number stays aligned to its pocket.
+      const columns=[];
+      for(const group of groups) {
+        const longest=Math.max(...group.text.split(/\s+/).map(word=>word.length));
+        const width=Math.max(group.count*26,longest*4.8+12);
+        for(let i=0;i<group.count;i++)columns.push(`minmax(0,${width/group.count}fr)`);
+      }
+      line.style.gridTemplateColumns=rail.style.gridTemplateColumns=columns.join(' ');
       members.forEach(s=> {
         const b=el('button',undefined,'slot');b.dataset.id=s.id;     b.style.setProperty('--folder',['#e8b83c','#28725c','#284b72','#e8b83c'][r-1]);     const pocket=el('span',undefined,'pocket');pocket.setAttribute('aria-hidden','true');     b.append(pocket,el('span',mode==='practice'?s.number:'?', 'label'+(s.number.length>4?' compound':'')));     const label=mode==='practice'?`${s.street} ${s.number}. Section ${r}, row ${n}, slot ${s.position}`:`Section ${r}, row ${n}, slot ${s.position}`;     b.setAttribute('aria-label',label);if(mode==='practice')b.title=s.street+' '+s.number;     const inspect=()=> {
           $('inspect').textContent=mode==='practice'?`${s.street} ${s.number}  ·  Section ${r}, row ${n}, slot ${s.position}`:`Section ${r}, row ${n}, slot ${s.position}`
@@ -1036,15 +1077,14 @@ function renderShelf() {
         ;     b.onpointerenter=inspect;b.onfocus=inspect;b.onclick=()=>choose(s,b);line.append(b);
       }
       );
-      let first=0;
-      while(first<members.length) {
-        let last=first+1;
-        while(last<members.length&&members[last].street===members[first].street)last++;
-        const label=el('span',mode==='practice'?members[first].street:'', 'street-group');
-        label.style.gridColumn=`${first+1} / ${last+1}`;
-        if(mode==='practice')label.title=members[first].street;
+      for(const group of groups) {
+        const label=el('span',mode==='practice'?group.text:'','street-group');
+        label.dataset.group=group.id;
+        label.dataset.start=String(group.first+1);
+        label.dataset.end=String(group.first+group.count);
+        label.style.gridColumn=`${group.first+1} / ${group.first+group.count+1}`;
+        if(mode==='practice')label.title=group.text;
         rail.append(label);
-        first=last;
       }
       row.append(line,rail);
       cabinet.append(row);
@@ -1345,7 +1385,7 @@ $('file').onchange=async e=> {
 }
 ;
 /* STARTUP: show the dataset size, start the first round and explain any browser-storage limitation. */
-$('data-info').textContent=`${slots.length} slots · 4 sections · Your uploaded layout`;
+$('data-info').textContent=`${slots.length} slots · 4 sections · Photo label layout`;
 newRound();
 if(!storageOK)feedback('Browser storage is unavailable. You can still play; export any address edits to keep them.');
 
@@ -1364,401 +1404,405 @@ if(!storageOK)feedback('Browser storage is unavailable. You can still play; expo
  */
 function originalAddresses() {
   return [
-    {"id": "s1r1p1", "section": 1, "row": 1, "position": 1, "street": "Wallrißstraße", "number": "43"},
-    {"id": "s1r1p2", "section": 1, "row": 1, "position": 2, "street": "Wallrißstraße", "number": "41"},
-    {"id": "s1r1p3", "section": 1, "row": 1, "position": 3, "street": "Wallrißstraße", "number": "39"},
-    {"id": "s1r1p4", "section": 1, "row": 1, "position": 4, "street": "Wallrißstraße", "number": "37"},
-    {"id": "s1r1p5", "section": 1, "row": 1, "position": 5, "street": "Wallrißstraße", "number": "37"},
-    {"id": "s1r1p6", "section": 1, "row": 1, "position": 6, "street": "Alsegger Straß", "number": "33 St 1"},
-    {"id": "s1r1p7", "section": 1, "row": 1, "position": 7, "street": "Alsegger Straß", "number": "33 St 2"},
-    {"id": "s1r1p8", "section": 1, "row": 1, "position": 8, "street": "Herbeckstraße", "number": "36"},
-    {"id": "s1r1p9", "section": 1, "row": 1, "position": 9, "street": "Herbeckstraße", "number": "38"},
-    {"id": "s1r1p10", "section": 1, "row": 1, "position": 10, "street": "Herbeckstraße", "number": "40"},
-    {"id": "s1r1p11", "section": 1, "row": 1, "position": 11, "street": "Withauergasse", "number": "6"},
-    {"id": "s1r1p12", "section": 1, "row": 1, "position": 12, "street": "Withauergasse", "number": "8"},
-    {"id": "s1r1p13", "section": 1, "row": 1, "position": 13, "street": "Withauergasse", "number": "10"},
-    {"id": "s1r1p14", "section": 1, "row": 1, "position": 14, "street": "Wallrißstraße", "number": "45 St 1"},
-    {"id": "s1r1p15", "section": 1, "row": 1, "position": 15, "street": "Herbeckstraße", "number": "46"},
-    {"id": "s1r1p16", "section": 1, "row": 1, "position": 16, "street": "Herbeckstraße", "number": "50"},
-    {"id": "s1r1p17", "section": 1, "row": 1, "position": 17, "street": "Herbeckstraße", "number": "52"},
-    {"id": "s1r1p18", "section": 1, "row": 1, "position": 18, "street": "Herbeckstraße", "number": "54"},
-    {"id": "s1r1p19", "section": 1, "row": 1, "position": 19, "street": "Herbeckstraße", "number": "56"},
-    {"id": "s1r2p1", "section": 1, "row": 2, "position": 1, "street": "Herbeckstraße", "number": "58"},
-    {"id": "s1r2p2", "section": 1, "row": 2, "position": 2, "street": "Herbeckstraße", "number": "60"},
-    {"id": "s1r2p3", "section": 1, "row": 2, "position": 3, "street": "Herbeckstraße", "number": "62"},
-    {"id": "s1r2p4", "section": 1, "row": 2, "position": 4, "street": "Herbeckstraße", "number": "68"},
-    {"id": "s1r2p5", "section": 1, "row": 2, "position": 5, "street": "Herbeckstraße", "number": "70"},
-    {"id": "s1r2p6", "section": 1, "row": 2, "position": 6, "street": "Herbeckstraße", "number": "72"},
-    {"id": "s1r2p7", "section": 1, "row": 2, "position": 7, "street": "Erndtgasse", "number": "8"},
-    {"id": "s1r2p8", "section": 1, "row": 2, "position": 8, "street": "Erndtgasse", "number": "14"},
-    {"id": "s1r2p9", "section": 1, "row": 2, "position": 9, "street": "Wallrißstraße", "number": "67"},
-    {"id": "s1r2p10", "section": 1, "row": 2, "position": 10, "street": "Wallrißstraße", "number": "63"},
-    {"id": "s1r2p11", "section": 1, "row": 2, "position": 11, "street": "Wallrißstraße", "number": "47 Ha 1"},
-    {"id": "s1r2p12", "section": 1, "row": 2, "position": 12, "street": "Wallrißstraße", "number": "47 Ha 2"},
-    {"id": "s1r2p13", "section": 1, "row": 2, "position": 13, "street": "Wallrißstraße", "number": "47 Ha 3"},
-    {"id": "s1r2p14", "section": 1, "row": 2, "position": 14, "street": "Wallrißstraße", "number": "47"},
-    {"id": "s1r2p15", "section": 1, "row": 2, "position": 15, "street": "Wallrißstraße", "number": "59"},
-    {"id": "s1r2p16", "section": 1, "row": 2, "position": 16, "street": "Messerschmidtgasse", "number": "14"},
-    {"id": "s1r3p1", "section": 1, "row": 3, "position": 1, "street": "Messerschmidtgasse", "number": "12"},
-    {"id": "s1r3p2", "section": 1, "row": 3, "position": 2, "street": "Erndtgasse", "number": "13"},
-    {"id": "s1r3p3", "section": 1, "row": 3, "position": 3, "street": "Erndtgasse", "number": "9-11"},
-    {"id": "s1r3p4", "section": 1, "row": 3, "position": 4, "street": "Erndtgasse", "number": "7"},
-    {"id": "s1r3p5", "section": 1, "row": 3, "position": 5, "street": "Herbeckstraße", "number": "80"},
-    {"id": "s1r3p6", "section": 1, "row": 3, "position": 6, "street": "Herbeckstraße", "number": "82"},
-    {"id": "s1r3p7", "section": 1, "row": 3, "position": 7, "street": "Herbeckstraße", "number": "84"},
-    {"id": "s1r3p8", "section": 1, "row": 3, "position": 8, "street": "Herbeckstraße", "number": "86"},
-    {"id": "s1r3p9", "section": 1, "row": 3, "position": 9, "street": "Herbeckstraße", "number": "88"},
-    {"id": "s1r3p10", "section": 1, "row": 3, "position": 10, "street": "Herbeckstraße", "number": "90"},
-    {"id": "s1r3p11", "section": 1, "row": 3, "position": 11, "street": "Herbeckstraße", "number": "92"},
-    {"id": "s1r3p12", "section": 1, "row": 3, "position": 12, "street": "Herbeckstraße", "number": "94"},
-    {"id": "s1r3p13", "section": 1, "row": 3, "position": 13, "street": "Herbeckstraße", "number": "96"},
-    {"id": "s1r3p14", "section": 1, "row": 3, "position": 14, "street": "Herbeckstraße", "number": "98"},
-    {"id": "s1r3p15", "section": 1, "row": 3, "position": 15, "street": "Herbeckstraße", "number": "100"},
-    {"id": "s1r3p16", "section": 1, "row": 3, "position": 16, "street": "Scheibenbergstraße", "number": "8"},
-    {"id": "s1r3p17", "section": 1, "row": 3, "position": 17, "street": "Wallrißstraße", "number": "91"},
-    {"id": "s1r3p18", "section": 1, "row": 3, "position": 18, "street": "Wallrißstraße", "number": "89"},
-    {"id": "s1r3p19", "section": 1, "row": 3, "position": 19, "street": "Wallrißstraße", "number": "87"},
-    {"id": "s1r3p20", "section": 1, "row": 3, "position": 20, "street": "Wallrißstraße", "number": "85"},
-    {"id": "s1r3p21", "section": 1, "row": 3, "position": 21, "street": "Wallrißstraße", "number": "81"},
-    {"id": "s1r3p22", "section": 1, "row": 3, "position": 22, "street": "Wallrißstraße", "number": "83"},
-    {"id": "s1r4p1", "section": 1, "row": 4, "position": 1, "street": "Wallrißstraße", "number": "79"},
-    {"id": "s1r4p2", "section": 1, "row": 4, "position": 2, "street": "Wallrißstraße", "number": "77"},
-    {"id": "s1r4p3", "section": 1, "row": 4, "position": 3, "street": "Wallrißstraße", "number": "75"},
-    {"id": "s1r4p4", "section": 1, "row": 4, "position": 4, "street": "Wallrißstraße", "number": "73"},
-    {"id": "s1r4p5", "section": 1, "row": 4, "position": 5, "street": "Wallrißstraße", "number": "71"},
-    {"id": "s1r4p6", "section": 1, "row": 4, "position": 6, "street": "Bastiengasse", "number": "50"},
-    {"id": "s1r4p7", "section": 1, "row": 4, "position": 7, "street": "Bastiengasse", "number": "52"},
-    {"id": "s1r4p8", "section": 1, "row": 4, "position": 8, "street": "Bastiengasse", "number": "54"},
-    {"id": "s1r4p9", "section": 1, "row": 4, "position": 9, "street": "Bastiengasse", "number": "56"},
-    {"id": "s1r4p10", "section": 1, "row": 4, "position": 10, "street": "Bastiengasse", "number": "58"},
-    {"id": "s1r4p11", "section": 1, "row": 4, "position": 11, "street": "Bastiengasse", "number": "105"},
-    {"id": "s1r4p12", "section": 1, "row": 4, "position": 12, "street": "Bastiengasse", "number": "103b"},
-    {"id": "s1r4p13", "section": 1, "row": 4, "position": 13, "street": "Bastiengasse", "number": "103a"},
-    {"id": "s1r4p14", "section": 1, "row": 4, "position": 14, "street": "Bastiengasse", "number": "101"},
-    {"id": "s1r4p15", "section": 1, "row": 4, "position": 15, "street": "Bastiengasse", "number": "99"},
-    {"id": "s1r4p16", "section": 1, "row": 4, "position": 16, "street": "Bastiengasse", "number": "97"},
-    {"id": "s1r4p17", "section": 1, "row": 4, "position": 17, "street": "Bastiengasse", "number": "95"},
-    {"id": "s1r4p18", "section": 1, "row": 4, "position": 18, "street": "Bastiengasse", "number": "93"},
-    {"id": "s1r4p19", "section": 1, "row": 4, "position": 19, "street": "Bastiengasse", "number": "91"},
-    {"id": "s1r4p20", "section": 1, "row": 4, "position": 20, "street": "Eckpergasse", "number": "25"},
-    {"id": "s1r4p21", "section": 1, "row": 4, "position": 21, "street": "Eckpergasse", "number": "26"},
-    {"id": "s1r4p22", "section": 1, "row": 4, "position": 22, "street": "Bastiengasse", "number": "85"},
-    {"id": "s1r4p23", "section": 1, "row": 4, "position": 23, "street": "Bastiengasse", "number": "83"},
-    {"id": "s2r1p1", "section": 2, "row": 1, "position": 1, "street": "Bastiengasse", "number": "81"},
-    {"id": "s2r1p2", "section": 2, "row": 1, "position": 2, "street": "Bastiengasse", "number": "79"},
-    {"id": "s2r1p3", "section": 2, "row": 1, "position": 3, "street": "Scheibenbergstraße", "number": "33"},
-    {"id": "s2r1p4", "section": 2, "row": 1, "position": 4, "street": "Scheibenbergstraße", "number": "31"},
-    {"id": "s2r1p5", "section": 2, "row": 1, "position": 5, "street": "Scheibenbergstraße", "number": "29"},
-    {"id": "s2r1p6", "section": 2, "row": 1, "position": 6, "street": "Scheibenbergstraße", "number": "27"},
-    {"id": "s2r1p7", "section": 2, "row": 1, "position": 7, "street": "Scheibenbergstraße", "number": "25"},
-    {"id": "s2r1p8", "section": 2, "row": 1, "position": 8, "street": "Scheibenbergstraße", "number": "23"},
-    {"id": "s2r1p9", "section": 2, "row": 1, "position": 9, "street": "Scheibenbergstraße", "number": "21"},
-    {"id": "s2r1p10", "section": 2, "row": 1, "position": 10, "street": "Scheibenbergstraße", "number": "19"},
-    {"id": "s2r1p11", "section": 2, "row": 1, "position": 11, "street": "Wallrißstraße", "number": "94"},
-    {"id": "s2r1p12", "section": 2, "row": 1, "position": 12, "street": "Wallrißstraße", "number": "94*"},
-    {"id": "s2r1p13", "section": 2, "row": 1, "position": 13, "street": "Wallrißstraße", "number": "96"},
-    {"id": "s2r1p14", "section": 2, "row": 1, "position": 14, "street": "Wallrißstraße", "number": "98"},
-    {"id": "s2r1p15", "section": 2, "row": 1, "position": 15, "street": "Wallrißstraße", "number": "100"},
-    {"id": "s2r1p16", "section": 2, "row": 1, "position": 16, "street": "Wallrißstraße", "number": "102"},
-    {"id": "s2r1p17", "section": 2, "row": 1, "position": 17, "street": "Eckpergasse", "number": "8"},
-    {"id": "s2r1p18", "section": 2, "row": 1, "position": 18, "street": "Eckpergasse", "number": "6"},
-    {"id": "s2r1p19", "section": 2, "row": 1, "position": 19, "street": "Eckpergasse", "number": "4"},
-    {"id": "s2r1p20", "section": 2, "row": 1, "position": 20, "street": "Eckpergasse", "number": "2"},
-    {"id": "s2r1p21", "section": 2, "row": 1, "position": 21, "street": "Herbeckstraße", "number": "108"},
-    {"id": "s2r1p22", "section": 2, "row": 1, "position": 22, "street": "Herbeckstraße", "number": "104"},
-    {"id": "s2r2p1", "section": 2, "row": 2, "position": 1, "street": "Scheibenbergstraße", "number": "11"},
-    {"id": "s2r2p2", "section": 2, "row": 2, "position": 2, "street": "Scheibenbergstraße", "number": "13"},
-    {"id": "s2r2p3", "section": 2, "row": 2, "position": 3, "street": "Scheibenbergstraße", "number": "15"},
-    {"id": "s2r2p4", "section": 2, "row": 2, "position": 4, "street": "Wallrißstraße", "number": "97"},
-    {"id": "s2r2p5", "section": 2, "row": 2, "position": 5, "street": "Wallrißstraße", "number": "99"},
-    {"id": "s2r2p6", "section": 2, "row": 2, "position": 6, "street": "Wallrißstraße", "number": "101"},
-    {"id": "s2r2p7", "section": 2, "row": 2, "position": 7, "street": "Wallrißstraße", "number": "103"},
-    {"id": "s2r2p8", "section": 2, "row": 2, "position": 8, "street": "Eckpergasse", "number": "12"},
-    {"id": "s2r2p9", "section": 2, "row": 2, "position": 9, "street": "Eckpergasse", "number": "14"},
-    {"id": "s2r2p10", "section": 2, "row": 2, "position": 10, "street": "Eckpergasse", "number": "16"},
-    {"id": "s2r2p11", "section": 2, "row": 2, "position": 11, "street": "Eckpergasse", "number": "18"},
-    {"id": "s2r2p12", "section": 2, "row": 2, "position": 12, "street": "Eckpergasse", "number": "20-22"},
-    {"id": "s2r2p13", "section": 2, "row": 2, "position": 13, "street": "Eckpergasse", "number": "24"},
-    {"id": "s2r2p14", "section": 2, "row": 2, "position": 14, "street": "Eckpergasse", "number": "23"},
-    {"id": "s2r2p15", "section": 2, "row": 2, "position": 15, "street": "Eckpergasse", "number": "21"},
-    {"id": "s2r2p16", "section": 2, "row": 2, "position": 16, "street": "Eckpergasse", "number": "19"},
-    {"id": "s2r2p17", "section": 2, "row": 2, "position": 17, "street": "Eckpergasse", "number": "17"},
-    {"id": "s2r2p18", "section": 2, "row": 2, "position": 18, "street": "Eckpergasse", "number": "15"},
-    {"id": "s2r2p19", "section": 2, "row": 2, "position": 19, "street": "Eckpergasse", "number": "13"},
-    {"id": "s2r2p20", "section": 2, "row": 2, "position": 20, "street": "Eckpergasse", "number": "11"},
-    {"id": "s2r2p21", "section": 2, "row": 2, "position": 21, "street": "Eckpergasse", "number": "7"},
-    {"id": "s2r2p22", "section": 2, "row": 2, "position": 22, "street": "Eckpergasse", "number": "5"},
-    {"id": "s2r2p23", "section": 2, "row": 2, "position": 23, "street": "Eckpergasse", "number": "3"},
-    {"id": "s2r2p24", "section": 2, "row": 2, "position": 24, "street": "Eckpergasse", "number": "1"},
-    {"id": "s2r2p25", "section": 2, "row": 2, "position": 25, "street": "Herbeckstraße", "number": "114-116"},
-    {"id": "s2r2p26", "section": 2, "row": 2, "position": 26, "street": "Herbeckstraße", "number": "118"},
-    {"id": "s2r3p1", "section": 2, "row": 3, "position": 1, "street": "Herbeckstraße", "number": "120"},
-    {"id": "s2r3p2", "section": 2, "row": 3, "position": 2, "street": "Herbeckstraße", "number": "122"},
-    {"id": "s2r3p3", "section": 2, "row": 3, "position": 3, "street": "Herbeckstraße", "number": "124"},
-    {"id": "s2r3p4", "section": 2, "row": 3, "position": 4, "street": "Herbeckstraße", "number": "126"},
-    {"id": "s2r3p5", "section": 2, "row": 3, "position": 5, "street": "Herbeckstraße", "number": "128"},
-    {"id": "s2r3p6", "section": 2, "row": 3, "position": 6, "street": "Herbeckstraße", "number": "130"},
-    {"id": "s2r3p7", "section": 2, "row": 3, "position": 7, "street": "Herbeckstraße", "number": "132"},
-    {"id": "s2r3p8", "section": 2, "row": 3, "position": 8, "street": "Herbeckstraße", "number": "134"},
-    {"id": "s2r3p9", "section": 2, "row": 3, "position": 9, "street": "Naffgasse", "number": "1-3"},
-    {"id": "s2r3p10", "section": 2, "row": 3, "position": 10, "street": "Naffgasse", "number": "4"},
-    {"id": "s2r3p11", "section": 2, "row": 3, "position": 11, "street": "Naffgasse", "number": "6"},
-    {"id": "s2r3p12", "section": 2, "row": 3, "position": 12, "street": "Naffgasse", "number": "5"},
-    {"id": "s2r3p13", "section": 2, "row": 3, "position": 13, "street": "Naffgasse", "number": "7"},
-    {"id": "s2r3p14", "section": 2, "row": 3, "position": 14, "street": "Naffgasse", "number": "9"},
-    {"id": "s2r3p15", "section": 2, "row": 3, "position": 15, "street": "Naffgasse", "number": "8"},
-    {"id": "s2r3p16", "section": 2, "row": 3, "position": 16, "street": "Naffgasse", "number": "10-12"},
-    {"id": "s2r3p17", "section": 2, "row": 3, "position": 17, "street": "Naffgasse", "number": "11"},
-    {"id": "s2r3p18", "section": 2, "row": 3, "position": 18, "street": "Naffgasse", "number": "13"},
-    {"id": "s2r3p19", "section": 2, "row": 3, "position": 19, "street": "Naffgasse", "number": "15"},
-    {"id": "s2r3p20", "section": 2, "row": 3, "position": 20, "street": "Naffgasse", "number": "17"},
-    {"id": "s2r3p21", "section": 2, "row": 3, "position": 21, "street": "Naffgasse", "number": "14"},
-    {"id": "s2r3p22", "section": 2, "row": 3, "position": 22, "street": "Naffgasse", "number": "16"},
-    {"id": "s2r4p1", "section": 2, "row": 4, "position": 1, "street": "Naffgasse", "number": "18"},
-    {"id": "s2r4p2", "section": 2, "row": 4, "position": 2, "street": "Naffgasse", "number": "19"},
-    {"id": "s2r4p3", "section": 2, "row": 4, "position": 3, "street": "Naffgasse", "number": "21"},
-    {"id": "s2r4p4", "section": 2, "row": 4, "position": 4, "street": "Naffgasse", "number": "22"},
-    {"id": "s2r4p5", "section": 2, "row": 4, "position": 5, "street": "Wallrißstraße", "number": "128"},
-    {"id": "s2r4p6", "section": 2, "row": 4, "position": 6, "street": "Wallrißstraße", "number": "129"},
-    {"id": "s2r4p7", "section": 2, "row": 4, "position": 7, "street": "Wallrißstraße", "number": "126"},
-    {"id": "s2r4p8", "section": 2, "row": 4, "position": 8, "street": "Wallrißstraße", "number": "124"},
-    {"id": "s2r4p9", "section": 2, "row": 4, "position": 9, "street": "Wallrißstraße", "number": "127"},
-    {"id": "s2r4p10", "section": 2, "row": 4, "position": 10, "street": "Wallrißstraße", "number": "122"},
-    {"id": "s2r4p11", "section": 2, "row": 4, "position": 11, "street": "Wallrißstraße", "number": "125"},
-    {"id": "s2r4p12", "section": 2, "row": 4, "position": 12, "street": "Wallrißstraße", "number": "123"},
-    {"id": "s2r4p13", "section": 2, "row": 4, "position": 13, "street": "Wallrißstraße", "number": "120"},
-    {"id": "s2r4p14", "section": 2, "row": 4, "position": 14, "street": "Wallrißstraße", "number": "118"},
-    {"id": "s2r4p15", "section": 2, "row": 4, "position": 15, "street": "Wallrißstraße", "number": "116"},
-    {"id": "s2r4p16", "section": 2, "row": 4, "position": 16, "street": "Wallrißstraße", "number": "121"},
-    {"id": "s2r4p17", "section": 2, "row": 4, "position": 17, "street": "Wallrißstraße", "number": "114"},
-    {"id": "s2r4p18", "section": 2, "row": 4, "position": 18, "street": "Wallrißstraße", "number": "112"},
-    {"id": "s2r4p19", "section": 2, "row": 4, "position": 19, "street": "Wallrißstraße", "number": "117-119"},
-    {"id": "s2r4p20", "section": 2, "row": 4, "position": 20, "street": "Wallrißstraße", "number": "110"},
-    {"id": "s2r4p21", "section": 2, "row": 4, "position": 21, "street": "Wallrißstraße", "number": "115"},
-    {"id": "s2r4p22", "section": 2, "row": 4, "position": 22, "street": "Wallrißstraße", "number": "113"},
-    {"id": "s3r1p1", "section": 3, "row": 1, "position": 1, "street": "Wallrißstraße", "number": "108"},
-    {"id": "s3r1p2", "section": 3, "row": 1, "position": 2, "street": "Wallrißstraße", "number": "111"},
-    {"id": "s3r1p3", "section": 3, "row": 1, "position": 3, "street": "Wallrißstraße", "number": "106"},
-    {"id": "s3r1p4", "section": 3, "row": 1, "position": 4, "street": "Wallrißstraße", "number": "104*"},
-    {"id": "s3r1p5", "section": 3, "row": 1, "position": 5, "street": "Wallrißstraße", "number": "109"},
-    {"id": "s3r1p6", "section": 3, "row": 1, "position": 6, "street": "Wallrißstraße", "number": "107"},
-    {"id": "s3r1p7", "section": 3, "row": 1, "position": 7, "street": "Dürwaringstraße", "number": "59 St 1"},
-    {"id": "s3r1p8", "section": 3, "row": 1, "position": 8, "street": "Dürwaringstraße", "number": "59 St 2"},
-    {"id": "s3r1p9", "section": 3, "row": 1, "position": 9, "street": "Dürwaringstraße", "number": "59 St 3"},
-    {"id": "s3r1p10", "section": 3, "row": 1, "position": 10, "street": "Dürwaringstraße", "number": "54"},
-    {"id": "s3r1p11", "section": 3, "row": 1, "position": 11, "street": "Dürwaringstraße", "number": "52"},
-    {"id": "s3r1p12", "section": 3, "row": 1, "position": 12, "street": "Dürwaringstraße", "number": "50"},
-    {"id": "s3r1p13", "section": 3, "row": 1, "position": 13, "street": "Dürwaringstraße", "number": "48"},
-    {"id": "s3r1p14", "section": 3, "row": 1, "position": 14, "street": "Dürwaringstraße", "number": "46"},
-    {"id": "s3r1p15", "section": 3, "row": 1, "position": 15, "street": "Dürwaringstraße", "number": "44"},
-    {"id": "s3r1p16", "section": 3, "row": 1, "position": 16, "street": "Dürwaringstraße", "number": "44*"},
-    {"id": "s3r1p17", "section": 3, "row": 1, "position": 17, "street": "Dürwaringstraße", "number": "42"},
-    {"id": "s3r1p18", "section": 3, "row": 1, "position": 18, "street": "Dürwaringstraße", "number": "40"},
-    {"id": "s3r1p19", "section": 3, "row": 1, "position": 19, "street": "Bastiengasse", "number": "109"},
-    {"id": "s3r1p20", "section": 3, "row": 1, "position": 20, "street": "Bastiengasse", "number": "107 St 1"},
-    {"id": "s3r1p21", "section": 3, "row": 1, "position": 21, "street": "Bastiengasse", "number": "107 St 2"},
-    {"id": "s3r1p22", "section": 3, "row": 1, "position": 22, "street": "Bastiengasse", "number": "60"},
-    {"id": "s3r1p23", "section": 3, "row": 1, "position": 23, "street": "Dürwaringstraße", "number": "47"},
-    {"id": "s3r1p24", "section": 3, "row": 1, "position": 24, "street": "Dürwaringstraße", "number": "45 St1"},
-    {"id": "s3r2p1", "section": 3, "row": 2, "position": 1, "street": "Dürwaringstraße", "number": "45 St 2"},
-    {"id": "s3r2p2", "section": 3, "row": 2, "position": 2, "street": "Dürwaringstraße", "number": "45 St 3"},
-    {"id": "s3r2p3", "section": 3, "row": 2, "position": 3, "street": "Bastiengasse", "number": "111"},
-    {"id": "s3r2p4", "section": 3, "row": 2, "position": 4, "street": "Bastiengasse", "number": "62"},
-    {"id": "s3r2p5", "section": 3, "row": 2, "position": 5, "street": "Bastiengasse", "number": "64"},
-    {"id": "s3r2p6", "section": 3, "row": 2, "position": 6, "street": "Bastiengasse", "number": "113"},
-    {"id": "s3r2p7", "section": 3, "row": 2, "position": 7, "street": "Bastiengasse", "number": "115"},
-    {"id": "s3r2p8", "section": 3, "row": 2, "position": 8, "street": "Bastiengasse", "number": "117"},
-    {"id": "s3r2p9", "section": 3, "row": 2, "position": 9, "street": "Bastiengasse", "number": "68"},
-    {"id": "s3r2p10", "section": 3, "row": 2, "position": 10, "street": "Bastiengasse", "number": "70"},
-    {"id": "s3r2p11", "section": 3, "row": 2, "position": 11, "street": "Bastiengasse", "number": "72"},
-    {"id": "s3r2p12", "section": 3, "row": 2, "position": 12, "street": "Bastiengasse", "number": "74"},
-    {"id": "s3r2p13", "section": 3, "row": 2, "position": 13, "street": "Bastiengasse", "number": "119"},
-    {"id": "s3r2p14", "section": 3, "row": 2, "position": 14, "street": "Bastiengasse", "number": "76 St 1"},
-    {"id": "s3r2p15", "section": 3, "row": 2, "position": 15, "street": "Naaffgasse", "number": "32*"},
-    {"id": "s3r2p16", "section": 3, "row": 2, "position": 16, "street": "Naaffgasse", "number": "30"},
-    {"id": "s3r2p17", "section": 3, "row": 2, "position": 17, "street": "Naaffgasse", "number": "28"},
-    {"id": "s3r2p18", "section": 3, "row": 2, "position": 18, "street": "Naaffgasse", "number": "26"},
-    {"id": "s3r2p19", "section": 3, "row": 2, "position": 19, "street": "Dürwaringstraße", "number": "63"},
-    {"id": "s3r2p20", "section": 3, "row": 2, "position": 20, "street": "Dürwaringstraße", "number": "65"},
-    {"id": "s3r2p21", "section": 3, "row": 2, "position": 21, "street": "Dürwaringstraße", "number": "67"},
-    {"id": "s3r2p22", "section": 3, "row": 2, "position": 22, "street": "Dürwaringstraße", "number": "73"},
-    {"id": "s3r2p23", "section": 3, "row": 2, "position": 23, "street": "Dürwaringstraße", "number": "56-58"},
-    {"id": "s3r2p24", "section": 3, "row": 2, "position": 24, "street": "Dürwaringstraße", "number": "75"},
-    {"id": "s3r2p25", "section": 3, "row": 2, "position": 25, "street": "Dürwaringstraße", "number": "60"},
-    {"id": "s3r2p26", "section": 3, "row": 2, "position": 26, "street": "Dürwaringstraße", "number": "62"},
-    {"id": "s3r2p27", "section": 3, "row": 2, "position": 27, "street": "Dürwaringstraße", "number": "64"},
-    {"id": "s3r2p28", "section": 3, "row": 2, "position": 28, "street": "Dürwaringstraße", "number": "66"},
-    {"id": "s3r3p1", "section": 3, "row": 3, "position": 1, "street": "Dürwaringstraße", "number": "68"},
-    {"id": "s3r3p2", "section": 3, "row": 3, "position": 2, "street": "Dürwaringstraße", "number": "70"},
-    {"id": "s3r3p3", "section": 3, "row": 3, "position": 3, "street": "Dürwaringstraße", "number": "72"},
-    {"id": "s3r3p4", "section": 3, "row": 3, "position": 4, "street": "Dürwaringstraße", "number": "74"},
-    {"id": "s3r3p5", "section": 3, "row": 3, "position": 5, "street": "Dürwaringstraße", "number": "76"},
-    {"id": "s3r3p6", "section": 3, "row": 3, "position": 6, "street": "Dürwaringstraße", "number": "83"},
-    {"id": "s3r3p7", "section": 3, "row": 3, "position": 7, "street": "Dürwaringstraße", "number": "83a"},
-    {"id": "s3r3p8", "section": 3, "row": 3, "position": 8, "street": "Dürwaringstraße", "number": "83a"},
-    {"id": "s3r3p9", "section": 3, "row": 3, "position": 9, "street": "Dürwaringstraße", "number": "83a Pa 26"},
-    {"id": "s3r3p10", "section": 3, "row": 3, "position": 10, "street": "KLG", "number": "Pa 33"},
-    {"id": "s3r3p11", "section": 3, "row": 3, "position": 11, "street": "Schafbergstraße", "number": "Pa 33"},
-    {"id": "s3r3p12", "section": 3, "row": 3, "position": 12, "street": "Schafbergstraße", "number": "Pa 31"},
-    {"id": "s3r3p13", "section": 3, "row": 3, "position": 13, "street": "Dürwaringstraße", "number": "85"},
-    {"id": "s3r3p14", "section": 3, "row": 3, "position": 14, "street": "Dürwaringstraße", "number": "80"},
-    {"id": "s3r3p15", "section": 3, "row": 3, "position": 15, "street": "Dürwaringstraße", "number": "82"},
-    {"id": "s3r3p16", "section": 3, "row": 3, "position": 16, "street": "Dürwaringstraße", "number": "87"},
-    {"id": "s3r3p17", "section": 3, "row": 3, "position": 17, "street": "Blaselgasse", "number": "1"},
-    {"id": "s3r3p18", "section": 3, "row": 3, "position": 18, "street": "Blaselgasse", "number": "4"},
-    {"id": "s3r3p19", "section": 3, "row": 3, "position": 19, "street": "Blaselgasse", "number": "3"},
-    {"id": "s3r3p20", "section": 3, "row": 3, "position": 20, "street": "Blaselgasse", "number": "5"},
-    {"id": "s3r3p21", "section": 3, "row": 3, "position": 21, "street": "Blaselgasse", "number": "7"},
-    {"id": "s3r3p22", "section": 3, "row": 3, "position": 22, "street": "Blaselgasse", "number": "6"},
-    {"id": "s3r3p23", "section": 3, "row": 3, "position": 23, "street": "Blaselgasse", "number": "8"},
-    {"id": "s3r3p24", "section": 3, "row": 3, "position": 24, "street": "Blaselgasse", "number": "10"},
-    {"id": "s3r3p25", "section": 3, "row": 3, "position": 25, "street": "Blaselgasse", "number": "12"},
-    {"id": "s3r3p26", "section": 3, "row": 3, "position": 26, "street": "Blaselgasse", "number": "11"},
-    {"id": "s3r3p27", "section": 3, "row": 3, "position": 27, "street": "Blaselgasse", "number": "14"},
-    {"id": "s3r3p28", "section": 3, "row": 3, "position": 28, "street": "Naaffgasse", "number": "35"},
-    {"id": "s3r3p29", "section": 3, "row": 3, "position": 29, "street": "Blaselgasse", "number": "29"},
-    {"id": "s3r3p30", "section": 3, "row": 3, "position": 30, "street": "Naaffgasse", "number": "33"},
-    {"id": "s3r3p31", "section": 3, "row": 3, "position": 31, "street": "Naaffgasse", "number": "31"},
-    {"id": "s3r4p1", "section": 3, "row": 4, "position": 1, "street": "Bastiengasse", "number": "78"},
-    {"id": "s3r4p2", "section": 3, "row": 4, "position": 2, "street": "Naaffgasse", "number": "34"},
-    {"id": "s3r4p3", "section": 3, "row": 4, "position": 3, "street": "Naaffgasse", "number": "36"},
-    {"id": "s3r4p4", "section": 3, "row": 4, "position": 4, "street": "Naaffgasse", "number": "38-40"},
-    {"id": "s3r4p5", "section": 3, "row": 4, "position": 5, "street": "Naaffgasse", "number": "41"},
-    {"id": "s3r4p6", "section": 3, "row": 4, "position": 6, "street": "Naaffgasse", "number": "50"},
-    {"id": "s3r4p7", "section": 3, "row": 4, "position": 7, "street": "Naaffgasse", "number": "54"},
-    {"id": "s3r4p8", "section": 3, "row": 4, "position": 8, "street": "Naaffgasse", "number": "43"},
-    {"id": "s3r4p9", "section": 3, "row": 4, "position": 9, "street": "Naaffgasse", "number": "45"},
-    {"id": "s3r4p10", "section": 3, "row": 4, "position": 10, "street": "Naaffgasse", "number": "56"},
-    {"id": "s3r4p11", "section": 3, "row": 4, "position": 11, "street": "Naaffgasse", "number": "58"},
-    {"id": "s3r4p12", "section": 3, "row": 4, "position": 12, "street": "Naaffgasse", "number": "66"},
-    {"id": "s3r4p13", "section": 3, "row": 4, "position": 13, "street": "Naaffgasse", "number": "47"},
-    {"id": "s3r4p14", "section": 3, "row": 4, "position": 14, "street": "Naaffgasse", "number": "68-72"},
-    {"id": "s3r4p15", "section": 3, "row": 4, "position": 15, "street": "Naaffgasse", "number": "74"},
-    {"id": "s3r4p16", "section": 3, "row": 4, "position": 16, "street": "Naaffgasse", "number": "55"},
-    {"id": "s3r4p17", "section": 3, "row": 4, "position": 17, "street": "Sonnenbadweg", "number": "4"},
-    {"id": "s3r4p18", "section": 3, "row": 4, "position": 18, "street": "Sonnenbadweg", "number": "22"},
-    {"id": "s3r4p19", "section": 3, "row": 4, "position": 19, "street": "Sonnenbadweg", "number": "28"},
-    {"id": "s3r4p20", "section": 3, "row": 4, "position": 20, "street": "Sonnenbadweg", "number": "33"},
-    {"id": "s3r4p21", "section": 3, "row": 4, "position": 21, "street": "Sonnenbadweg", "number": "31"},
-    {"id": "s3r4p22", "section": 3, "row": 4, "position": 22, "street": "Sonnenbadweg", "number": "29"},
-    {"id": "s3r4p23", "section": 3, "row": 4, "position": 23, "street": "Sonnenbadweg", "number": "27"},
-    {"id": "s3r4p24", "section": 3, "row": 4, "position": 24, "street": "Sonnenbadweg", "number": "23"},
-    {"id": "s3r4p25", "section": 3, "row": 4, "position": 25, "street": "Sonnenbadweg", "number": "21"},
-    {"id": "s3r4p26", "section": 3, "row": 4, "position": 26, "street": "Sonnenbadweg", "number": "16"},
-    {"id": "s4r1p1", "section": 4, "row": 1, "position": 1, "street": "Sonnenbadweg", "number": "18"},
-    {"id": "s4r1p2", "section": 4, "row": 1, "position": 2, "street": "Sonnenbadweg", "number": "15"},
-    {"id": "s4r1p3", "section": 4, "row": 1, "position": 3, "street": "Sonnenbadweg", "number": "13"},
-    {"id": "s4r1p4", "section": 4, "row": 1, "position": 4, "street": "Sonnenbadweg", "number": "11 Pa 9"},
-    {"id": "s4r1p5", "section": 4, "row": 1, "position": 5, "street": "Sonnenbadweg", "number": "11 Pa"},
-    {"id": "s4r1p6", "section": 4, "row": 1, "position": 6, "street": "Sonnenbadweg", "number": "11 Pa"},
-    {"id": "s4r1p7", "section": 4, "row": 1, "position": 7, "street": "Sonnenbadweg", "number": "5 Pa 4"},
-    {"id": "s4r1p8", "section": 4, "row": 1, "position": 8, "street": "Sonnenbadweg", "number": "5 Pa 5"},
-    {"id": "s4r1p9", "section": 4, "row": 1, "position": 9, "street": "Sonnenbadweg", "number": "5 Pa 6"},
-    {"id": "s4r1p10", "section": 4, "row": 1, "position": 10, "street": "Sonnenbadweg", "number": "5 Pa 7"},
-    {"id": "s4r1p11", "section": 4, "row": 1, "position": 11, "street": "Sonnenbadweg", "number": "5 Pa"},
-    {"id": "s4r1p12", "section": 4, "row": 1, "position": 12, "street": "Naaffgasse", "number": "76"},
-    {"id": "s4r1p13", "section": 4, "row": 1, "position": 13, "street": "Brunenstubenweg", "number": "26a"},
-    {"id": "s4r1p14", "section": 4, "row": 1, "position": 14, "street": "Brunenstubenweg", "number": "26b"},
-    {"id": "s4r1p15", "section": 4, "row": 1, "position": 15, "street": "Brunenstubenweg", "number": "28"},
-    {"id": "s4r1p16", "section": 4, "row": 1, "position": 16, "street": "Knorrweg", "number": "1"},
-    {"id": "s4r1p17", "section": 4, "row": 1, "position": 17, "street": "Knorrweg", "number": "2"},
-    {"id": "s4r1p18", "section": 4, "row": 1, "position": 18, "street": "Knorrweg", "number": "4"},
-    {"id": "s4r1p19", "section": 4, "row": 1, "position": 19, "street": "Naaffgasse", "number": "86"},
-    {"id": "s4r1p20", "section": 4, "row": 1, "position": 20, "street": "Molnargasse", "number": "32"},
-    {"id": "s4r1p21", "section": 4, "row": 1, "position": 21, "street": "Molnargasse", "number": "34"},
-    {"id": "s4r1p22", "section": 4, "row": 1, "position": 22, "street": "Molnargasse", "number": "36"},
-    {"id": "s4r1p23", "section": 4, "row": 1, "position": 23, "street": "Naaffgasse", "number": "84"},
-    {"id": "s4r1p24", "section": 4, "row": 1, "position": 24, "street": "Naaffgasse", "number": "82"},
-    {"id": "s4r1p25", "section": 4, "row": 1, "position": 25, "street": "Naaffgasse", "number": "80"},
-    {"id": "s4r1p26", "section": 4, "row": 1, "position": 26, "street": "Naaffgasse", "number": "78"},
-    {"id": "s4r2p1", "section": 4, "row": 2, "position": 1, "street": "Naaffgasse", "number": "76a"},
-    {"id": "s4r2p2", "section": 4, "row": 2, "position": 2, "street": "Naaffgasse", "number": "71 St"},
-    {"id": "s4r2p3", "section": 4, "row": 2, "position": 3, "street": "Naaffgasse", "number": "71 St"},
-    {"id": "s4r2p4", "section": 4, "row": 2, "position": 4, "street": "Naaffgasse", "number": "71 St 3"},
-    {"id": "s4r2p5", "section": 4, "row": 2, "position": 5, "street": "Naaffgasse", "number": "71 St 4"},
-    {"id": "s4r2p6", "section": 4, "row": 2, "position": 6, "street": "Naaffgasse", "number": "73"},
-    {"id": "s4r2p7", "section": 4, "row": 2, "position": 7, "street": "Naaffgasse", "number": "77"},
-    {"id": "s4r2p8", "section": 4, "row": 2, "position": 8, "street": "Naaffgasse", "number": "81"},
-    {"id": "s4r2p9", "section": 4, "row": 2, "position": 9, "street": "Molnargasse", "number": "26"},
-    {"id": "s4r2p10", "section": 4, "row": 2, "position": 10, "street": "Molnargasse", "number": "22-24"},
-    {"id": "s4r2p11", "section": 4, "row": 2, "position": 11, "street": "Molnargasse", "number": "20"},
-    {"id": "s4r2p12", "section": 4, "row": 2, "position": 12, "street": "Molnargasse", "number": "18"},
-    {"id": "s4r2p13", "section": 4, "row": 2, "position": 13, "street": "Molnargasse", "number": "16"},
-    {"id": "s4r2p14", "section": 4, "row": 2, "position": 14, "street": "Molnargasse", "number": "10"},
-    {"id": "s4r2p15", "section": 4, "row": 2, "position": 15, "street": "Molnargasse", "number": "8"},
-    {"id": "s4r2p16", "section": 4, "row": 2, "position": 16, "street": "Molnargasse", "number": "4"},
-    {"id": "s4r2p17", "section": 4, "row": 2, "position": 17, "street": "Schönbrunner Graben", "number": "104"},
-    {"id": "s4r2p18", "section": 4, "row": 2, "position": 18, "street": "Schönbrunner Graben", "number": "102"},
-    {"id": "s4r2p19", "section": 4, "row": 2, "position": 19, "street": "Schönbrunner Graben", "number": "100"},
-    {"id": "s4r2p20", "section": 4, "row": 2, "position": 20, "street": "Schönbrunner Graben", "number": "98"},
-    {"id": "s4r2p21", "section": 4, "row": 2, "position": 21, "street": "Schönbrunner Graben", "number": "96"},
-    {"id": "s4r2p22", "section": 4, "row": 2, "position": 22, "street": "Schönbrunner Graben", "number": "94"},
-    {"id": "s4r2p23", "section": 4, "row": 2, "position": 23, "street": "Schönbrunner Graben", "number": "92"},
-    {"id": "s4r2p24", "section": 4, "row": 2, "position": 24, "street": "Schönbrunner Graben", "number": "90"},
-    {"id": "s4r2p25", "section": 4, "row": 2, "position": 25, "street": "Weißdornweg", "number": "3"},
-    {"id": "s4r2p26", "section": 4, "row": 2, "position": 26, "street": "Weißdornweg", "number": "5 St 8"},
-    {"id": "s4r2p27", "section": 4, "row": 2, "position": 27, "street": "Weißdornweg", "number": "5 St 7"},
-    {"id": "s4r2p28", "section": 4, "row": 2, "position": 28, "street": "Weißdornweg", "number": "5 St 6"},
-    {"id": "s4r2p29", "section": 4, "row": 2, "position": 29, "street": "Weißdornweg", "number": "5 St 5"},
-    {"id": "s4r2p30", "section": 4, "row": 2, "position": 30, "street": "Weißdornweg", "number": "11"},
-    {"id": "s4r2p31", "section": 4, "row": 2, "position": 31, "street": "Weißdornweg", "number": "18"},
-    {"id": "s4r2p32", "section": 4, "row": 2, "position": 32, "street": "Weißdornweg", "number": "16"},
-    {"id": "s4r2p33", "section": 4, "row": 2, "position": 33, "street": "Weißdornweg", "number": "14"},
-    {"id": "s4r2p34", "section": 4, "row": 2, "position": 34, "street": "Weißdornweg", "number": "10"},
-    {"id": "s4r2p35", "section": 4, "row": 2, "position": 35, "street": "Weißdornweg", "number": "8"},
-    {"id": "s4r3p1", "section": 4, "row": 3, "position": 1, "street": "Weißdornweg", "number": "6"},
-    {"id": "s4r3p2", "section": 4, "row": 3, "position": 2, "street": "Weißdornweg", "number": "4"},
-    {"id": "s4r3p3", "section": 4, "row": 3, "position": 3, "street": "Schönbrunner Graben", "number": "82"},
-    {"id": "s4r3p4", "section": 4, "row": 3, "position": 4, "street": "Schönbrunner Graben", "number": "80"},
-    {"id": "s4r3p5", "section": 4, "row": 3, "position": 5, "street": "Schönbrunner Graben", "number": "29*"},
-    {"id": "s4r3p6", "section": 4, "row": 3, "position": 6, "street": "Schönbrunner Graben", "number": "24a"},
-    {"id": "s4r3p7", "section": 4, "row": 3, "position": 7, "street": "Schönbrunner Graben", "number": "24"},
-    {"id": "s4r3p8", "section": 4, "row": 3, "position": 8, "street": "KLG Schaf", "number": "Pa  19"},
-    {"id": "s4r3p9", "section": 4, "row": 3, "position": 9, "street": "Schönbrunner Graben", "number": "22"},
-    {"id": "s4r3p10", "section": 4, "row": 3, "position": 10, "street": "Schönbrunner Graben", "number": "20"},
-    {"id": "s4r3p11", "section": 4, "row": 3, "position": 11, "street": "KLG Schafberglidung", "number": "Pa 15"},
-    {"id": "s4r3p12", "section": 4, "row": 3, "position": 12, "street": "KLG Schafberglidung", "number": "Pa 14"},
-    {"id": "s4r3p13", "section": 4, "row": 3, "position": 13, "street": "KLG Schafberglidung", "number": "Pa 13"},
-    {"id": "s4r3p14", "section": 4, "row": 3, "position": 14, "street": "KLG Schafberglidung", "number": "Pa 11"},
-    {"id": "s4r3p15", "section": 4, "row": 3, "position": 15, "street": "KLG Schaf", "number": "Pa 10"},
-    {"id": "s4r3p16", "section": 4, "row": 3, "position": 16, "street": "KLG 18a", "number": "Pa 3"},
-    {"id": "s4r3p17", "section": 4, "row": 3, "position": 17, "street": "KLG Schafberg", "number": "Pa 7"},
-    {"id": "s4r3p18", "section": 4, "row": 3, "position": 18, "street": "KLG Schafberg", "number": "Pa 6"},
-    {"id": "s4r3p19", "section": 4, "row": 3, "position": 19, "street": "KLG Schafberg", "number": "Pa 5"},
-    {"id": "s4r3p20", "section": 4, "row": 3, "position": 20, "street": "Schönbrunner Graben", "number": "18"},
-    {"id": "s4r3p21", "section": 4, "row": 3, "position": 21, "street": "Schönbrunner Graben", "number": "16a"},
-    {"id": "s4r3p22", "section": 4, "row": 3, "position": 22, "street": "Schönbrunner Graben", "number": "16"},
-    {"id": "s4r3p23", "section": 4, "row": 3, "position": 23, "street": "Schönbrunner Graben", "number": "14"},
-    {"id": "s4r3p24", "section": 4, "row": 3, "position": 24, "street": "Schönbrunner Graben", "number": "8"},
-    {"id": "s4r3p25", "section": 4, "row": 3, "position": 25, "street": "Schönbrunner Graben", "number": "6"},
-    {"id": "s4r3p26", "section": 4, "row": 3, "position": 26, "street": "Schönbrunner Graben", "number": "4"},
-    {"id": "s4r3p27", "section": 4, "row": 3, "position": 27, "street": "Utopiaweg", "number": "12"},
-    {"id": "s4r3p28", "section": 4, "row": 3, "position": 28, "street": "Utopiaweg", "number": "1"},
-    {"id": "s4r3p29", "section": 4, "row": 3, "position": 29, "street": "Utopiaweg", "number": "8"},
-    {"id": "s4r4p1", "section": 4, "row": 4, "position": 1, "street": "Utopiaweg", "number": "6 Pa"},
-    {"id": "s4r4p2", "section": 4, "row": 4, "position": 2, "street": "Utopiaweg", "number": "4 Pa"},
-    {"id": "s4r4p3", "section": 4, "row": 4, "position": 3, "street": "Utopiaweg", "number": "2"},
-    {"id": "s4r4p4", "section": 4, "row": 4, "position": 4, "street": "Josef redl gasse", "number": "4a Pa 18"},
-    {"id": "s4r4p5", "section": 4, "row": 4, "position": 5, "street": "Josef redl gasse", "number": "8"},
-    {"id": "s4r4p6", "section": 4, "row": 4, "position": 6, "street": "Josef bindtner gasse", "number": "4"},
-    {"id": "s4r4p7", "section": 4, "row": 4, "position": 7, "street": "Josef bindtner gasse", "number": "5"},
-    {"id": "s4r4p8", "section": 4, "row": 4, "position": 8, "street": "Josef bindtner gasse", "number": "6"},
-    {"id": "s4r4p9", "section": 4, "row": 4, "position": 9, "street": "Josef bindtner gasse", "number": "7"},
-    {"id": "s4r4p10", "section": 4, "row": 4, "position": 10, "street": "Josef bindtner gasse", "number": "8"},
-    {"id": "s4r4p11", "section": 4, "row": 4, "position": 11, "street": "Josef bindtner gasse", "number": "9"},
-    {"id": "s4r4p12", "section": 4, "row": 4, "position": 12, "street": "Landenburghöhe 47", "number": "12 Pa 10"},
-    {"id": "s4r4p13", "section": 4, "row": 4, "position": 13, "street": "Landenburghöhe", "number": "49"},
-    {"id": "s4r4p14", "section": 4, "row": 4, "position": 14, "street": "Josef redl gasse", "number": "10 Pa"},
-    {"id": "s4r4p15", "section": 4, "row": 4, "position": 15, "street": "Josef redl gasse", "number": "10b"},
-    {"id": "s4r4p16", "section": 4, "row": 4, "position": 16, "street": "Josef redl gasse", "number": "10d Pa 9"},
-    {"id": "s4r4p17", "section": 4, "row": 4, "position": 17, "street": "Josef redl gasse", "number": "10d Pa 10"},
-    {"id": "s4r4p18", "section": 4, "row": 4, "position": 18, "street": "Josef redl gasse", "number": "10e"},
-    {"id": "s4r4p19", "section": 4, "row": 4, "position": 19, "street": "Josef redl gasse", "number": "10 Pa 1"},
-    {"id": "s4r4p20", "section": 4, "row": 4, "position": 20, "street": "Josef redl gasse", "number": "12 Pa 1"},
-    {"id": "s4r4p21", "section": 4, "row": 4, "position": 21, "street": "Josef redl gasse", "number": "12 Pa 17"},
-    {"id": "s4r4p22", "section": 4, "row": 4, "position": 22, "street": "Josef redl gasse", "number": "12 Pa 16"},
-    {"id": "s4r4p23", "section": 4, "row": 4, "position": 23, "street": "Josef redl gasse", "number": "14"},
-    {"id": "s4r4p24", "section": 4, "row": 4, "position": 24, "street": "Josef redl gasse", "number": "2"}
+    {"section": 1, "row": 1, "position": 1, "id": "s1r1p1", "street": "Wallrißstraße", "number": "43", "labelGroup": "s1r1g1", "labelText": "Wallrißstraße"},
+    {"section": 1, "row": 1, "position": 2, "id": "s1r1p2", "street": "Wallrißstraße", "number": "41", "labelGroup": "s1r1g1", "labelText": "Wallrißstraße"},
+    {"section": 1, "row": 1, "position": 3, "id": "s1r1p3", "street": "Wallrißstraße", "number": "39", "labelGroup": "s1r1g1", "labelText": "Wallrißstraße"},
+    {"section": 1, "row": 1, "position": 4, "id": "s1r1p4", "street": "Wallrißstraße", "number": "37", "labelGroup": "s1r1g2", "labelText": "Wallrißstraße"},
+    {"section": 1, "row": 1, "position": 5, "id": "s1r1p5", "street": "Wallrißstraße", "number": "37", "labelGroup": "s1r1g2", "labelText": "Wallrißstraße"},
+    {"section": 1, "row": 1, "position": 6, "id": "s1r1p6", "street": "Alsegger Straße", "number": "33 St 1", "labelGroup": "s1r1g3", "labelText": "Alsegger Straße"},
+    {"section": 1, "row": 1, "position": 7, "id": "s1r1p7", "street": "Alsegger Straße", "number": "33 St 2", "labelGroup": "s1r1g3", "labelText": "Alsegger Straße"},
+    {"section": 1, "row": 1, "position": 8, "id": "s1r1p8", "street": "Herbeckstraße", "number": "36", "labelGroup": "s1r1g4", "labelText": "Herbeckstraße"},
+    {"section": 1, "row": 1, "position": 9, "id": "s1r1p9", "street": "Herbeckstraße", "number": "38", "labelGroup": "s1r1g4", "labelText": "Herbeckstraße"},
+    {"section": 1, "row": 1, "position": 10, "id": "s1r1p10", "street": "Herbeckstraße", "number": "40", "labelGroup": "s1r1g4", "labelText": "Herbeckstraße"},
+    {"section": 1, "row": 1, "position": 11, "id": "s1r1p11", "street": "Witthauergasse", "number": "6", "labelGroup": "s1r1g5", "labelText": "Witthauergasse"},
+    {"section": 1, "row": 1, "position": 12, "id": "s1r1p12", "street": "Witthauergasse", "number": "8", "labelGroup": "s1r1g5", "labelText": "Witthauergasse"},
+    {"section": 1, "row": 1, "position": 13, "id": "s1r1p13", "street": "Witthauergasse", "number": "10", "labelGroup": "s1r1g5", "labelText": "Witthauergasse"},
+    {"section": 1, "row": 1, "position": 14, "id": "s1r1p14", "street": "Wallrißstraße", "number": "45 St 1", "labelGroup": "s1r1g6", "labelText": "Wallrißstraße 45"},
+    {"section": 1, "row": 1, "position": 15, "id": "s1r1p15", "street": "Herbeckstraße", "number": "46", "labelGroup": "s1r1g7", "labelText": "Herbeckstraße"},
+    {"section": 1, "row": 1, "position": 16, "id": "s1r1p16", "street": "Herbeckstraße", "number": "50", "labelGroup": "s1r1g7", "labelText": "Herbeckstraße"},
+    {"section": 1, "row": 1, "position": 17, "id": "s1r1p17", "street": "Herbeckstraße", "number": "52", "labelGroup": "s1r1g8", "labelText": "Herbeckstraße"},
+    {"section": 1, "row": 1, "position": 18, "id": "s1r1p18", "street": "Herbeckstraße", "number": "54", "labelGroup": "s1r1g8", "labelText": "Herbeckstraße"},
+    {"section": 1, "row": 1, "position": 19, "id": "s1r1p19", "street": "Herbeckstraße", "number": "56", "labelGroup": "s1r1g8", "labelText": "Herbeckstraße"},
+    {"section": 1, "row": 2, "position": 1, "id": "s1r2p1", "street": "Herbeckstraße", "number": "58", "labelGroup": "s1r2g1", "labelText": "Herbeckstraße"},
+    {"section": 1, "row": 2, "position": 2, "id": "s1r2p2", "street": "Herbeckstraße", "number": "60", "labelGroup": "s1r2g1", "labelText": "Herbeckstraße"},
+    {"section": 1, "row": 2, "position": 3, "id": "s1r2p3", "street": "Herbeckstraße", "number": "62", "labelGroup": "s1r2g2", "labelText": "Herbeckstraße"},
+    {"section": 1, "row": 2, "position": 4, "id": "s1r2p4", "street": "Herbeckstraße", "number": "68", "labelGroup": "s1r2g2", "labelText": "Herbeckstraße"},
+    {"section": 1, "row": 2, "position": 5, "id": "s1r2p5", "street": "Herbeckstraße", "number": "70", "labelGroup": "s1r2g3", "labelText": "Herbeckstraße"},
+    {"section": 1, "row": 2, "position": 6, "id": "s1r2p6", "street": "Herbeckstraße", "number": "72", "labelGroup": "s1r2g3", "labelText": "Herbeckstraße"},
+    {"section": 1, "row": 2, "position": 7, "id": "s1r2p7", "street": "Erndtgasse", "number": "8", "labelGroup": "s1r2g4", "labelText": "Erndtgasse"},
+    {"section": 1, "row": 2, "position": 8, "id": "s1r2p8", "street": "Erndtgasse", "number": "14", "labelGroup": "s1r2g4", "labelText": "Erndtgasse"},
+    {"section": 1, "row": 2, "position": 9, "id": "s1r2p9", "street": "Wallrißstraße", "number": "67", "labelGroup": "s1r2g5", "labelText": "Wallrißstraße"},
+    {"section": 1, "row": 2, "position": 10, "id": "s1r2p10", "street": "Wallrißstraße", "number": "63", "labelGroup": "s1r2g6", "labelText": "Wallrißstraße"},
+    {"section": 1, "row": 2, "position": 11, "id": "s1r2p11", "street": "Wallrißstraße", "number": "47 Ha 1", "labelGroup": "s1r2g7", "labelText": "Wallrißstraße"},
+    {"section": 1, "row": 2, "position": 12, "id": "s1r2p12", "street": "Wallrißstraße", "number": "47 Ha 2", "labelGroup": "s1r2g7", "labelText": "Wallrißstraße"},
+    {"section": 1, "row": 2, "position": 13, "id": "s1r2p13", "street": "Wallrißstraße", "number": "47 Ha 3", "labelGroup": "s1r2g7", "labelText": "Wallrißstraße"},
+    {"section": 1, "row": 2, "position": 14, "id": "s1r2p14", "street": "Wallrißstraße", "number": "47", "labelGroup": "s1r2g7", "labelText": "Wallrißstraße"},
+    {"section": 1, "row": 2, "position": 15, "id": "s1r2p15", "street": "Wallrißstraße", "number": "59", "labelGroup": "s1r2g8", "labelText": "Wallrißstraße"},
+    {"section": 1, "row": 2, "position": 16, "id": "s1r2p16", "street": "Messerschmidtgasse", "number": "14", "labelGroup": "s1r2g9", "labelText": "Messerschmidtgasse"},
+    {"section": 1, "row": 3, "position": 1, "id": "s1r3p1", "street": "Messerschmidtgasse", "number": "12", "labelGroup": "s1r3g1", "labelText": "Messerschmidtgasse"},
+    {"section": 1, "row": 3, "position": 2, "id": "s1r3p2", "street": "Erndtgasse", "number": "13", "labelGroup": "s1r3g2", "labelText": "Erndtgasse"},
+    {"section": 1, "row": 3, "position": 3, "id": "s1r3p3", "street": "Erndtgasse", "number": "9-11", "labelGroup": "s1r3g2", "labelText": "Erndtgasse"},
+    {"section": 1, "row": 3, "position": 4, "id": "s1r3p4", "street": "Erndtgasse", "number": "7", "labelGroup": "s1r3g3", "labelText": "Erndtgasse"},
+    {"section": 1, "row": 3, "position": 5, "id": "s1r3p5", "street": "Herbeckstraße", "number": "80", "labelGroup": "s1r3g4", "labelText": "Herbeckstraße"},
+    {"section": 1, "row": 3, "position": 6, "id": "s1r3p6", "street": "Herbeckstraße", "number": "82", "labelGroup": "s1r3g4", "labelText": "Herbeckstraße"},
+    {"section": 1, "row": 3, "position": 7, "id": "s1r3p7", "street": "Herbeckstraße", "number": "84", "labelGroup": "s1r3g4", "labelText": "Herbeckstraße"},
+    {"section": 1, "row": 3, "position": 8, "id": "s1r3p8", "street": "Herbeckstraße", "number": "86", "labelGroup": "s1r3g4", "labelText": "Herbeckstraße"},
+    {"section": 1, "row": 3, "position": 9, "id": "s1r3p9", "street": "Herbeckstraße", "number": "88", "labelGroup": "s1r3g5", "labelText": "Herbeckstraße"},
+    {"section": 1, "row": 3, "position": 10, "id": "s1r3p10", "street": "Herbeckstraße", "number": "90", "labelGroup": "s1r3g5", "labelText": "Herbeckstraße"},
+    {"section": 1, "row": 3, "position": 11, "id": "s1r3p11", "street": "Herbeckstraße", "number": "92", "labelGroup": "s1r3g5", "labelText": "Herbeckstraße"},
+    {"section": 1, "row": 3, "position": 12, "id": "s1r3p12", "street": "Herbeckstraße", "number": "94", "labelGroup": "s1r3g5", "labelText": "Herbeckstraße"},
+    {"section": 1, "row": 3, "position": 13, "id": "s1r3p13", "street": "Herbeckstraße", "number": "96", "labelGroup": "s1r3g6", "labelText": "Herbeckstraße"},
+    {"section": 1, "row": 3, "position": 14, "id": "s1r3p14", "street": "Herbeckstraße", "number": "98", "labelGroup": "s1r3g6", "labelText": "Herbeckstraße"},
+    {"section": 1, "row": 3, "position": 15, "id": "s1r3p15", "street": "Herbeckstraße", "number": "100", "labelGroup": "s1r3g6", "labelText": "Herbeckstraße"},
+    {"section": 1, "row": 3, "position": 16, "id": "s1r3p16", "street": "Scheibenbergstraße", "number": "8", "labelGroup": "s1r3g7", "labelText": "Scheibenbergstraße"},
+    {"section": 1, "row": 3, "position": 17, "id": "s1r3p17", "street": "Wallrißstraße", "number": "91", "labelGroup": "s1r3g8", "labelText": "Wallrißstraße"},
+    {"section": 1, "row": 3, "position": 18, "id": "s1r3p18", "street": "Wallrißstraße", "number": "89", "labelGroup": "s1r3g8", "labelText": "Wallrißstraße"},
+    {"section": 1, "row": 3, "position": 19, "id": "s1r3p19", "street": "Wallrißstraße", "number": "87", "labelGroup": "s1r3g9", "labelText": "Wallrißstraße"},
+    {"section": 1, "row": 3, "position": 20, "id": "s1r3p20", "street": "Wallrißstraße", "number": "85", "labelGroup": "s1r3g10", "labelText": "Wallrißstraße"},
+    {"section": 1, "row": 3, "position": 21, "id": "s1r3p21", "street": "Wallrißstraße", "number": "81-83", "labelGroup": "s1r3g10", "labelText": "Wallrißstraße"},
+    {"section": 1, "row": 4, "position": 1, "id": "s1r4p1", "street": "Wallrißstraße", "number": "79", "labelGroup": "s1r4g1", "labelText": "Wallrißstraße"},
+    {"section": 1, "row": 4, "position": 2, "id": "s1r4p2", "street": "Wallrißstraße", "number": "77", "labelGroup": "s1r4g1", "labelText": "Wallrißstraße"},
+    {"section": 1, "row": 4, "position": 3, "id": "s1r4p3", "street": "Wallrißstraße", "number": "75", "labelGroup": "s1r4g1", "labelText": "Wallrißstraße"},
+    {"section": 1, "row": 4, "position": 4, "id": "s1r4p4", "street": "Wallrißstraße", "number": "73", "labelGroup": "s1r4g2", "labelText": "Wallrißstraße"},
+    {"section": 1, "row": 4, "position": 5, "id": "s1r4p5", "street": "Wallrißstraße", "number": "71", "labelGroup": "s1r4g2", "labelText": "Wallrißstraße"},
+    {"section": 1, "row": 4, "position": 6, "id": "s1r4p6", "street": "Bastiengasse", "number": "50", "labelGroup": "s1r4g3", "labelText": "Bastiengasse"},
+    {"section": 1, "row": 4, "position": 7, "id": "s1r4p7", "street": "Bastiengasse", "number": "52", "labelGroup": "s1r4g3", "labelText": "Bastiengasse"},
+    {"section": 1, "row": 4, "position": 8, "id": "s1r4p8", "street": "Bastiengasse", "number": "54", "labelGroup": "s1r4g3", "labelText": "Bastiengasse"},
+    {"section": 1, "row": 4, "position": 9, "id": "s1r4p9", "street": "Bastiengasse", "number": "56", "labelGroup": "s1r4g4", "labelText": "Bastiengasse"},
+    {"section": 1, "row": 4, "position": 10, "id": "s1r4p10", "street": "Bastiengasse", "number": "58", "labelGroup": "s1r4g4", "labelText": "Bastiengasse"},
+    {"section": 1, "row": 4, "position": 11, "id": "s1r4p11", "street": "Bastiengasse", "number": "105", "labelGroup": "s1r4g4", "labelText": "Bastiengasse"},
+    {"section": 1, "row": 4, "position": 12, "id": "s1r4p12", "street": "Bastiengasse", "number": "103b", "labelGroup": "s1r4g4", "labelText": "Bastiengasse"},
+    {"section": 1, "row": 4, "position": 13, "id": "s1r4p13", "street": "Bastiengasse", "number": "103a", "labelGroup": "s1r4g5", "labelText": "Bastiengasse"},
+    {"section": 1, "row": 4, "position": 14, "id": "s1r4p14", "street": "Bastiengasse", "number": "101", "labelGroup": "s1r4g5", "labelText": "Bastiengasse"},
+    {"section": 1, "row": 4, "position": 15, "id": "s1r4p15", "street": "Bastiengasse", "number": "99", "labelGroup": "s1r4g5", "labelText": "Bastiengasse"},
+    {"section": 1, "row": 4, "position": 16, "id": "s1r4p16", "street": "Bastiengasse", "number": "97", "labelGroup": "s1r4g5", "labelText": "Bastiengasse"},
+    {"section": 1, "row": 4, "position": 17, "id": "s1r4p17", "street": "Bastiengasse", "number": "95", "labelGroup": "s1r4g6", "labelText": "Bastiengasse"},
+    {"section": 1, "row": 4, "position": 18, "id": "s1r4p18", "street": "Bastiengasse", "number": "93", "labelGroup": "s1r4g6", "labelText": "Bastiengasse"},
+    {"section": 1, "row": 4, "position": 19, "id": "s1r4p19", "street": "Bastiengasse", "number": "91", "labelGroup": "s1r4g6", "labelText": "Bastiengasse"},
+    {"section": 1, "row": 4, "position": 20, "id": "s1r4p20", "street": "Eckpergasse", "number": "25", "labelGroup": "s1r4g7", "labelText": "Eckpergasse"},
+    {"section": 1, "row": 4, "position": 21, "id": "s1r4p21", "street": "Eckpergasse", "number": "26", "labelGroup": "s1r4g7", "labelText": "Eckpergasse"},
+    {"section": 1, "row": 4, "position": 22, "id": "s1r4p22", "street": "Bastiengasse", "number": "85", "labelGroup": "s1r4g8", "labelText": "Bastiengasse"},
+    {"section": 1, "row": 4, "position": 23, "id": "s1r4p23", "street": "Bastiengasse", "number": "83", "labelGroup": "s1r4g8", "labelText": "Bastiengasse"},
+    {"section": 2, "row": 1, "position": 1, "id": "s2r1p1", "street": "Bastiengasse", "number": "81", "labelGroup": "s2r1g1", "labelText": "Bastiengasse"},
+    {"section": 2, "row": 1, "position": 2, "id": "s2r1p2", "street": "Bastiengasse", "number": "79", "labelGroup": "s2r1g1", "labelText": "Bastiengasse"},
+    {"section": 2, "row": 1, "position": 3, "id": "s2r1p3", "street": "Scheibenbergstraße", "number": "33", "labelGroup": "s2r1g2", "labelText": "Scheibenbergstraße"},
+    {"section": 2, "row": 1, "position": 4, "id": "s2r1p4", "street": "Scheibenbergstraße", "number": "31", "labelGroup": "s2r1g2", "labelText": "Scheibenbergstraße"},
+    {"section": 2, "row": 1, "position": 5, "id": "s2r1p5", "street": "Scheibenbergstraße", "number": "29", "labelGroup": "s2r1g2", "labelText": "Scheibenbergstraße"},
+    {"section": 2, "row": 1, "position": 6, "id": "s2r1p6", "street": "Scheibenbergstraße", "number": "27", "labelGroup": "s2r1g2", "labelText": "Scheibenbergstraße"},
+    {"section": 2, "row": 1, "position": 7, "id": "s2r1p7", "street": "Scheibenbergstraße", "number": "25", "labelGroup": "s2r1g3", "labelText": "Scheibenbergstraße"},
+    {"section": 2, "row": 1, "position": 8, "id": "s2r1p8", "street": "Scheibenbergstraße", "number": "23", "labelGroup": "s2r1g3", "labelText": "Scheibenbergstraße"},
+    {"section": 2, "row": 1, "position": 9, "id": "s2r1p9", "street": "Scheibenbergstraße", "number": "21", "labelGroup": "s2r1g3", "labelText": "Scheibenbergstraße"},
+    {"section": 2, "row": 1, "position": 10, "id": "s2r1p10", "street": "Scheibenbergstraße", "number": "19", "labelGroup": "s2r1g3", "labelText": "Scheibenbergstraße"},
+    {"section": 2, "row": 1, "position": 11, "id": "s2r1p11", "street": "Wallrißstraße", "number": "94", "labelGroup": "s2r1g4", "labelText": "Wallrißstraße"},
+    {"section": 2, "row": 1, "position": 12, "id": "s2r1p12", "street": "Wallrißstraße", "number": "94", "labelGroup": "s2r1g4", "labelText": "Wallrißstraße"},
+    {"section": 2, "row": 1, "position": 13, "id": "s2r1p13", "street": "Wallrißstraße", "number": "96", "labelGroup": "s2r1g4", "labelText": "Wallrißstraße"},
+    {"section": 2, "row": 1, "position": 14, "id": "s2r1p14", "street": "Wallrißstraße", "number": "98", "labelGroup": "s2r1g5", "labelText": "Wallrißstraße"},
+    {"section": 2, "row": 1, "position": 15, "id": "s2r1p15", "street": "Wallrißstraße", "number": "100", "labelGroup": "s2r1g5", "labelText": "Wallrißstraße"},
+    {"section": 2, "row": 1, "position": 16, "id": "s2r1p16", "street": "Wallrißstraße", "number": "102", "labelGroup": "s2r1g5", "labelText": "Wallrißstraße"},
+    {"section": 2, "row": 1, "position": 17, "id": "s2r1p17", "street": "Eckpergasse", "number": "8", "labelGroup": "s2r1g6", "labelText": "Eckpergasse"},
+    {"section": 2, "row": 1, "position": 18, "id": "s2r1p18", "street": "Eckpergasse", "number": "6", "labelGroup": "s2r1g6", "labelText": "Eckpergasse"},
+    {"section": 2, "row": 1, "position": 19, "id": "s2r1p19", "street": "Eckpergasse", "number": "4", "labelGroup": "s2r1g6", "labelText": "Eckpergasse"},
+    {"section": 2, "row": 1, "position": 20, "id": "s2r1p20", "street": "Eckpergasse", "number": "2", "labelGroup": "s2r1g7", "labelText": "Eckpergasse"},
+    {"section": 2, "row": 1, "position": 21, "id": "s2r1p21", "street": "Herbeckstraße", "number": "108", "labelGroup": "s2r1g8", "labelText": "Herbeckstraße"},
+    {"section": 2, "row": 1, "position": 22, "id": "s2r1p22", "street": "Herbeckstraße", "number": "104", "labelGroup": "s2r1g8", "labelText": "Herbeckstraße"},
+    {"section": 2, "row": 2, "position": 1, "id": "s2r2p1", "street": "Scheibenbergstraße", "number": "11", "labelGroup": "s2r2g1", "labelText": "Scheibenbergstraße"},
+    {"section": 2, "row": 2, "position": 2, "id": "s2r2p2", "street": "Scheibenbergstraße", "number": "13", "labelGroup": "s2r2g1", "labelText": "Scheibenbergstraße"},
+    {"section": 2, "row": 2, "position": 3, "id": "s2r2p3", "street": "Scheibenbergstraße", "number": "15", "labelGroup": "s2r2g1", "labelText": "Scheibenbergstraße"},
+    {"section": 2, "row": 2, "position": 4, "id": "s2r2p4", "street": "Wallrißstraße", "number": "97", "labelGroup": "s2r2g2", "labelText": "Wallrißstraße"},
+    {"section": 2, "row": 2, "position": 5, "id": "s2r2p5", "street": "Wallrißstraße", "number": "99", "labelGroup": "s2r2g2", "labelText": "Wallrißstraße"},
+    {"section": 2, "row": 2, "position": 6, "id": "s2r2p6", "street": "Wallrißstraße", "number": "101", "labelGroup": "s2r2g2", "labelText": "Wallrißstraße"},
+    {"section": 2, "row": 2, "position": 7, "id": "s2r2p7", "street": "Wallrißstraße", "number": "103", "labelGroup": "s2r2g2", "labelText": "Wallrißstraße"},
+    {"section": 2, "row": 2, "position": 8, "id": "s2r2p8", "street": "Eckpergasse", "number": "12", "labelGroup": "s2r2g3", "labelText": "Eckpergasse"},
+    {"section": 2, "row": 2, "position": 9, "id": "s2r2p9", "street": "Eckpergasse", "number": "14", "labelGroup": "s2r2g3", "labelText": "Eckpergasse"},
+    {"section": 2, "row": 2, "position": 10, "id": "s2r2p10", "street": "Eckpergasse", "number": "16", "labelGroup": "s2r2g3", "labelText": "Eckpergasse"},
+    {"section": 2, "row": 2, "position": 11, "id": "s2r2p11", "street": "Eckpergasse", "number": "18", "labelGroup": "s2r2g3", "labelText": "Eckpergasse"},
+    {"section": 2, "row": 2, "position": 12, "id": "s2r2p12", "street": "Eckpergasse", "number": "20-22", "labelGroup": "s2r2g4", "labelText": "Eckpergasse"},
+    {"section": 2, "row": 2, "position": 13, "id": "s2r2p13", "street": "Eckpergasse", "number": "24", "labelGroup": "s2r2g4", "labelText": "Eckpergasse"},
+    {"section": 2, "row": 2, "position": 14, "id": "s2r2p14", "street": "Eckpergasse", "number": "23", "labelGroup": "s2r2g4", "labelText": "Eckpergasse"},
+    {"section": 2, "row": 2, "position": 15, "id": "s2r2p15", "street": "Eckpergasse", "number": "21", "labelGroup": "s2r2g4", "labelText": "Eckpergasse"},
+    {"section": 2, "row": 2, "position": 16, "id": "s2r2p16", "street": "Eckpergasse", "number": "19", "labelGroup": "s2r2g5", "labelText": "Eckpergasse"},
+    {"section": 2, "row": 2, "position": 17, "id": "s2r2p17", "street": "Eckpergasse", "number": "17", "labelGroup": "s2r2g5", "labelText": "Eckpergasse"},
+    {"section": 2, "row": 2, "position": 18, "id": "s2r2p18", "street": "Eckpergasse", "number": "15", "labelGroup": "s2r2g5", "labelText": "Eckpergasse"},
+    {"section": 2, "row": 2, "position": 19, "id": "s2r2p19", "street": "Eckpergasse", "number": "13", "labelGroup": "s2r2g5", "labelText": "Eckpergasse"},
+    {"section": 2, "row": 2, "position": 20, "id": "s2r2p20", "street": "Eckpergasse", "number": "11", "labelGroup": "s2r2g5", "labelText": "Eckpergasse"},
+    {"section": 2, "row": 2, "position": 21, "id": "s2r2p21", "street": "Eckpergasse", "number": "7", "labelGroup": "s2r2g6", "labelText": "Eckpergasse"},
+    {"section": 2, "row": 2, "position": 22, "id": "s2r2p22", "street": "Eckpergasse", "number": "5", "labelGroup": "s2r2g6", "labelText": "Eckpergasse"},
+    {"section": 2, "row": 2, "position": 23, "id": "s2r2p23", "street": "Eckpergasse", "number": "3", "labelGroup": "s2r2g6", "labelText": "Eckpergasse"},
+    {"section": 2, "row": 2, "position": 24, "id": "s2r2p24", "street": "Eckpergasse", "number": "1", "labelGroup": "s2r2g6", "labelText": "Eckpergasse"},
+    {"section": 2, "row": 2, "position": 25, "id": "s2r2p25", "street": "Herbeckstraße", "number": "114-116", "labelGroup": "s2r2g7", "labelText": "Herbeckstraße"},
+    {"section": 2, "row": 2, "position": 26, "id": "s2r2p26", "street": "Herbeckstraße", "number": "118", "labelGroup": "s2r2g7", "labelText": "Herbeckstraße"},
+    {"section": 2, "row": 3, "position": 1, "id": "s2r3p1", "street": "Herbeckstraße", "number": "120", "labelGroup": "s2r3g1", "labelText": "Herbeckstraße"},
+    {"section": 2, "row": 3, "position": 2, "id": "s2r3p2", "street": "Herbeckstraße", "number": "122", "labelGroup": "s2r3g1", "labelText": "Herbeckstraße"},
+    {"section": 2, "row": 3, "position": 3, "id": "s2r3p3", "street": "Herbeckstraße", "number": "124", "labelGroup": "s2r3g2", "labelText": "Herbeckstraße"},
+    {"section": 2, "row": 3, "position": 4, "id": "s2r3p4", "street": "Herbeckstraße", "number": "126", "labelGroup": "s2r3g2", "labelText": "Herbeckstraße"},
+    {"section": 2, "row": 3, "position": 5, "id": "s2r3p5", "street": "Herbeckstraße", "number": "128", "labelGroup": "s2r3g2", "labelText": "Herbeckstraße"},
+    {"section": 2, "row": 3, "position": 6, "id": "s2r3p6", "street": "Herbeckstraße", "number": "130", "labelGroup": "s2r3g3", "labelText": "Herbeckstraße"},
+    {"section": 2, "row": 3, "position": 7, "id": "s2r3p7", "street": "Herbeckstraße", "number": "132", "labelGroup": "s2r3g3", "labelText": "Herbeckstraße"},
+    {"section": 2, "row": 3, "position": 8, "id": "s2r3p8", "street": "Herbeckstraße", "number": "134", "labelGroup": "s2r3g3", "labelText": "Herbeckstraße"},
+    {"section": 2, "row": 3, "position": 9, "id": "s2r3p9", "street": "Naaffgasse", "number": "1-3", "labelGroup": "s2r3g4", "labelText": "Naaffgasse"},
+    {"section": 2, "row": 3, "position": 10, "id": "s2r3p10", "street": "Naaffgasse", "number": "4", "labelGroup": "s2r3g4", "labelText": "Naaffgasse"},
+    {"section": 2, "row": 3, "position": 11, "id": "s2r3p11", "street": "Naaffgasse", "number": "6", "labelGroup": "s2r3g4", "labelText": "Naaffgasse"},
+    {"section": 2, "row": 3, "position": 12, "id": "s2r3p12", "street": "Naaffgasse", "number": "5", "labelGroup": "s2r3g5", "labelText": "Naaffgasse"},
+    {"section": 2, "row": 3, "position": 13, "id": "s2r3p13", "street": "Naaffgasse", "number": "7", "labelGroup": "s2r3g5", "labelText": "Naaffgasse"},
+    {"section": 2, "row": 3, "position": 14, "id": "s2r3p14", "street": "Naaffgasse", "number": "9", "labelGroup": "s2r3g5", "labelText": "Naaffgasse"},
+    {"section": 2, "row": 3, "position": 15, "id": "s2r3p15", "street": "Naaffgasse", "number": "8", "labelGroup": "s2r3g5", "labelText": "Naaffgasse"},
+    {"section": 2, "row": 3, "position": 16, "id": "s2r3p16", "street": "Naaffgasse", "number": "10-12", "labelGroup": "s2r3g6", "labelText": "Naaffgasse"},
+    {"section": 2, "row": 3, "position": 17, "id": "s2r3p17", "street": "Naaffgasse", "number": "11", "labelGroup": "s2r3g6", "labelText": "Naaffgasse"},
+    {"section": 2, "row": 3, "position": 18, "id": "s2r3p18", "street": "Naaffgasse", "number": "13", "labelGroup": "s2r3g6", "labelText": "Naaffgasse"},
+    {"section": 2, "row": 3, "position": 19, "id": "s2r3p19", "street": "Naaffgasse", "number": "15", "labelGroup": "s2r3g7", "labelText": "Naaffgasse"},
+    {"section": 2, "row": 3, "position": 20, "id": "s2r3p20", "street": "Naaffgasse", "number": "17", "labelGroup": "s2r3g7", "labelText": "Naaffgasse"},
+    {"section": 2, "row": 3, "position": 21, "id": "s2r3p21", "street": "Naaffgasse", "number": "14", "labelGroup": "s2r3g7", "labelText": "Naaffgasse"},
+    {"section": 2, "row": 3, "position": 22, "id": "s2r3p22", "street": "Naaffgasse", "number": "16", "labelGroup": "s2r3g7", "labelText": "Naaffgasse"},
+    {"section": 2, "row": 4, "position": 1, "id": "s2r4p1", "street": "Naaffgasse", "number": "18", "labelGroup": "s2r4g1", "labelText": "Naaffgasse"},
+    {"section": 2, "row": 4, "position": 2, "id": "s2r4p2", "street": "Naaffgasse", "number": "19", "labelGroup": "s2r4g1", "labelText": "Naaffgasse"},
+    {"section": 2, "row": 4, "position": 3, "id": "s2r4p3", "street": "Naaffgasse", "number": "21", "labelGroup": "s2r4g1", "labelText": "Naaffgasse"},
+    {"section": 2, "row": 4, "position": 4, "id": "s2r4p4", "street": "Naaffgasse", "number": "22", "labelGroup": "s2r4g1", "labelText": "Naaffgasse"},
+    {"section": 2, "row": 4, "position": 5, "id": "s2r4p5", "street": "Wallrißstraße", "number": "128", "labelGroup": "s2r4g2", "labelText": "Wallrißstraße"},
+    {"section": 2, "row": 4, "position": 6, "id": "s2r4p6", "street": "Wallrißstraße", "number": "129", "labelGroup": "s2r4g2", "labelText": "Wallrißstraße"},
+    {"section": 2, "row": 4, "position": 7, "id": "s2r4p7", "street": "Wallrißstraße", "number": "126", "labelGroup": "s2r4g2", "labelText": "Wallrißstraße"},
+    {"section": 2, "row": 4, "position": 8, "id": "s2r4p8", "street": "Wallrißstraße", "number": "124", "labelGroup": "s2r4g3", "labelText": "Wallrißstraße"},
+    {"section": 2, "row": 4, "position": 9, "id": "s2r4p9", "street": "Wallrißstraße", "number": "127", "labelGroup": "s2r4g3", "labelText": "Wallrißstraße"},
+    {"section": 2, "row": 4, "position": 10, "id": "s2r4p10", "street": "Wallrißstraße", "number": "122", "labelGroup": "s2r4g3", "labelText": "Wallrißstraße"},
+    {"section": 2, "row": 4, "position": 11, "id": "s2r4p11", "street": "Wallrißstraße", "number": "125", "labelGroup": "s2r4g4", "labelText": "Wallrißstraße"},
+    {"section": 2, "row": 4, "position": 12, "id": "s2r4p12", "street": "Wallrißstraße", "number": "123", "labelGroup": "s2r4g4", "labelText": "Wallrißstraße"},
+    {"section": 2, "row": 4, "position": 13, "id": "s2r4p13", "street": "Wallrißstraße", "number": "120", "labelGroup": "s2r4g4", "labelText": "Wallrißstraße"},
+    {"section": 2, "row": 4, "position": 14, "id": "s2r4p14", "street": "Wallrißstraße", "number": "118", "labelGroup": "s2r4g5", "labelText": "Wallrißstraße"},
+    {"section": 2, "row": 4, "position": 15, "id": "s2r4p15", "street": "Wallrißstraße", "number": "116", "labelGroup": "s2r4g5", "labelText": "Wallrißstraße"},
+    {"section": 2, "row": 4, "position": 16, "id": "s2r4p16", "street": "Wallrißstraße", "number": "121", "labelGroup": "s2r4g5", "labelText": "Wallrißstraße"},
+    {"section": 2, "row": 4, "position": 17, "id": "s2r4p17", "street": "Wallrißstraße", "number": "114", "labelGroup": "s2r4g6", "labelText": "Wallrißstraße"},
+    {"section": 2, "row": 4, "position": 18, "id": "s2r4p18", "street": "Wallrißstraße", "number": "112", "labelGroup": "s2r4g6", "labelText": "Wallrißstraße"},
+    {"section": 2, "row": 4, "position": 19, "id": "s2r4p19", "street": "Wallrißstraße", "number": "117-119", "labelGroup": "s2r4g6", "labelText": "Wallrißstraße"},
+    {"section": 2, "row": 4, "position": 20, "id": "s2r4p20", "street": "Wallrißstraße", "number": "110", "labelGroup": "s2r4g7", "labelText": "Wallrißstraße"},
+    {"section": 2, "row": 4, "position": 21, "id": "s2r4p21", "street": "Wallrißstraße", "number": "115", "labelGroup": "s2r4g7", "labelText": "Wallrißstraße"},
+    {"section": 2, "row": 4, "position": 22, "id": "s2r4p22", "street": "Wallrißstraße", "number": "113", "labelGroup": "s2r4g7", "labelText": "Wallrißstraße"},
+    {"section": 3, "row": 1, "position": 1, "id": "s3r1p1", "street": "Wallrißstraße", "number": "108", "labelGroup": "s3r1g1", "labelText": "Wallrißstraße"},
+    {"section": 3, "row": 1, "position": 2, "id": "s3r1p2", "street": "Wallrißstraße", "number": "111", "labelGroup": "s3r1g1", "labelText": "Wallrißstraße"},
+    {"section": 3, "row": 1, "position": 3, "id": "s3r1p3", "street": "Wallrißstraße", "number": "106", "labelGroup": "s3r1g1", "labelText": "Wallrißstraße"},
+    {"section": 3, "row": 1, "position": 4, "id": "s3r1p4", "street": "Wallrißstraße", "number": "104", "labelGroup": "s3r1g1", "labelText": "Wallrißstraße"},
+    {"section": 3, "row": 1, "position": 5, "id": "s3r1p5", "street": "Wallrißstraße", "number": "109", "labelGroup": "s3r1g2", "labelText": "Wallrißstraße"},
+    {"section": 3, "row": 1, "position": 6, "id": "s3r1p6", "street": "Wallrißstraße", "number": "107", "labelGroup": "s3r1g2", "labelText": "Wallrißstraße"},
+    {"section": 3, "row": 1, "position": 7, "id": "s3r1p7", "street": "Dürwaringstraße", "number": "59 St 1", "labelGroup": "s3r1g3", "labelText": "Dürwaringstraße"},
+    {"section": 3, "row": 1, "position": 8, "id": "s3r1p8", "street": "Dürwaringstraße", "number": "59 St 2", "labelGroup": "s3r1g3", "labelText": "Dürwaringstraße"},
+    {"section": 3, "row": 1, "position": 9, "id": "s3r1p9", "street": "Dürwaringstraße", "number": "59 St 3", "labelGroup": "s3r1g4", "labelText": "Dürwaringstraße"},
+    {"section": 3, "row": 1, "position": 10, "id": "s3r1p10", "street": "Dürwaringstraße", "number": "54", "labelGroup": "s3r1g4", "labelText": "Dürwaringstraße"},
+    {"section": 3, "row": 1, "position": 11, "id": "s3r1p11", "street": "Dürwaringstraße", "number": "52", "labelGroup": "s3r1g5", "labelText": "Dürwaringstraße"},
+    {"section": 3, "row": 1, "position": 12, "id": "s3r1p12", "street": "Dürwaringstraße", "number": "50", "labelGroup": "s3r1g6", "labelText": "Dürwaringstraße"},
+    {"section": 3, "row": 1, "position": 13, "id": "s3r1p13", "street": "Dürwaringstraße", "number": "48", "labelGroup": "s3r1g7", "labelText": "Dürwaringstraße"},
+    {"section": 3, "row": 1, "position": 14, "id": "s3r1p14", "street": "Dürwaringstraße", "number": "46", "labelGroup": "s3r1g8", "labelText": "Dürwaringstraße"},
+    {"section": 3, "row": 1, "position": 15, "id": "s3r1p15", "street": "Dürwaringstraße", "number": "44", "labelGroup": "s3r1g8", "labelText": "Dürwaringstraße"},
+    {"section": 3, "row": 1, "position": 16, "id": "s3r1p16", "street": "Dürwaringstraße", "number": "44", "labelGroup": "s3r1g8", "labelText": "Dürwaringstraße"},
+    {"section": 3, "row": 1, "position": 17, "id": "s3r1p17", "street": "Dürwaringstraße", "number": "42", "labelGroup": "s3r1g8", "labelText": "Dürwaringstraße"},
+    {"section": 3, "row": 1, "position": 18, "id": "s3r1p18", "street": "Dürwaringstraße", "number": "40", "labelGroup": "s3r1g8", "labelText": "Dürwaringstraße"},
+    {"section": 3, "row": 1, "position": 19, "id": "s3r1p19", "street": "Bastiengasse", "number": "109", "labelGroup": "s3r1g9", "labelText": "Bastiengasse"},
+    {"section": 3, "row": 1, "position": 20, "id": "s3r1p20", "street": "Bastiengasse", "number": "107 St 1", "labelGroup": "s3r1g9", "labelText": "Bastiengasse"},
+    {"section": 3, "row": 1, "position": 21, "id": "s3r1p21", "street": "Bastiengasse", "number": "107 St 2", "labelGroup": "s3r1g9", "labelText": "Bastiengasse"},
+    {"section": 3, "row": 1, "position": 22, "id": "s3r1p22", "street": "Bastiengasse", "number": "60", "labelGroup": "s3r1g10", "labelText": "Bastiengasse"},
+    {"section": 3, "row": 1, "position": 23, "id": "s3r1p23", "street": "Dürwaringstraße", "number": "47", "labelGroup": "s3r1g11", "labelText": "Dürwaringstraße"},
+    {"section": 3, "row": 1, "position": 24, "id": "s3r1p24", "street": "Dürwaringstraße", "number": "45 St 1", "labelGroup": "s3r1g11", "labelText": "Dürwaringstraße"},
+    {"section": 3, "row": 2, "position": 1, "id": "s3r2p1", "street": "Dürwaringstraße", "number": "45 St 2", "labelGroup": "s3r2g1", "labelText": "Dürwaringstraße"},
+    {"section": 3, "row": 2, "position": 2, "id": "s3r2p2", "street": "Dürwaringstraße", "number": "45 St 3", "labelGroup": "s3r2g1", "labelText": "Dürwaringstraße"},
+    {"section": 3, "row": 2, "position": 3, "id": "s3r2p3", "street": "Bastiengasse", "number": "111", "labelGroup": "s3r2g2", "labelText": "Bastiengasse"},
+    {"section": 3, "row": 2, "position": 4, "id": "s3r2p4", "street": "Bastiengasse", "number": "62", "labelGroup": "s3r2g2", "labelText": "Bastiengasse"},
+    {"section": 3, "row": 2, "position": 5, "id": "s3r2p5", "street": "Bastiengasse", "number": "64", "labelGroup": "s3r2g2", "labelText": "Bastiengasse"},
+    {"section": 3, "row": 2, "position": 6, "id": "s3r2p6", "street": "Bastiengasse", "number": "113", "labelGroup": "s3r2g2", "labelText": "Bastiengasse"},
+    {"section": 3, "row": 2, "position": 7, "id": "s3r2p7", "street": "Bastiengasse", "number": "115", "labelGroup": "s3r2g2", "labelText": "Bastiengasse"},
+    {"section": 3, "row": 2, "position": 8, "id": "s3r2p8", "street": "Bastiengasse", "number": "117", "labelGroup": "s3r2g2", "labelText": "Bastiengasse"},
+    {"section": 3, "row": 2, "position": 9, "id": "s3r2p9", "street": "Bastiengasse", "number": "68", "labelGroup": "s3r2g3", "labelText": "Bastiengasse"},
+    {"section": 3, "row": 2, "position": 10, "id": "s3r2p10", "street": "Bastiengasse", "number": "70", "labelGroup": "s3r2g3", "labelText": "Bastiengasse"},
+    {"section": 3, "row": 2, "position": 11, "id": "s3r2p11", "street": "Bastiengasse", "number": "72", "labelGroup": "s3r2g3", "labelText": "Bastiengasse"},
+    {"section": 3, "row": 2, "position": 12, "id": "s3r2p12", "street": "Bastiengasse", "number": "74", "labelGroup": "s3r2g3", "labelText": "Bastiengasse"},
+    {"section": 3, "row": 2, "position": 13, "id": "s3r2p13", "street": "Bastiengasse", "number": "119", "labelGroup": "s3r2g4", "labelText": "Bastiengasse"},
+    {"section": 3, "row": 2, "position": 14, "id": "s3r2p14", "street": "Bastiengasse", "number": "76 St 1", "labelGroup": "s3r2g4", "labelText": "Bastiengasse"},
+    {"section": 3, "row": 2, "position": 15, "id": "s3r2p15", "street": "Naaffgasse", "number": "32", "labelGroup": "s3r2g5", "labelText": "Naaffgasse"},
+    {"section": 3, "row": 2, "position": 16, "id": "s3r2p16", "street": "Naaffgasse", "number": "30", "labelGroup": "s3r2g5", "labelText": "Naaffgasse"},
+    {"section": 3, "row": 2, "position": 17, "id": "s3r2p17", "street": "Naaffgasse", "number": "28", "labelGroup": "s3r2g5", "labelText": "Naaffgasse"},
+    {"section": 3, "row": 2, "position": 18, "id": "s3r2p18", "street": "Naaffgasse", "number": "26", "labelGroup": "s3r2g5", "labelText": "Naaffgasse"},
+    {"section": 3, "row": 2, "position": 19, "id": "s3r2p19", "street": "Dürwaringstraße", "number": "63", "labelGroup": "s3r2g6", "labelText": "Dürwaringstraße"},
+    {"section": 3, "row": 2, "position": 20, "id": "s3r2p20", "street": "Dürwaringstraße", "number": "65", "labelGroup": "s3r2g6", "labelText": "Dürwaringstraße"},
+    {"section": 3, "row": 2, "position": 21, "id": "s3r2p21", "street": "Dürwaringstraße", "number": "67", "labelGroup": "s3r2g6", "labelText": "Dürwaringstraße"},
+    {"section": 3, "row": 2, "position": 22, "id": "s3r2p22", "street": "Dürwaringstraße", "number": "73", "labelGroup": "s3r2g6", "labelText": "Dürwaringstraße"},
+    {"section": 3, "row": 2, "position": 23, "id": "s3r2p23", "street": "Dürwaringstraße", "number": "56-58", "labelGroup": "s3r2g7", "labelText": "Dürwaringstraße"},
+    {"section": 3, "row": 2, "position": 24, "id": "s3r2p24", "street": "Dürwaringstraße", "number": "75", "labelGroup": "s3r2g7", "labelText": "Dürwaringstraße"},
+    {"section": 3, "row": 2, "position": 25, "id": "s3r2p25", "street": "Dürwaringstraße", "number": "60", "labelGroup": "s3r2g7", "labelText": "Dürwaringstraße"},
+    {"section": 3, "row": 2, "position": 26, "id": "s3r2p26", "street": "Dürwaringstraße", "number": "62", "labelGroup": "s3r2g7", "labelText": "Dürwaringstraße"},
+    {"section": 3, "row": 2, "position": 27, "id": "s3r2p27", "street": "Dürwaringstraße", "number": "64", "labelGroup": "s3r2g7", "labelText": "Dürwaringstraße"},
+    {"section": 3, "row": 2, "position": 28, "id": "s3r2p28", "street": "Dürwaringstraße", "number": "66", "labelGroup": "s3r2g8", "labelText": "Dürwaringstraße"},
+    {"section": 3, "row": 3, "position": 1, "id": "s3r3p1", "street": "Dürwaringstraße", "number": "68", "labelGroup": "s3r3g1", "labelText": "Dürwaringstraße"},
+    {"section": 3, "row": 3, "position": 2, "id": "s3r3p2", "street": "Dürwaringstraße", "number": "70", "labelGroup": "s3r3g1", "labelText": "Dürwaringstraße"},
+    {"section": 3, "row": 3, "position": 3, "id": "s3r3p3", "street": "Dürwaringstraße", "number": "72", "labelGroup": "s3r3g1", "labelText": "Dürwaringstraße"},
+    {"section": 3, "row": 3, "position": 4, "id": "s3r3p4", "street": "Dürwaringstraße", "number": "74", "labelGroup": "s3r3g1", "labelText": "Dürwaringstraße"},
+    {"section": 3, "row": 3, "position": 5, "id": "s3r3p5", "street": "Dürwaringstraße", "number": "76", "labelGroup": "s3r3g2", "labelText": "Dürwaringstraße"},
+    {"section": 3, "row": 3, "position": 6, "id": "s3r3p6", "street": "Dürwaringstraße", "number": "83", "labelGroup": "s3r3g2", "labelText": "Dürwaringstraße"},
+    {"section": 3, "row": 3, "position": 7, "id": "s3r3p7", "street": "Dürwaringstraße", "number": "83a", "labelGroup": "s3r3g2", "labelText": "Dürwaringstraße"},
+    {"section": 3, "row": 3, "position": 8, "id": "s3r3p8", "street": "Dürwaringstraße", "number": "83a", "labelGroup": "s3r3g3", "labelText": "Dürwaringstraße"},
+    {"section": 3, "row": 3, "position": 9, "id": "s3r3p9", "street": "Dürwaringstraße", "number": "83a Pa 26", "labelGroup": "s3r3g3", "labelText": "Dürwaringstraße"},
+    {"section": 3, "row": 3, "position": 10, "id": "s3r3p10", "street": "KLG Schafbergsi", "number": "Pa 33", "labelGroup": "s3r3g4", "labelText": "KLG Schafbergsi"},
+    {"section": 3, "row": 3, "position": 11, "id": "s3r3p11", "street": "KLG Schafbergsi", "number": "Pa 33", "labelGroup": "s3r3g4", "labelText": "KLG Schafbergsi"},
+    {"section": 3, "row": 3, "position": 12, "id": "s3r3p12", "street": "KLG Schafbergsi", "number": "Pa 31", "labelGroup": "s3r3g4", "labelText": "KLG Schafbergsi"},
+    {"section": 3, "row": 3, "position": 13, "id": "s3r3p13", "street": "Dürwaringstraße", "number": "85", "labelGroup": "s3r3g5", "labelText": "Dürwaringstraße"},
+    {"section": 3, "row": 3, "position": 14, "id": "s3r3p14", "street": "Dürwaringstraße", "number": "80", "labelGroup": "s3r3g5", "labelText": "Dürwaringstraße"},
+    {"section": 3, "row": 3, "position": 15, "id": "s3r3p15", "street": "Dürwaringstraße", "number": "82", "labelGroup": "s3r3g5", "labelText": "Dürwaringstraße"},
+    {"section": 3, "row": 3, "position": 16, "id": "s3r3p16", "street": "Dürwaringstraße", "number": "87", "labelGroup": "s3r3g5", "labelText": "Dürwaringstraße"},
+    {"section": 3, "row": 3, "position": 17, "id": "s3r3p17", "street": "Blaselgasse", "number": "1", "labelGroup": "s3r3g6", "labelText": "Blaselgasse"},
+    {"section": 3, "row": 3, "position": 18, "id": "s3r3p18", "street": "Blaselgasse", "number": "4", "labelGroup": "s3r3g6", "labelText": "Blaselgasse"},
+    {"section": 3, "row": 3, "position": 19, "id": "s3r3p19", "street": "Blaselgasse", "number": "3", "labelGroup": "s3r3g6", "labelText": "Blaselgasse"},
+    {"section": 3, "row": 3, "position": 20, "id": "s3r3p20", "street": "Blaselgasse", "number": "5", "labelGroup": "s3r3g6", "labelText": "Blaselgasse"},
+    {"section": 3, "row": 3, "position": 21, "id": "s3r3p21", "street": "Blaselgasse", "number": "7", "labelGroup": "s3r3g6", "labelText": "Blaselgasse"},
+    {"section": 3, "row": 3, "position": 22, "id": "s3r3p22", "street": "Blaselgasse", "number": "6", "labelGroup": "s3r3g7", "labelText": "Blaselgasse"},
+    {"section": 3, "row": 3, "position": 23, "id": "s3r3p23", "street": "Blaselgasse", "number": "8", "labelGroup": "s3r3g7", "labelText": "Blaselgasse"},
+    {"section": 3, "row": 3, "position": 24, "id": "s3r3p24", "street": "Blaselgasse", "number": "10", "labelGroup": "s3r3g7", "labelText": "Blaselgasse"},
+    {"section": 3, "row": 3, "position": 25, "id": "s3r3p25", "street": "Blaselgasse", "number": "12", "labelGroup": "s3r3g7", "labelText": "Blaselgasse"},
+    {"section": 3, "row": 3, "position": 26, "id": "s3r3p26", "street": "Blaselgasse", "number": "11", "labelGroup": "s3r3g7", "labelText": "Blaselgasse"},
+    {"section": 3, "row": 3, "position": 27, "id": "s3r3p27", "street": "Blaselgasse", "number": "14", "labelGroup": "s3r3g8", "labelText": "Blaselgasse"},
+    {"section": 3, "row": 3, "position": 28, "id": "s3r3p28", "street": "Naaffgasse", "number": "35", "labelGroup": "s3r3g9", "labelText": "Naaffgasse"},
+    {"section": 3, "row": 3, "position": 29, "id": "s3r3p29", "street": "Blaselgasse", "number": "20", "labelGroup": "s3r3g10", "labelText": "Blaselgasse"},
+    {"section": 3, "row": 3, "position": 30, "id": "s3r3p30", "street": "Naaffgasse", "number": "33", "labelGroup": "s3r3g11", "labelText": "Naaffgasse"},
+    {"section": 3, "row": 3, "position": 31, "id": "s3r3p31", "street": "Naaffgasse", "number": "31", "labelGroup": "s3r3g11", "labelText": "Naaffgasse"},
+    {"section": 3, "row": 4, "position": 1, "id": "s3r4p1", "street": "Bastiengasse", "number": "78", "labelGroup": "s3r4g1", "labelText": "Bastiengasse"},
+    {"section": 3, "row": 4, "position": 2, "id": "s3r4p2", "street": "Naaffgasse", "number": "34", "labelGroup": "s3r4g2", "labelText": "Naaffgasse"},
+    {"section": 3, "row": 4, "position": 3, "id": "s3r4p3", "street": "Naaffgasse", "number": "36", "labelGroup": "s3r4g3", "labelText": "Naaffgasse"},
+    {"section": 3, "row": 4, "position": 4, "id": "s3r4p4", "street": "Naaffgasse", "number": "37", "labelGroup": "s3r4g4", "labelText": "Naaffgasse"},
+    {"section": 3, "row": 4, "position": 5, "id": "s3r4p5", "street": "Naaffgasse", "number": "38-40", "labelGroup": "s3r4g4", "labelText": "Naaffgasse"},
+    {"section": 3, "row": 4, "position": 6, "id": "s3r4p6", "street": "Naaffgasse", "number": "41", "labelGroup": "s3r4g4", "labelText": "Naaffgasse"},
+    {"section": 3, "row": 4, "position": 7, "id": "s3r4p7", "street": "Naaffgasse", "number": "50", "labelGroup": "s3r4g4", "labelText": "Naaffgasse"},
+    {"section": 3, "row": 4, "position": 8, "id": "s3r4p8", "street": "Naaffgasse", "number": "54", "labelGroup": "s3r4g4", "labelText": "Naaffgasse"},
+    {"section": 3, "row": 4, "position": 9, "id": "s3r4p9", "street": "Naaffgasse", "number": "43", "labelGroup": "s3r4g4", "labelText": "Naaffgasse"},
+    {"section": 3, "row": 4, "position": 10, "id": "s3r4p10", "street": "Naaffgasse", "number": "45", "labelGroup": "s3r4g5", "labelText": "Naaffgasse"},
+    {"section": 3, "row": 4, "position": 11, "id": "s3r4p11", "street": "Naaffgasse", "number": "56", "labelGroup": "s3r4g5", "labelText": "Naaffgasse"},
+    {"section": 3, "row": 4, "position": 12, "id": "s3r4p12", "street": "Naaffgasse", "number": "58", "labelGroup": "s3r4g5", "labelText": "Naaffgasse"},
+    {"section": 3, "row": 4, "position": 13, "id": "s3r4p13", "street": "Naaffgasse", "number": "66", "labelGroup": "s3r4g6", "labelText": "Naaffgasse"},
+    {"section": 3, "row": 4, "position": 14, "id": "s3r4p14", "street": "Naaffgasse", "number": "47", "labelGroup": "s3r4g6", "labelText": "Naaffgasse"},
+    {"section": 3, "row": 4, "position": 15, "id": "s3r4p15", "street": "Naaffgasse", "number": "68-72", "labelGroup": "s3r4g6", "labelText": "Naaffgasse"},
+    {"section": 3, "row": 4, "position": 16, "id": "s3r4p16", "street": "Naaffgasse", "number": "74", "labelGroup": "s3r4g6", "labelText": "Naaffgasse"},
+    {"section": 3, "row": 4, "position": 17, "id": "s3r4p17", "street": "Naaffgasse", "number": "55", "labelGroup": "s3r4g7", "labelText": "Naaffgasse"},
+    {"section": 3, "row": 4, "position": 18, "id": "s3r4p18", "street": "Sonnenbadweg", "number": "4", "labelGroup": "s3r4g8", "labelText": "Sonnenbadweg"},
+    {"section": 3, "row": 4, "position": 19, "id": "s3r4p19", "street": "Sonnenbadweg", "number": "22", "labelGroup": "s3r4g9", "labelText": "Sonnenbadweg"},
+    {"section": 3, "row": 4, "position": 20, "id": "s3r4p20", "street": "Sonnenbadweg", "number": "28", "labelGroup": "s3r4g9", "labelText": "Sonnenbadweg"},
+    {"section": 3, "row": 4, "position": 21, "id": "s3r4p21", "street": "Sonnenbadweg", "number": "33", "labelGroup": "s3r4g9", "labelText": "Sonnenbadweg"},
+    {"section": 3, "row": 4, "position": 22, "id": "s3r4p22", "street": "Sonnenbadweg", "number": "31", "labelGroup": "s3r4g9", "labelText": "Sonnenbadweg"},
+    {"section": 3, "row": 4, "position": 23, "id": "s3r4p23", "street": "Sonnenbadweg", "number": "29", "labelGroup": "s3r4g10", "labelText": "Sonnenbadweg"},
+    {"section": 3, "row": 4, "position": 24, "id": "s3r4p24", "street": "Sonnenbadweg", "number": "27", "labelGroup": "s3r4g10", "labelText": "Sonnenbadweg"},
+    {"section": 3, "row": 4, "position": 25, "id": "s3r4p25", "street": "Sonnenbadweg", "number": "23", "labelGroup": "s3r4g10", "labelText": "Sonnenbadweg"},
+    {"section": 3, "row": 4, "position": 26, "id": "s3r4p26", "street": "Sonnenbadweg", "number": "21", "labelGroup": "s3r4g10", "labelText": "Sonnenbadweg"},
+    {"section": 3, "row": 4, "position": 27, "id": "s3r4p27", "street": "Sonnenbadweg", "number": "16", "labelGroup": "s3r4g11", "labelText": "Sonnenbadweg"},
+    {"section": 4, "row": 1, "position": 1, "id": "s4r1p1", "street": "Sonnenbadweg", "number": "18", "labelGroup": "s4r1g1", "labelText": "Sonnenbadweg"},
+    {"section": 4, "row": 1, "position": 2, "id": "s4r1p2", "street": "Sonnenbadweg", "number": "15", "labelGroup": "s4r1g1", "labelText": "Sonnenbadweg"},
+    {"section": 4, "row": 1, "position": 3, "id": "s4r1p3", "street": "Sonnenbadweg", "number": "13", "labelGroup": "s4r1g1", "labelText": "Sonnenbadweg"},
+    {"section": 4, "row": 1, "position": 4, "id": "s4r1p4", "street": "Sonnenbadweg", "number": "11 Pa 9", "labelGroup": "s4r1g1", "labelText": "Sonnenbadweg"},
+    {"section": 4, "row": 1, "position": 5, "id": "s4r1p5", "street": "Sonnenbadweg", "number": "11 Pa", "labelGroup": "s4r1g1", "labelText": "Sonnenbadweg"},
+    {"section": 4, "row": 1, "position": 6, "id": "s4r1p6", "street": "Sonnenbadweg", "number": "5 Pa 1", "labelGroup": "s4r1g2", "labelText": "Sonnenbadweg"},
+    {"section": 4, "row": 1, "position": 7, "id": "s4r1p7", "street": "Sonnenbadweg", "number": "5 Pa", "labelGroup": "s4r1g2", "labelText": "Sonnenbadweg"},
+    {"section": 4, "row": 1, "position": 8, "id": "s4r1p8", "street": "Sonnenbadweg", "number": "5 Pa 4", "labelGroup": "s4r1g2", "labelText": "Sonnenbadweg"},
+    {"section": 4, "row": 1, "position": 9, "id": "s4r1p9", "street": "Sonnenbadweg", "number": "5 Pa 5", "labelGroup": "s4r1g2", "labelText": "Sonnenbadweg"},
+    {"section": 4, "row": 1, "position": 10, "id": "s4r1p10", "street": "Sonnenbadweg", "number": "5 Pa 6", "labelGroup": "s4r1g2", "labelText": "Sonnenbadweg"},
+    {"section": 4, "row": 1, "position": 11, "id": "s4r1p11", "street": "Sonnenbadweg", "number": "5 Pa 7", "labelGroup": "s4r1g3", "labelText": "Sonnenbadweg"},
+    {"section": 4, "row": 1, "position": 12, "id": "s4r1p12", "street": "Sonnenbadweg", "number": "5 Pa", "labelGroup": "s4r1g3", "labelText": "Sonnenbadweg"},
+    {"section": 4, "row": 1, "position": 13, "id": "s4r1p13", "street": "Naaffgasse", "number": "76", "labelGroup": "s4r1g4", "labelText": "Naaffgasse"},
+    {"section": 4, "row": 1, "position": 14, "id": "s4r1p14", "street": "Brunnenstubenweg", "number": "26a", "labelGroup": "s4r1g5", "labelText": "Brunnenstubenweg"},
+    {"section": 4, "row": 1, "position": 15, "id": "s4r1p15", "street": "Brunnenstubenweg", "number": "26b", "labelGroup": "s4r1g6", "labelText": "Brunnenstubenweg"},
+    {"section": 4, "row": 1, "position": 16, "id": "s4r1p16", "street": "Brunnenstubenweg", "number": "28", "labelGroup": "s4r1g6", "labelText": "Brunnenstubenweg"},
+    {"section": 4, "row": 1, "position": 17, "id": "s4r1p17", "street": "Knorrweg", "number": "1", "labelGroup": "s4r1g7", "labelText": "Knorrweg"},
+    {"section": 4, "row": 1, "position": 18, "id": "s4r1p18", "street": "Knorrweg", "number": "2", "labelGroup": "s4r1g7", "labelText": "Knorrweg"},
+    {"section": 4, "row": 1, "position": 19, "id": "s4r1p19", "street": "Knorrweg", "number": "4", "labelGroup": "s4r1g7", "labelText": "Knorrweg"},
+    {"section": 4, "row": 1, "position": 20, "id": "s4r1p20", "street": "Naaffgasse", "number": "86", "labelGroup": "s4r1g8", "labelText": "Naaffgasse"},
+    {"section": 4, "row": 1, "position": 21, "id": "s4r1p21", "street": "Molnargasse", "number": "32", "labelGroup": "s4r1g9", "labelText": "Molnargasse"},
+    {"section": 4, "row": 1, "position": 22, "id": "s4r1p22", "street": "Molnargasse", "number": "34", "labelGroup": "s4r1g9", "labelText": "Molnargasse"},
+    {"section": 4, "row": 1, "position": 23, "id": "s4r1p23", "street": "Molnargasse", "number": "36", "labelGroup": "s4r1g9", "labelText": "Molnargasse"},
+    {"section": 4, "row": 1, "position": 24, "id": "s4r1p24", "street": "Naaffgasse", "number": "84", "labelGroup": "s4r1g10", "labelText": "Naaffgasse"},
+    {"section": 4, "row": 1, "position": 25, "id": "s4r1p25", "street": "Naaffgasse", "number": "82", "labelGroup": "s4r1g10", "labelText": "Naaffgasse"},
+    {"section": 4, "row": 1, "position": 26, "id": "s4r1p26", "street": "Naaffgasse", "number": "80", "labelGroup": "s4r1g10", "labelText": "Naaffgasse"},
+    {"section": 4, "row": 1, "position": 27, "id": "s4r1p27", "street": "Naaffgasse", "number": "78", "labelGroup": "s4r1g11", "labelText": "Naaffgasse"},
+    {"section": 4, "row": 2, "position": 1, "id": "s4r2p1", "street": "Naaffgasse", "number": "76a", "labelGroup": "s4r2g1", "labelText": "Naaffgasse"},
+    {"section": 4, "row": 2, "position": 2, "id": "s4r2p2", "street": "Naaffgasse", "number": "71 St", "labelGroup": "s4r2g1", "labelText": "Naaffgasse"},
+    {"section": 4, "row": 2, "position": 3, "id": "s4r2p3", "street": "Naaffgasse", "number": "71 St", "labelGroup": "s4r2g1", "labelText": "Naaffgasse"},
+    {"section": 4, "row": 2, "position": 4, "id": "s4r2p4", "street": "Naaffgasse", "number": "71 St 3", "labelGroup": "s4r2g1", "labelText": "Naaffgasse"},
+    {"section": 4, "row": 2, "position": 5, "id": "s4r2p5", "street": "Naaffgasse", "number": "71 St 4", "labelGroup": "s4r2g1", "labelText": "Naaffgasse"},
+    {"section": 4, "row": 2, "position": 6, "id": "s4r2p6", "street": "Naaffgasse", "number": "73", "labelGroup": "s4r2g2", "labelText": "Naaffgasse"},
+    {"section": 4, "row": 2, "position": 7, "id": "s4r2p7", "street": "Naaffgasse", "number": "77", "labelGroup": "s4r2g3", "labelText": "Naaffgasse"},
+    {"section": 4, "row": 2, "position": 8, "id": "s4r2p8", "street": "Naaffgasse", "number": "81", "labelGroup": "s4r2g4", "labelText": "Naaffgasse"},
+    {"section": 4, "row": 2, "position": 9, "id": "s4r2p9", "street": "Molnargasse", "number": "26", "labelGroup": "s4r2g5", "labelText": "Molnargasse"},
+    {"section": 4, "row": 2, "position": 10, "id": "s4r2p10", "street": "Molnargasse", "number": "22-24", "labelGroup": "s4r2g5", "labelText": "Molnargasse"},
+    {"section": 4, "row": 2, "position": 11, "id": "s4r2p11", "street": "Molnargasse", "number": "20", "labelGroup": "s4r2g5", "labelText": "Molnargasse"},
+    {"section": 4, "row": 2, "position": 12, "id": "s4r2p12", "street": "Molnargasse", "number": "18", "labelGroup": "s4r2g5", "labelText": "Molnargasse"},
+    {"section": 4, "row": 2, "position": 13, "id": "s4r2p13", "street": "Molnargasse", "number": "16", "labelGroup": "s4r2g6", "labelText": "Molnargasse"},
+    {"section": 4, "row": 2, "position": 14, "id": "s4r2p14", "street": "Molnargasse", "number": "10", "labelGroup": "s4r2g6", "labelText": "Molnargasse"},
+    {"section": 4, "row": 2, "position": 15, "id": "s4r2p15", "street": "Molnargasse", "number": "8", "labelGroup": "s4r2g6", "labelText": "Molnargasse"},
+    {"section": 4, "row": 2, "position": 16, "id": "s4r2p16", "street": "Molnargasse", "number": "4", "labelGroup": "s4r2g6", "labelText": "Molnargasse"},
+    {"section": 4, "row": 2, "position": 17, "id": "s4r2p17", "street": "Schönbrunner Graben", "number": "104", "labelGroup": "s4r2g7", "labelText": "Schönbrunner Graben"},
+    {"section": 4, "row": 2, "position": 18, "id": "s4r2p18", "street": "Schönbrunner Graben", "number": "102", "labelGroup": "s4r2g7", "labelText": "Schönbrunner Graben"},
+    {"section": 4, "row": 2, "position": 19, "id": "s4r2p19", "street": "Schönbrunner Graben", "number": "100", "labelGroup": "s4r2g7", "labelText": "Schönbrunner Graben"},
+    {"section": 4, "row": 2, "position": 20, "id": "s4r2p20", "street": "Schönbrunner Graben", "number": "98", "labelGroup": "s4r2g7", "labelText": "Schönbrunner Graben"},
+    {"section": 4, "row": 2, "position": 21, "id": "s4r2p21", "street": "Schönbrunner Graben", "number": "96", "labelGroup": "s4r2g7", "labelText": "Schönbrunner Graben"},
+    {"section": 4, "row": 2, "position": 22, "id": "s4r2p22", "street": "Schönbrunner Graben", "number": "94", "labelGroup": "s4r2g7", "labelText": "Schönbrunner Graben"},
+    {"section": 4, "row": 2, "position": 23, "id": "s4r2p23", "street": "Schönbrunner Graben", "number": "92", "labelGroup": "s4r2g7", "labelText": "Schönbrunner Graben"},
+    {"section": 4, "row": 2, "position": 24, "id": "s4r2p24", "street": "Schönbrunner Graben", "number": "90", "labelGroup": "s4r2g8", "labelText": "Schönbrunner Graben"},
+    {"section": 4, "row": 2, "position": 25, "id": "s4r2p25", "street": "Weißdornweg", "number": "3", "labelGroup": "s4r2g9", "labelText": "Weißdornweg"},
+    {"section": 4, "row": 2, "position": 26, "id": "s4r2p26", "street": "Weißdornweg", "number": "5 St 8", "labelGroup": "s4r2g9", "labelText": "Weißdornweg"},
+    {"section": 4, "row": 2, "position": 27, "id": "s4r2p27", "street": "Weißdornweg", "number": "5 St 7", "labelGroup": "s4r2g9", "labelText": "Weißdornweg"},
+    {"section": 4, "row": 2, "position": 28, "id": "s4r2p28", "street": "Weißdornweg", "number": "5 St 6", "labelGroup": "s4r2g9", "labelText": "Weißdornweg"},
+    {"section": 4, "row": 2, "position": 29, "id": "s4r2p29", "street": "Weißdornweg", "number": "5 St 5", "labelGroup": "s4r2g9", "labelText": "Weißdornweg"},
+    {"section": 4, "row": 2, "position": 30, "id": "s4r2p30", "street": "Weißdornweg", "number": "11", "labelGroup": "s4r2g9", "labelText": "Weißdornweg"},
+    {"section": 4, "row": 2, "position": 31, "id": "s4r2p31", "street": "Weißdornweg", "number": "18", "labelGroup": "s4r2g9", "labelText": "Weißdornweg"},
+    {"section": 4, "row": 2, "position": 32, "id": "s4r2p32", "street": "Weißdornweg", "number": "16", "labelGroup": "s4r2g9", "labelText": "Weißdornweg"},
+    {"section": 4, "row": 2, "position": 33, "id": "s4r2p33", "street": "Weißdornweg", "number": "14", "labelGroup": "s4r2g10", "labelText": "Weißdornweg"},
+    {"section": 4, "row": 2, "position": 34, "id": "s4r2p34", "street": "Weißdornweg", "number": "10", "labelGroup": "s4r2g10", "labelText": "Weißdornweg"},
+    {"section": 4, "row": 2, "position": 35, "id": "s4r2p35", "street": "Weißdornweg", "number": "8", "labelGroup": "s4r2g10", "labelText": "Weißdornweg"},
+    {"section": 4, "row": 3, "position": 1, "id": "s4r3p1", "street": "Weißdornweg", "number": "6", "labelGroup": "s4r3g1", "labelText": "Weißdornweg"},
+    {"section": 4, "row": 3, "position": 2, "id": "s4r3p2", "street": "Weißdornweg", "number": "4", "labelGroup": "s4r3g1", "labelText": "Weißdornweg"},
+    {"section": 4, "row": 3, "position": 3, "id": "s4r3p3", "street": "Schönbrunner Graben", "number": "82", "labelGroup": "s4r3g2", "labelText": "Schönbrunner Graben"},
+    {"section": 4, "row": 3, "position": 4, "id": "s4r3p4", "street": "Schönbrunner Graben", "number": "80", "labelGroup": "s4r3g2", "labelText": "Schönbrunner Graben"},
+    {"section": 4, "row": 3, "position": 5, "id": "s4r3p5", "street": "Schönbrunner Graben", "number": "26", "labelGroup": "s4r3g2", "labelText": "Schönbrunner Graben"},
+    {"section": 4, "row": 3, "position": 6, "id": "s4r3p6", "street": "Schönbrunner Graben", "number": "24a", "labelGroup": "s4r3g2", "labelText": "Schönbrunner Graben"},
+    {"section": 4, "row": 3, "position": 7, "id": "s4r3p7", "street": "Schönbrunner Graben", "number": "24", "labelGroup": "s4r3g2", "labelText": "Schönbrunner Graben"},
+    {"section": 4, "row": 3, "position": 8, "id": "s4r3p8", "street": "KLG Schaf", "number": "Pa 19", "labelGroup": "s4r3g3", "labelText": "KLG Schaf"},
+    {"section": 4, "row": 3, "position": 9, "id": "s4r3p9", "street": "Schönbrunner Graben", "number": "22", "labelGroup": "s4r3g4", "labelText": "Schönbrunner Graben"},
+    {"section": 4, "row": 3, "position": 10, "id": "s4r3p10", "street": "Schönbrunner Graben", "number": "20", "labelGroup": "s4r3g4", "labelText": "Schönbrunner Graben"},
+    {"section": 4, "row": 3, "position": 11, "id": "s4r3p11", "street": "KLG Schafbergsiedlung Gruppe D", "number": "Pa 15", "labelGroup": "s4r3g5", "labelText": "KLG Schafbergsiedlung Gruppe D"},
+    {"section": 4, "row": 3, "position": 12, "id": "s4r3p12", "street": "KLG Schafbergsiedlung Gruppe D", "number": "Pa 14", "labelGroup": "s4r3g5", "labelText": "KLG Schafbergsiedlung Gruppe D"},
+    {"section": 4, "row": 3, "position": 13, "id": "s4r3p13", "street": "KLG Schafbergsiedlung Gruppe D", "number": "Pa 13", "labelGroup": "s4r3g5", "labelText": "KLG Schafbergsiedlung Gruppe D"},
+    {"section": 4, "row": 3, "position": 14, "id": "s4r3p14", "street": "KLG Schafbergsiedlung Gruppe D", "number": "Pa 11", "labelGroup": "s4r3g5", "labelText": "KLG Schafbergsiedlung Gruppe D"},
+    {"section": 4, "row": 3, "position": 15, "id": "s4r3p15", "street": "KLG Schaf", "number": "Pa 10", "labelGroup": "s4r3g6", "labelText": "KLG Schaf"},
+    {"section": 4, "row": 3, "position": 16, "id": "s4r3p16", "street": "KLG 18a", "number": "Pa 3", "labelGroup": "s4r3g7", "labelText": "KLG 18a"},
+    {"section": 4, "row": 3, "position": 17, "id": "s4r3p17", "street": "KLG Schafbergsi", "number": "Pa 7", "labelGroup": "s4r3g8", "labelText": "KLG Schafbergsi"},
+    {"section": 4, "row": 3, "position": 18, "id": "s4r3p18", "street": "KLG Schafbergsi", "number": "Pa 6", "labelGroup": "s4r3g8", "labelText": "KLG Schafbergsi"},
+    {"section": 4, "row": 3, "position": 19, "id": "s4r3p19", "street": "KLG Schafbergsi", "number": "Pa 5", "labelGroup": "s4r3g8", "labelText": "KLG Schafbergsi"},
+    {"section": 4, "row": 3, "position": 20, "id": "s4r3p20", "street": "Schönbrunner Graben", "number": "18", "labelGroup": "s4r3g9", "labelText": "Schönbrunner Graben"},
+    {"section": 4, "row": 3, "position": 21, "id": "s4r3p21", "street": "Schönbrunner Graben", "number": "16a", "labelGroup": "s4r3g9", "labelText": "Schönbrunner Graben"},
+    {"section": 4, "row": 3, "position": 22, "id": "s4r3p22", "street": "Schönbrunner Graben", "number": "16", "labelGroup": "s4r3g9", "labelText": "Schönbrunner Graben"},
+    {"section": 4, "row": 3, "position": 23, "id": "s4r3p23", "street": "Schönbrunner Graben", "number": "14", "labelGroup": "s4r3g9", "labelText": "Schönbrunner Graben"},
+    {"section": 4, "row": 3, "position": 24, "id": "s4r3p24", "street": "Schönbrunner Graben", "number": "8", "labelGroup": "s4r3g10", "labelText": "Schönbrunner Graben"},
+    {"section": 4, "row": 3, "position": 25, "id": "s4r3p25", "street": "Schönbrunner Graben", "number": "6", "labelGroup": "s4r3g10", "labelText": "Schönbrunner Graben"},
+    {"section": 4, "row": 3, "position": 26, "id": "s4r3p26", "street": "Schönbrunner Graben", "number": "4", "labelGroup": "s4r3g10", "labelText": "Schönbrunner Graben"},
+    {"section": 4, "row": 3, "position": 27, "id": "s4r3p27", "street": "Utopiaweg", "number": "12", "labelGroup": "s4r3g11", "labelText": "Utopiaweg"},
+    {"section": 4, "row": 3, "position": 28, "id": "s4r3p28", "street": "Utopiaweg", "number": "1", "labelGroup": "s4r3g11", "labelText": "Utopiaweg"},
+    {"section": 4, "row": 3, "position": 29, "id": "s4r3p29", "street": "Utopiaweg", "number": "8", "labelGroup": "s4r3g11", "labelText": "Utopiaweg"},
+    {"section": 4, "row": 4, "position": 1, "id": "s4r4p1", "street": "Utopiaweg", "number": "6 Pa 37", "labelGroup": "s4r4g1", "labelText": "Utopiaweg"},
+    {"section": 4, "row": 4, "position": 2, "id": "s4r4p2", "street": "Utopiaweg", "number": "6 Pa", "labelGroup": "s4r4g1", "labelText": "Utopiaweg"},
+    {"section": 4, "row": 4, "position": 3, "id": "s4r4p3", "street": "Utopiaweg", "number": "2", "labelGroup": "s4r4g1", "labelText": "Utopiaweg"},
+    {"section": 4, "row": 4, "position": 4, "id": "s4r4p4", "street": "Josef-Redl-Gasse", "number": "4a Pa 16", "labelGroup": "s4r4g2", "labelText": "Josef-Redl-Gasse"},
+    {"section": 4, "row": 4, "position": 5, "id": "s4r4p5", "street": "Josef-Redl-Gasse", "number": "8", "labelGroup": "s4r4g2", "labelText": "Josef-Redl-Gasse"},
+    {"section": 4, "row": 4, "position": 6, "id": "s4r4p6", "street": "Josef-Bindtner-Gasse", "number": "4", "labelGroup": "s4r4g3", "labelText": "Josef-Bindtner-Gasse"},
+    {"section": 4, "row": 4, "position": 7, "id": "s4r4p7", "street": "Josef-Bindtner-Gasse", "number": "5", "labelGroup": "s4r4g3", "labelText": "Josef-Bindtner-Gasse"},
+    {"section": 4, "row": 4, "position": 8, "id": "s4r4p8", "street": "Josef-Bindtner-Gasse", "number": "6", "labelGroup": "s4r4g3", "labelText": "Josef-Bindtner-Gasse"},
+    {"section": 4, "row": 4, "position": 9, "id": "s4r4p9", "street": "Josef-Bindtner-Gasse", "number": "7", "labelGroup": "s4r4g3", "labelText": "Josef-Bindtner-Gasse"},
+    {"section": 4, "row": 4, "position": 10, "id": "s4r4p10", "street": "Josef-Bindtner-Gasse", "number": "8", "labelGroup": "s4r4g3", "labelText": "Josef-Bindtner-Gasse"},
+    {"section": 4, "row": 4, "position": 11, "id": "s4r4p11", "street": "Josef-Bindtner-Gasse", "number": "9", "labelGroup": "s4r4g4", "labelText": "Josef-Bindtner-Gasse"},
+    {"section": 4, "row": 4, "position": 12, "id": "s4r4p12", "street": "Ladenburghöhe", "number": "41", "labelGroup": "s4r4g5", "labelText": "Ladenburghöhe"},
+    {"section": 4, "row": 4, "position": 13, "id": "s4r4p13", "street": "Ladenburghöhe", "number": "43", "labelGroup": "s4r4g5", "labelText": "Ladenburghöhe"},
+    {"section": 4, "row": 4, "position": 14, "id": "s4r4p14", "street": "Ladenburghöhe", "number": "45", "labelGroup": "s4r4g5", "labelText": "Ladenburghöhe"},
+    {"section": 4, "row": 4, "position": 15, "id": "s4r4p15", "street": "Ladenburghöhe 47", "number": "12 Pa 10", "labelGroup": "s4r4g6", "labelText": "Ladenburghöhe 47"},
+    {"section": 4, "row": 4, "position": 16, "id": "s4r4p16", "street": "Ladenburghöhe", "number": "49", "labelGroup": "s4r4g7", "labelText": "Ladenburghöhe"},
+    {"section": 4, "row": 4, "position": 17, "id": "s4r4p17", "street": "Josef-Redl-Gasse", "number": "10 Pa", "labelGroup": "s4r4g8", "labelText": "Josef-Redl-Gasse"},
+    {"section": 4, "row": 4, "position": 18, "id": "s4r4p18", "street": "Josef-Redl-Gasse", "number": "10b", "labelGroup": "s4r4g8", "labelText": "Josef-Redl-Gasse"},
+    {"section": 4, "row": 4, "position": 19, "id": "s4r4p19", "street": "Josef-Redl-Gasse", "number": "10d Pa 9", "labelGroup": "s4r4g8", "labelText": "Josef-Redl-Gasse"},
+    {"section": 4, "row": 4, "position": 20, "id": "s4r4p20", "street": "Josef-Redl-Gasse", "number": "10d Pa 10", "labelGroup": "s4r4g8", "labelText": "Josef-Redl-Gasse"},
+    {"section": 4, "row": 4, "position": 21, "id": "s4r4p21", "street": "Josef-Redl-Gasse", "number": "10e", "labelGroup": "s4r4g8", "labelText": "Josef-Redl-Gasse"},
+    {"section": 4, "row": 4, "position": 22, "id": "s4r4p22", "street": "Josef-Redl-Gasse", "number": "10 Pa 1", "labelGroup": "s4r4g9", "labelText": "Josef-Redl-Gasse"},
+    {"section": 4, "row": 4, "position": 23, "id": "s4r4p23", "street": "Josef-Redl-Gasse", "number": "12 Pa 1", "labelGroup": "s4r4g9", "labelText": "Josef-Redl-Gasse"},
+    {"section": 4, "row": 4, "position": 24, "id": "s4r4p24", "street": "Josef-Redl-Gasse", "number": "12 Pa 17", "labelGroup": "s4r4g10", "labelText": "Josef-Redl-Gasse"},
+    {"section": 4, "row": 4, "position": 25, "id": "s4r4p25", "street": "Josef-Redl-Gasse", "number": "12 Pa 18", "labelGroup": "s4r4g10", "labelText": "Josef-Redl-Gasse"},
+    {"section": 4, "row": 4, "position": 26, "id": "s4r4p26", "street": "Josef-Redl-Gasse", "number": "14", "labelGroup": "s4r4g10", "labelText": "Josef-Redl-Gasse"},
+    {"section": 4, "row": 4, "position": 27, "id": "s4r4p27", "street": "Josef-Redl-Gasse", "number": "2", "labelGroup": "s4r4g10", "labelText": "Josef-Redl-Gasse"}
   ];
 }
 
