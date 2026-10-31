@@ -417,6 +417,22 @@ h1 {
 .slot .label.compound {
   font-size:9px
 }
+.building-number {
+  display:block;
+  white-space:nowrap;
+  line-height:1.15;
+  font-size:11px
+}
+.building-suffix {
+  display:block;
+  font-size:9px;
+  white-space:normal;
+  overflow-wrap:normal;
+  line-height:1.15
+}
+.slot .label {
+  flex-direction:column
+}
 /* ADDRESS STRIP: street names align to the same grid as the slots above. A street-group can span several neighboring slots. Explicit photo groups preserve repeated names. Full names wrap; CSS does not shorten them with ellipses. */
 .street-rail {
   display:grid;
@@ -1005,8 +1021,6 @@ function el(tag,text,cls) {
 function allMatches() {
   return current?slots.filter(s=>key(s)===key(current)):[]
 }
-// Explicit printed boundaries, not just matching street names, define the label strip.
-// A saved backup can edit labels but cannot erase a real boundary between printed blocks.
 /*
  * Read explicit printed label boundaries from the original data.
  * Do not merge adjacent blocks just because their street names match.
@@ -1029,6 +1043,28 @@ function printedGroups(members) {
   }
   return groups;
 }
+function numberParts(number) {
+  const pieces=number.split(/\s+/);
+  const head=pieces[0]==='Pa'&&pieces.length>1?pieces.splice(0,2).join(' '):pieces.shift();
+  return  {
+    head,tail:pieces.join(' ')
+  }
+  ;
+}
+function slotMinimum(s) {
+  return Math.max(24,Math.ceil(numberParts(s.number).head.length*6.2+8))
+}
+function numberLabel(s) {
+  const label=el('span',undefined,'label'+(s.number.length>4?' compound':''));
+  if(mode==='memory') {
+    label.textContent='?';
+    return label
+  }
+  const parts=numberParts(s.number);
+  label.append(el('span',parts.head,'building-number'));
+  if(parts.tail)label.append(el('span',' '+parts.tail,'building-suffix'));
+  return label;
+}
 /*
  * Build the entire visible table from the address data.
  * IMPORTANT: n is a horizontal column, called Row in your numbering.
@@ -1041,6 +1077,12 @@ function printedGroups(members) {
 function renderShelf() {
   const shelf=$('shelf');
   shelf.replaceChildren();
+  let cabinetMinimum=0;
+  for(let level=1;level<=4;level++)for(let column=1;column<=4;column++) {
+    const required=slots.filter(item=>item.section===level&&item.row===column).reduce((sum,item)=>sum+slotMinimum(item),0);
+    cabinetMinimum=Math.max(cabinetMinimum,required+16);
+  }
+  shelf.style.minWidth=(cabinetMinimum*4+29)+'px';
   $('inspect').textContent=mode==='practice'?'Hover over or focus a slot to read its full address here.':'Memory mode · Find the address by its position. Use Show me if you need help.';
   for(let n=1;n<=4;n++) {
     const cabinet=el('section',undefined,'cabinet');
@@ -1061,17 +1103,15 @@ function renderShelf() {
       row.append(h);
       const line=el('div',undefined,'slot-line'),rail=el('div',undefined,'street-rail');
       const groups=printedGroups(members);
-      // Give isolated street labels more room, like the wider labeled pockets in the real table.
-      // Both rails share one weighted grid, so every number stays aligned to its pocket.
       const columns=[];
       for(const group of groups) {
         const longest=Math.max(...group.text.split(/\s+/).map(word=>word.length));
         const width=Math.max(group.count*26,longest*4.8+12);
-        for(let i=0;i<group.count;i++)columns.push(`minmax(0,${width/group.count}fr)`);
+        for(let i=0;i<group.count;i++)columns.push(`minmax(${slotMinimum(members[group.first+i])}px,${width/group.count}fr)`);
       }
       line.style.gridTemplateColumns=rail.style.gridTemplateColumns=columns.join(' ');
       members.forEach(s=> {
-        const b=el('button',undefined,'slot');b.dataset.id=s.id;     b.style.setProperty('--folder',['#e8b83c','#28725c','#284b72','#e8b83c'][r-1]);     const pocket=el('span',undefined,'pocket');pocket.setAttribute('aria-hidden','true');     b.append(pocket,el('span',mode==='practice'?s.number:'?', 'label'+(s.number.length>4?' compound':'')));     const label=mode==='practice'?`${s.street} ${s.number}. Section ${r}, row ${n}, slot ${s.position}`:`Section ${r}, row ${n}, slot ${s.position}`;     b.setAttribute('aria-label',label);if(mode==='practice')b.title=s.street+' '+s.number;     const inspect=()=> {
+        const b=el('button',undefined,'slot');b.dataset.id=s.id;     b.style.setProperty('--folder',['#e8b83c','#28725c','#284b72','#e8b83c'][r-1]);     const pocket=el('span',undefined,'pocket');pocket.setAttribute('aria-hidden','true');     b.append(pocket,numberLabel(s));     const label=mode==='practice'?`${s.street} ${s.number}. Section ${r}, row ${n}, slot ${s.position}`:`Section ${r}, row ${n}, slot ${s.position}`;     b.setAttribute('aria-label',label);if(mode==='practice')b.title=s.street+' '+s.number;     const inspect=()=> {
           $('inspect').textContent=mode==='practice'?`${s.street} ${s.number}  ·  Section ${r}, row ${n}, slot ${s.position}`:`Section ${r}, row ${n}, slot ${s.position}`
         }
         ;     b.onpointerenter=inspect;b.onfocus=inspect;b.onclick=()=>choose(s,b);line.append(b);
