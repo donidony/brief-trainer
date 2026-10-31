@@ -262,227 +262,277 @@ h1 {
   margin:0
 }
 .shelves {
-  margin-top:18px;
+  margin-top:16px;
   min-width:0
 }
 .view-toolbar {
   display:flex;
-  align-items:center;
   justify-content:space-between;
+  align-items:center;
   gap:12px;
-  margin-bottom:10px
+  flex-wrap:wrap;
+  margin-bottom:8px
 }
 .view-toolbar b {
   font-size:15px
 }
 .view-toolbar small {
-  font-size:12px;
-  color:#68776b;
-  margin-left:12px
+  font-size:11px;
+  color:#687769;
+  margin-left:10px
 }
-.view-note {
+.table-controls {
+  display:flex;
+  align-items:center;
+  gap:6px;
+  flex-wrap:wrap
+}
+.table-controls button {
+  min-height:42px;
+  padding:8px 12px;
+  font-size:12px
+}
+.table-controls .zoom-step {
+  font-size:22px;
+  min-width:44px;
+  padding:3px 10px
+}
+.view-help {
   font-size:12px;
-  color:#68776b;
-  white-space:nowrap
+  line-height:1.4;
+  color:#62735f;
+  margin:6px 0 9px
 }
 .workbench {
-  min-width:0
+  position:relative;
+  overflow:hidden;
+  width:100%;
+  height:clamp(360px,calc(100dvh - 270px),680px);
+  background:#d7d7cb;
+  border:1px solid #b7bdad;
+  border-radius:9px;
+  touch-action:none;
+  user-select:none;
+  cursor:grab;
+  overscroll-behavior:contain
 }
-/* RESPONSIVE TABLE: four columns on laptop, two on tablet, one on phone. All addresses remain on the page. No magnified viewer or horizontal panning is needed. */
+.workbench.is-dragging {
+  cursor:grabbing
+}
+.workbench:focus-visible {
+  outline:3px solid #2278bc;
+  outline-offset:2px
+}
+/* This is one fixed scene. Screen size and zoom never change its grid or order. */
+/* FIXED TABLE SCENE: 8000 by 2680 logical pixels with four columns and four levels. The camera transforms this scene without rearranging addresses. */
 .cabinet-bank {
+  position:absolute;
+  left:0;
+  top:0;
+  width:8000px;
+  height:2680px;
   display:grid;
   grid-template-columns:repeat(4,minmax(0,1fr));
-  gap:12px;
-  align-items:start;
-  width:100%;
-  min-width:0
+  gap:16px;
+  padding:16px;
+  transform-origin:0 0;
+  will-change:transform
 }
 /* ONE TABLE COLUMN: a Row heading followed by Sections 1 through 4. Each section contains street groups and large number buttons. */
 .cabinet {
   min-width:0;
-  border:4px solid #d5d2c6;
-  border-top-width:6px;
-  background:#ece9dc;
-  border-radius:8px;
-  overflow:hidden
+  min-height:0;
+  border:8px solid #f1eee2;
+  border-top-color:#fffdf2;
+  border-bottom-color:#c4c2b1;
+  display:grid;
+  grid-template-rows:64px repeat(4,minmax(0,1fr));
+  background:#d8d7c7;
+  box-shadow:0 5px 10px #17291d44
 }
 .cabinet-heading {
   display:flex;
-  align-items:baseline;
+  align-items:center;
   justify-content:space-between;
-  gap:6px;
-  padding:10px 8px;
-  background:#e0dfd2;
-  font-size:15px
+  padding:0 12px;
+  background:#f1eee2;
+  font-size:30px
 }
 .cabinet-heading small {
-  font-size:10px;
-  color:#677162
+  font-size:22px;
+  color:#717a65
 }
 .shelf-row {
-  border-top:7px solid #b4b3a4;
-  padding-bottom:7px
+  min-width:0;
+  min-height:0;
+  display:grid;
+  grid-template-rows:32px minmax(0,1fr) 64px;
+  border-bottom:8px solid #aaa994;
+  background:#dedccc
 }
 .row-heading {
   display:flex;
   align-items:center;
   justify-content:space-between;
-  gap:7px;
-  padding:8px 7px;
-  font-size:12px;
-  font-weight:bold;
-  background:#e6e4d8;
-  color:#4f604d
+  padding:4px 7px;
+  font-size:21px;
+  background:#d9d8c9;
+  color:#65705b
 }
 .row-heading span:last-child {
-  font-size:10px;
-  font-weight:normal
+  font-size:18px
 }
-.address-groups {
-  display:flex;
-  flex-wrap:wrap;
-  align-items:stretch;
-  gap:7px;
-  padding:0 7px
-}
-.address-block {
-  flex:1 1 var(--block-width,160px);
-  min-width:min(100%,var(--block-min,88px));
-  max-width:100%;
-  border:1px solid #c7c0a6;
-  border-radius:4px;
-  overflow:hidden;
-  background:#f3e7b9;
-  display:flex;
-  flex-direction:column
+.slot-line,/* SHORT STREET LABEL: one label below a consecutive group of numbers. The full name remains in the data and accessible labels. */
+.street-rail {
+  display:grid;
+  gap:0;
+  min-width:0;
+  padding:0 2px
 }
 .slot-line {
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(68px,1fr));
-  gap:2px;
-  padding:2px;
-  background:#c7c3ad
+  background:linear-gradient(#29342a,#626b55 75%,#adaf99)
 }
 /* ONE CLICKABLE SLOT: transparent button containing the colored pocket and the number label below it. The street rail is created separately underneath the row. */
 .slot {
-  border:0;
-  border-radius:2px;
-  padding:0;
-  min-width:0;
-  min-height:54px;
-  background:#fff9df;
-  color:#24352e;
   display:flex;
   flex-direction:column;
+  min-width:0;
+  min-height:0;
+  padding:0;
+  border:0;
+  border-radius:0;
+  background:transparent;
   position:relative;
-  touch-action:manipulation
+  color:#26372c;
+  touch-action:none
 }
 .slot:disabled {
   opacity:1
 }
 .slot .pocket {
   display:block;
-  height:9px;
-  flex:0 0 9px;
+  position:relative;
   width:100%;
-  background:linear-gradient(120deg,var(--folder),#334d3a);
-  border-left:3px solid var(--folder)
+  flex:1;
+  min-height:0;
+  border-left:3px solid var(--folder);
+  border-right:1px solid #17271c99;
+  border-radius:5px 0 0 0;
+  background:linear-gradient(110deg,#0006,#0000 70%),linear-gradient(12deg,var(--folder),#0000 65%);
+  box-shadow:inset 2px 0 #fff4
+}
+.slot .pocket:after {
+  content:'';
+  position:absolute;
+  inset:20px 15% 0 23%;
+  border-right:2px solid #ffffff33;
+  transform:skewY(-15deg);
+  border-radius:0 8px 0 0
 }
 .slot .label {
+  width:100%;
+  height:64px;
+  flex:0 0 64px;
+  background:#f3e7b9;
+  border-top:4px solid #e9dec2;
+  border-right:1px solid #c0b27d;
   display:flex;
   flex-direction:column;
   align-items:center;
   justify-content:center;
-  gap:2px;
-  width:100%;
-  min-height:45px;
-  padding:4px 2px 5px;
-  background:#fff9df;
+  gap:3px;
+  padding:3px 1px;
   line-height:1.1;
-  flex:1
+  min-width:0
 }
 .building-number {
-  font-size:18px;
+  font-size:20px;
   font-weight:800;
-  letter-spacing:-.25px;
+  letter-spacing:-.35px;
   line-height:1.1;
   white-space:nowrap;
   font-variant-numeric:tabular-nums
 }
 .building-number.long {
-  font-size:15px
+  font-size:18px
 }
 .building-suffix {
-  font-size:12px;
+  font-size:16px;
   font-weight:bold;
   line-height:1.1;
   white-space:nowrap
 }
-/* SHORT STREET LABEL: one label below a consecutive group of numbers. The full name remains in the data and accessible labels. */
 .street-rail {
-  margin-top:auto;
-  display:block;
-  background:#f1e3ae;
-  border-top:1px solid #d2c38f;
-  min-height:29px
+  background:#f3e7b9;
+  border-bottom:8px solid #a4a28d;
+  min-height:0
 }
 .street-group {
-  display:block;
+  display:flex;
+  align-items:center;
+  justify-content:center;
   min-width:0;
-  font-size:12px;
-  line-height:1.25;
-  font-weight:bold;
-  text-align:center;
-  padding:6px 4px;
-  color:#3c4b37;
-  overflow-wrap:anywhere
+  font-size:20px;
+  line-height:1.15;
+  white-space:nowrap;
+  overflow:hidden;
+  padding:4px 2px;
+  border-right:1px solid #c1b47d;
+  color:#46513b;
+  font-weight:bold
+}
+.street-group span {
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap
 }
 .slot:hover .label,.slot:focus-visible .label {
-  background:#fff0b1
+  background:#fff4c6
 }
 .slot.correct {
-  outline:3px solid #21a35a;
-  outline-offset:-2px;
+  outline:5px solid #21a35a;
+  outline-offset:-3px;
   z-index:1
 }
 .slot.wrong {
-  outline:3px solid #e34c39;
-  outline-offset:-2px;
+  outline:5px solid #e34c39;
+  outline-offset:-3px;
   z-index:1
 }
 .slot.hinted {
-  outline:3px solid #ed8021;
-  outline-offset:-2px;
+  outline:5px solid #ed8021;
+  outline-offset:-3px;
   z-index:1
 }
 .slot:focus-visible {
-  outline:3px solid #2278bc;
-  outline-offset:-2px;
+  outline:5px solid #2278bc;
+  outline-offset:-3px;
   z-index:2
 }
 .inspect {
-  padding:10px 12px;
+  padding:9px 12px;
+  margin-top:10px;
   border:1px solid #d4dbcb;
   border-radius:6px;
   background:#e9ede2;
   font-size:13px;
   line-height:1.4;
-  min-height:40px;
-  margin-top:12px
+  min-height:38px
 }
 .shelf-help {
   font-size:12px;
   line-height:1.5;
   color:#687769;
-  margin:10px 0
+  margin:9px 0
 }
 .footer {
   display:flex;
   justify-content:space-between;
-  gap:12px;
+  gap:10px;
   font-size:11px;
   color:#798774;
-  margin-top:18px
+  margin-top:15px
 }
 /* ADDRESS EDITOR: a native modal dialog. ::backdrop styles the dimmed background. */
 dialog {
@@ -564,13 +614,7 @@ td:first-child {
 [hidden] {
   display:none!important
 }
-@media(max-width:1199px) {
-  .cabinet-bank {
-    grid-template-columns:repeat(2,minmax(0,1fr))
-  }
-  .view-toolbar small {
-    display:none
-  }
+@media(max-width:1100px) {
   .desk {
     grid-template-columns:1fr 1.1fr;
     gap:12px
@@ -588,6 +632,9 @@ td:first-child {
   }
   .intro p {
     font-size:11px
+  }
+  .view-toolbar small {
+    display:none
   }
 }
 @media(max-width:620px) {
@@ -680,37 +727,32 @@ td:first-child {
   .settings label {
     font-size:11px
   }
-  .cabinet-bank {
-    grid-template-columns:minmax(0,1fr);
-    gap:16px
+  .shelves {
+    margin-top:12px
   }
   .view-toolbar {
-    margin-bottom:8px
+    gap:8px
   }
   .view-toolbar b {
     font-size:14px
   }
-  .view-note {
+  .table-controls {
+    width:100%;
+    gap:5px
+  }
+  .table-controls button {
+    min-height:44px;
+    flex:1;
+    padding:6px 8px
+  }
+  .table-controls .zoom-step {
+    flex:0 0 44px
+  }
+  .view-help {
     font-size:11px
   }
-  .shelves {
-    margin-top:12px
-  }
-  .cabinet-heading {
-    font-size:17px
-  }
-  .cabinet-heading small {
-    font-size:12px
-  }
-  .row-heading {
-    font-size:13px;
-    padding:9px 7px
-  }
-  .row-heading span:last-child {
-    font-size:11px
-  }
-  .street-group {
-    font-size:13px
+  .workbench {
+    height:clamp(340px,calc(100dvh - 290px),600px)
   }
   .footer {
     display:block;
@@ -879,17 +921,31 @@ td:first-child {
         <div class="view-toolbar">
           <div>
             <b>
-              Your sorting table
+              Your sorting table · fixed layout
             </b>
             <small>
-              Large numbers · Short street labels
+              Four columns · Four shelf levels
             </small>
           </div>
-          <span class="view-note">
-            Tap a number to sort
-          </span>
+          <div class="table-controls">
+            <button class="zoom-step" id="zoom-out" aria-label="Zoom out">
+              −
+            </button>
+            <button class="zoom-step" id="zoom-in" aria-label="Zoom in">
+              +
+            </button>
+            <button id="read-numbers">
+              Read numbers
+            </button>
+            <button id="fit-table">
+              Fit table
+            </button>
+          </div>
         </div>
-        <div class="workbench" id="workbench">
+        <p class="view-help">
+          Pinch to zoom, or use + / −. Drag to move around. Tap a slot to zoom closer, then tap its number to sort.
+        </p>
+        <div class="workbench" id="workbench" aria-label="Fixed four-column sorting table. Pinch or use the zoom buttons, and drag to move.">
           <!-- JavaScript renderShelf() fills this initially empty container. -->
           <div class="cabinet-bank" id="shelf">
           </div>
@@ -898,7 +954,7 @@ td:first-child {
           Full street names appear here when you point to or focus a number.
         </div>
         <p class="shelf-help">
-          Your numbering: Section 1 is the top level and Section 4 is the bottom level. Row 1 is far left and Row 4 is far right. Adjacent matching street names share a short label. Laptop: four columns. Tablet: two. Phone: one. Number order is preserved within every section. Each session includes every slot in the selected area once.
+          Your numbering: Section 1 is the top level and Section 4 is the bottom level. Row 1 is far left and Row 4 is far right. The same four columns and four shelf levels stay fixed on every device. Every number keeps its photo position. Zoom and drag to read; Fit table returns to the whole table. Each session includes every slot in the selected area once.
         </p>
       </section>
     </div>
@@ -1082,8 +1138,12 @@ function numberLabel(s) {
     label.textContent='?';
     return label
   }
-  const parts=numberParts(s.number);
-  label.append(el('span',parts.head,'building-number'+(parts.head.length>5?' long':'')));
+  const parts=numberParts(s.number),head=el('span',parts.head,'building-number');
+  const original=ORIGINAL.find(o=>o.id===s.id);
+  const available=(original.photoEnd-original.photoStart)*1960-4;
+  const estimated=[...parts.head].reduce((sum,ch)=>sum+(ch===' '?.3:ch==='-'?.4:.62),0);
+  head.style.fontSize=Math.min(20,Math.floor(available/estimated))+'px';
+  label.append(head);
   if(parts.tail)label.append(el('span',' '+parts.tail,'building-suffix'));
   return label;
 }
@@ -1094,12 +1154,12 @@ function numberLabel(s) {
  * Outer loop: Row 1 (far left) to Row 4 (far right).
  * Inner loop: Section 1 (top) to Section 4 (bottom).
  * The buttons contain a colored pocket ABOVE a house-number label.
- * Adjacent streets share a short label BELOW their number buttons. Number buttons wrap within a group so they remain large enough to read. CSS shows four columns on a laptop, two on a tablet, and one on a phone.
+ * Every level is one unbroken line of number buttons. Photo coordinates determine the grid tracks. The same four columns and four levels remain fixed on all screens; camera transforms provide zoom and pan.
  */
 function renderShelf() {
   const shelf=$('shelf');
   shelf.replaceChildren();
-  $('inspect').textContent=mode==='practice'?'Full street names appear here when you point to or focus a number.':'Memory mode · Find the address by its position. Use Show me if you need help.';
+  $('inspect').textContent=mode==='practice'?'Zoom in to read the numbers. Full street names appear here when you point to or focus a slot.':'Memory mode · Find the address by its position. Use Show me if you need help.';
   for(let n=1;n<=4;n++) {
     const cabinet=el('section',undefined,'cabinet');
     cabinet.dataset.row=String(n);
@@ -1115,45 +1175,262 @@ function renderShelf() {
       const h=el('div',undefined,'row-heading');
       h.append(el('span','Section '+r+' · '+['Top','Second','Third','Bottom'][r-1]),el('span',members.length+' slots'));
       row.append(h);
-      const blocks=el('div',undefined,'address-groups');
-      for(const group of groups) {
-        const short=streetLabel(group.text),block=el('div',undefined,'address-block');
-        block.dataset.group=group.id;
-        block.style.setProperty('--block-width',Math.max(group.count*78,short.length*6.5+16)+'px');
-        block.style.setProperty('--block-min',Math.max(88,Math.min(160,short.length*6.5+16))+'px');
-        const line=el('div',undefined,'slot-line'),rail=el('div',undefined,'street-rail');
-        for(const s of members.slice(group.first,group.first+group.count)) {
-          const b=el('button',undefined,'slot');
-          b.dataset.id=s.id;
-          b.style.setProperty('--folder',['#e8b83c','#28725c','#284b72','#e8b83c'][r-1]);
-          const pocket=el('span',undefined,'pocket');
-          pocket.setAttribute('aria-hidden','true');
-          b.append(pocket,numberLabel(s));
-          b.setAttribute('aria-label',mode==='practice'?`${s.street} ${s.number}. Section ${r}, row ${n}, slot ${s.position}`:`Section ${r}, row ${n}, slot ${s.position}`);
-          if(mode==='practice')b.title=s.street+' '+s.number;
-          const inspect=()=> {
-            $('inspect').textContent=mode==='practice'?`${s.street} ${s.number} · Section ${r}, row ${n}, slot ${s.position}`:`Section ${r}, row ${n}, slot ${s.position}`
-          }
-          ;
-          b.onpointerenter=inspect;
-          b.onfocus=inspect;
-          b.onclick=()=>choose(s,b);
-          line.append(b);
+      const line=el('div',undefined,'slot-line'),rail=el('div',undefined,'street-rail');
+      const columns=members.map(s=> {
+        const original=ORIGINAL.find(o=>o.id===s.id);return `minmax(0,${original.photoEnd-original.photoStart}fr)`
+      }
+      ).join(' ');
+      line.style.gridTemplateColumns=rail.style.gridTemplateColumns=columns;
+      for(const s of members) {
+        const b=el('button',undefined,'slot');
+        b.dataset.id=s.id;
+        b.style.setProperty('--folder',['#e8b83c','#28725c','#284b72','#e8b83c'][r-1]);
+        const pocket=el('span',undefined,'pocket');
+        pocket.setAttribute('aria-hidden','true');
+        b.append(pocket,numberLabel(s));
+        b.setAttribute('aria-label',mode==='practice'?`${s.street} ${s.number}. Section ${r}, row ${n}, slot ${s.position}`:`Section ${r}, row ${n}, slot ${s.position}`);
+        if(mode==='practice')b.title=s.street+' '+s.number;
+        const inspect=()=> {
+          $('inspect').textContent=mode==='practice'?`${s.street} ${s.number} · Section ${r}, row ${n}, slot ${s.position}`:`Section ${r}, row ${n}, slot ${s.position}`
         }
-        const label=el('span',mode==='practice'?short:'','street-group');
+        ;
+        b.onpointerenter=inspect;
+        b.onfocus=inspect;
+        b.onclick=e=> {
+          if(e?.detail>0&&Date.now()<suppressClickUntil)return;
+          choose(s,b)
+        }
+        ;
+        line.append(b);
+      }
+      for(const group of groups) {
+        const label=el('div',undefined,'street-group');
         label.dataset.group=group.id;
         label.setAttribute('lang','de');
+        label.style.gridColumn=`${group.first+1} / ${group.first+group.count+1}`;
+        label.append(el('span',mode==='practice'?streetLabel(group.text):''));
         if(mode==='practice')label.title=group.text;
         rail.append(label);
-        block.append(line,rail);
-        blocks.append(block);
       }
-      row.append(blocks);
+      row.append(line,rail);
       cabinet.append(row);
     }
     shelf.append(cabinet);
   }
 }
+const TABLE_WIDTH=8000,TABLE_HEIGHT=2680;
+let camera= {
+  x:0,y:0,scale:1,isFit:true
+}
+,viewWidth=1000,viewHeight=520,suppressClickUntil=0;
+const pointers=new Map();
+let gestureMoved=false,pinchStart=null,dragStart=null;
+function fitScale() {
+  return Math.min((viewWidth-24)/TABLE_WIDTH,(viewHeight-24)/TABLE_HEIGHT)
+}
+function applyCamera() {
+  const width=TABLE_WIDTH*camera.scale,height=TABLE_HEIGHT*camera.scale;
+  camera.x=width<=viewWidth?(viewWidth-width)/2:Math.max(viewWidth-width-16,Math.min(16,camera.x));
+  camera.y=height<=viewHeight?(viewHeight-height)/2:Math.max(viewHeight-height-16,Math.min(16,camera.y));
+  $('shelf').style.transform=`translate(${camera.x}px,${camera.y}px) scale(${camera.scale})`;
+}
+/*
+ * Fit the whole fixed table inside the visible area. No addresses move; only the camera scale and translation change.
+ */
+function fitTable() {
+  camera= {
+    x:0,y:0,scale:fitScale(),isFit:true
+  }
+  ;
+  applyCamera()
+}
+/*
+ * Update the viewport dimensions. Preserve the inspected world location when zoomed in, or fit the whole scene when overview mode is active.
+ */
+function resizeCamera() {
+  const centre= {
+    x:(viewWidth/2-camera.x)/camera.scale,y:(viewHeight/2-camera.y)/camera.scale
+  }
+  ;
+  viewWidth=$('workbench').clientWidth||1000;
+  viewHeight=$('workbench').clientHeight||520;
+  if(camera.isFit) {
+    fitTable();
+    return
+  }
+  camera.x=viewWidth/2-centre.x*camera.scale;
+  camera.y=viewHeight/2-centre.y*camera.scale;
+  applyCamera();
+}
+/*
+ * Zoom around a screen point so the location under the fingers or cursor remains under that point.
+ */
+function zoomAt(scale,x=viewWidth/2,y=viewHeight/2) {
+  const world= {
+    x:(x-camera.x)/camera.scale,y:(y-camera.y)/camera.scale
+  }
+  ;
+  camera.scale=Math.max(Math.min(.02,fitScale()),Math.min(3,scale));
+  camera.x=x-world.x*camera.scale;
+  camera.y=y-world.y*camera.scale;
+  camera.isFit=false;
+  applyCamera();
+}
+/*
+ * Find a number label using its original photo coordinates. The scene dimensions, borders and headings match the fixed CSS geometry.
+ */
+function slotAnchor(s) {
+  const original=ORIGINAL.find(o=>o.id===s.id),cabWidth=(TABLE_WIDTH-80)/4,cabHeight=TABLE_HEIGHT-32;
+  const rowHeight=(cabHeight-80)/4;
+  return  {
+    x:16+(s.row-1)*(cabWidth+16)+10+(original.photoStart+original.photoEnd)/2*(cabWidth-20),y:88+(s.section-1)*rowHeight+rowHeight-104
+  }
+  ;
+}
+function revealSlot(s) {
+  const point=slotAnchor(s);
+  camera.scale=Math.max(1.6,camera.scale);
+  camera.isFit=false;
+  camera.x=viewWidth/2-point.x*camera.scale;
+  camera.y=viewHeight/2-point.y*camera.scale;
+  applyCamera();
+}
+/*
+ * Zoom to readable size near the first numbers, without revealing the current letter’s answer.
+ */
+function readNumbers() {
+  const point=slotAnchor(ORIGINAL[0]);
+  camera= {
+    scale:1.6,x:16,y:viewHeight/2-point.y*1.6,isFit:false
+  }
+  ;
+  applyCamera();
+}
+/*
+ * At overview size, a tap zooms closer without counting an attempt. At readable size, a tap sorts the letter.
+ */
+function activateSlot(id,button) {
+  const s=slots.find(o=>o.id===id);
+  if(!s||answered||done)return;
+  if(camera.scale<.75) {
+    revealSlot(s);
+    feedback('Zoomed in. Tap a number to sort this letter.');
+    return
+  }
+  choose(s,button);
+}
+$('zoom-in').onclick=()=>zoomAt(camera.scale*1.6);
+$('zoom-out').onclick=()=>zoomAt(camera.scale/1.6);
+$('fit-table').onclick=fitTable;
+$('read-numbers').onclick=readNumbers;
+function localPoint(e) {
+  const rect=$('workbench').getBoundingClientRect();
+  return  {
+    x:e.clientX-rect.left,y:e.clientY-rect.top
+  }
+}
+function resetGestureAnchor() {
+  if(pointers.size>=2) {
+    const [a,b]=[...pointers.values()];
+    pinchStart= {
+      distance:Math.max(1,Math.hypot(b.x-a.x,b.y-a.y)),x:(a.x+b.x)/2,y:(a.y+b.y)/2,camera: {
+        ...camera
+      }
+    }
+    ;
+    dragStart=null;
+  }
+  else if(pointers.size===1) {
+    const p=[...pointers.values()][0];
+    dragStart= {
+      x:p.x,y:p.y,camera: {
+        ...camera
+      }
+    }
+    ;
+    pinchStart=null
+  }
+  else {
+    dragStart=pinchStart=null;
+    $('workbench').classList.remove('is-dragging')
+  }
+}
+$('workbench').onpointerdown=e=> {
+  if(e.button>0)return;
+  const point=localPoint(e),button=e.target.closest?.('.slot');
+  if(pointers.size===0)gestureMoved=false;
+  pointers.set(e.pointerId, {
+    ...point,startX:point.x,startY:point.y,button
+  }
+  );
+  if(pointers.size>1)gestureMoved=true;
+  resetGestureAnchor();
+  e.currentTarget.setPointerCapture(e.pointerId);
+  e.preventDefault();
+}
+;
+$('workbench').onpointermove=e=> {
+  const previous=pointers.get(e.pointerId);
+  if(!previous)return;
+  const point=localPoint(e);
+  pointers.set(e.pointerId, {
+    ...previous,...point
+  }
+  );
+  if(pointers.size>=2&&pinchStart) {
+    const [a,b]=[...pointers.values()],x=(a.x+b.x)/2,y=(a.y+b.y)/2;
+    const start=pinchStart.camera,ratio=Math.hypot(b.x-a.x,b.y-a.y)/pinchStart.distance;
+    camera.scale=Math.max(Math.min(.02,fitScale()),Math.min(3,start.scale*ratio));
+    camera.x=x-(pinchStart.x-start.x)/start.scale*camera.scale;
+    camera.y=y-(pinchStart.y-start.y)/start.scale*camera.scale;
+    camera.isFit=false;
+    gestureMoved=true;
+    applyCamera();
+  }
+  else if(dragStart) {
+    if(Math.hypot(point.x-previous.startX,point.y-previous.startY)>6)gestureMoved=true;
+    if(gestureMoved) {
+      camera.x=dragStart.camera.x+point.x-dragStart.x;
+      camera.y=dragStart.camera.y+point.y-dragStart.y;
+      camera.isFit=false;
+      applyCamera()
+    }
+  }
+  if(gestureMoved)$('workbench').classList.add('is-dragging');
+  e.preventDefault();
+}
+;
+/*
+ * Finish a drag or pinch. Submit only a stationary single-pointer tap; never submit after movement, multiple fingers or cancellation.
+ */
+function endPointer(e,cancelled=false) {
+  const p=pointers.get(e.pointerId);
+  if(!p)return;
+  const select=!cancelled&&!gestureMoved&&pointers.size===1&&p.button;
+  pointers.delete(e.pointerId);
+  suppressClickUntil=Date.now()+500;
+  if(e.currentTarget.hasPointerCapture?.(e.pointerId))e.currentTarget.releasePointerCapture(e.pointerId);
+  if(cancelled)gestureMoved=true;
+  resetGestureAnchor();
+  e.preventDefault();
+  if(select)activateSlot(p.button.dataset.id,p.button);
+}
+$('workbench').onpointerup=e=>endPointer(e);
+$('workbench').onpointercancel=e=>endPointer(e,true);
+$('workbench').addEventListener('wheel',e=> {
+  const point=localPoint(e);  if(e.ctrlKey) {
+    zoomAt(camera.scale*Math.exp(-e.deltaY*.01),point.x,point.y);e.preventDefault()
+  }
+  else if(!camera.isFit) {
+    camera.x-=e.shiftKey?e.deltaY:e.deltaX;camera.y-=e.shiftKey?0:e.deltaY;applyCamera();e.preventDefault()
+  }
+}
+, {
+  passive:false
+}
+);
+if(typeof ResizeObserver!=='undefined')new ResizeObserver(resizeCamera).observe($('workbench'));
+else if(typeof window!=='undefined')window.addEventListener('resize',resizeCamera);
 /*
  * Update slot outlines and disabled states.
  * Green means answered; orange means a hint; red is applied in choose().
@@ -1279,9 +1556,9 @@ function hint() {
   section=target.section;
   renderShelf();
   paint();
-  const b=document.querySelector(`[data-id="${target.id}"]`);
-  b?.scrollIntoView( {
-    block:'center',inline:'nearest',behavior:'auto'
+  revealSlot(target);
+  $('workbench').scrollIntoView( {
+    block:'nearest',behavior:'auto'
   }
   );
   feedback(`Section ${target.section}, row ${target.row}, slot ${target.position}. Select the outlined slot to place this letter.`);
@@ -1329,6 +1606,7 @@ $('skip').onclick=()=> {
   const t=allMatches()[0];
   section=t.section;
   renderShelf();
+  revealSlot(t);
   answered=true;
   paint();
   feedback(`Skipped: section ${t.section}, row ${t.row}, slot ${t.position}. The matching slot is outlined.`);
@@ -1433,8 +1711,9 @@ $('file').onchange=async e=> {
   e.target.value=''
 }
 ;
+resizeCamera();
 /* STARTUP: show the dataset size, start the first round and explain any browser-storage limitation. */
-$('data-info').textContent=`${slots.length} slots · 4 sections · Large numbers`;
+$('data-info').textContent=`${slots.length} slots · Fixed 4 × 4 table`;
 newRound();
 if(!storageOK)feedback('Browser storage is unavailable. You can still play; export any address edits to keep them.');
 

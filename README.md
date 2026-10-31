@@ -1,12 +1,13 @@
 # Brief Trainer
 
-Browser-based address sorting practice. Open index.html locally or visit the GitHub Pages website. No build step or external dependencies are needed.
+A self-contained browser game for memorizing a physical letter sorting table. Open index.html locally or visit GitHub Pages. No build step or external dependencies are needed.
 
-- 399 address slots, with each number preserved.
-- Adjacent matching street names share one abbreviated label.
-- Large number buttons directly in the table; no separate viewer.
-- Four table columns on laptop, two on tablet, one on phone. Scroll vertically on smaller screens.
+- Fixed four-column, four-level layout on phones, tablets and computers.
+- 399 slots retain their original photo positions and order.
+- Pinch to zoom, drag to move; +/−, Read numbers and Fit table buttons.
+- Tap an overview slot to zoom closer, then tap its number to sort.
+- Adjacent same-street labels share a short label; full addresses remain in the data.
 - Each round covers every slot in the selected area once.
-- Practice and memory modes, hints, skips, editable labels and JSON backups.
+- Memory mode, hints, editable address labels and JSON backups.
 
-Read CODE-GUIDE.md or open learning.html in a text editor for the commented source. The learning copy has a separate browser-storage entry.
+Read CODE-GUIDE.md or learning.html for the commented source. The learning copy uses its own storage key.

@@ -6,11 +6,13 @@ The game is one self-contained HTML file. It works locally without a server. Ope
 
 HTML provides the letter, buttons, table container and address editor. CSS controls colors, spacing and responsive layout. JavaScript builds the address buttons, checks answers and saves edits in the browser.
 
-## Readable numbers
+## Fixed table and zoom
 
-Each address has its own button. The main building number uses 18px type; long ranges use 15px. St/Ha/Pa details use a separate 12px line. Buttons remain at least 68px wide and 54px tall. Street labels are below their number groups.
+The layout is one fixed scene, 8000 × 2680 logical pixels. It always contains four columns and four shelf levels. Screen size never stacks columns or wraps a sequence of numbers. Slot widths use the measured `photoStart` and `photoEnd` values. Adjacent matching street labels may share an abbreviated label, while every slot stays in its original position.
 
-The main table uses four columns above 1199px, two columns at tablet widths, and one column at 620px or below. On smaller devices, scroll vertically through the table. There is no magnifying viewer or forced horizontal panning.
+The scene is larger than a device screen. `Fit table` scales it down to an overview. `Read numbers` zooms to the first number labels. The + and − buttons and two-finger pinch change magnification; dragging moves the camera. At overview size a tap zooms closer, and a second tap on a readable number sorts the letter.
+
+The camera uses a CSS transform on the whole scene. It never rebuilds or reorders the slots. Gesture movement and pinch release cannot submit an answer. Browser page zoom remains available outside the table.
 
 ## Address records
 
@@ -23,7 +25,7 @@ Every object in `ORIGINAL` represents one slot:
 
 Sections 1–4 run top to bottom. Rows 1–4 identify the physical table columns from left to right. `position` preserves the original order within that intersection. Numbers are strings so `33 St 1`, `114-116` and parcel suffixes remain intact.
 
-The original photo grouping and measurements remain in the data for reference. They do not determine the current responsive widths.
+The original photo measurements determine the fixed slot widths. Edited labels and imported backups cannot override the original slot geometry.
 
 ## Street labels
 
@@ -35,7 +37,7 @@ The original photo grouping and measurements remain in the data for reference. T
 
 | Function | Purpose |
 | --- | --- |
-| `renderShelf()` | Builds four table columns with four sections each, street groups and number buttons. |
+| `renderShelf()` | Builds the fixed four columns and four levels, with shared photo-based number and street grids. |
 | `numberParts(number)` | Keeps the building number and St/Pa details on separate lines. |
 | `numberLabel(slot)` | Creates the large number label, or a question mark in memory mode. |
 | `newRound()` | Shuffles every slot in the selected practice area once. |
@@ -50,8 +52,20 @@ The original photo grouping and measurements remain in the data for reference. T
 
 The question count is `queue.length`, rather than a fixed 20. A full-table session has 399 letters. Selecting a section uses its own slot count. Best scores are tracked separately for each section and practice mode.
 
+## Camera functions
+
+| Function | Purpose |
+| --- | --- |
+| `fitTable()` | Fits all four columns and four levels into the viewport. |
+| `readNumbers()` | Starts a readable view at the first number labels. |
+| `zoomAt(scale, x, y)` | Zooms around a screen point without moving the world point beneath it. |
+| `resizeCamera()` | Adapts the view to a resized screen without rearranging the scene. |
+| `slotAnchor(slot)` | Locates the original label position for hints. |
+| `activateSlot(id, button)` | Zooms an overview tap or submits a readable tap. |
+| `endPointer(event)` | Completes a tap, drag or pinch safely. |
+
 ## Small changes to try
 
-Change `.building-number` to adjust the main number size. Change `.building-suffix` to adjust St/Pa details. Change the two media-query breakpoints to alter when columns stack. Keep the minimum button width large enough for the longest number range.
+Change `.building-number` to adjust the base number size. Change `.building-suffix` to adjust St/Pa details. Keep the scene geometry constants and corresponding CSS dimensions in sync. Do not add responsive column stacking or wrapped number groups if you want to preserve the physical table.
 
-Use Edit addresses for corrections. Export a backup before trying larger changes. The learning copy uses its own browser-storage entry, so it does not replace saved edits in the normal game.
+Use Edit addresses for corrections. Export a backup before trying larger changes. The learning copy has a separate storage key.
