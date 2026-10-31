@@ -30,3 +30,6 @@ Read `CODE-GUIDE.md` and open `learning.html` in a text editor. No build tools o
 ## Photo label layout
 
 Each address record includes `labelGroup` and `labelText`. These preserve the real printed boundaries instead of merging adjacent matching street names. For example, Sonnenbadweg is repeated over separate blocks in Section 4 Row 1. The photo layout uses a new storage entry so the earlier slot list cannot shift the new labels. Earlier browser data is retained under its previous entry. Incomplete photographed parcel and Stiege suffixes remain as visible; no hidden numbers are invented.
+
+READABLE VIEW
+The overview keeps the entire table visible. Move the mouse across it, or drag a finger across it on a phone, to inspect neighbouring slots in the readable strip. Tap a large slot in the strip to sort a letter. The arrow buttons move along the same shelf. Phone touches on the overview inspect only, so they do not accidentally sort letters. Memory mode hides labels in both views.

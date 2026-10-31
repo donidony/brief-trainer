@@ -222,3 +222,7 @@ Common mistakes are missing quotes, missing commas between address records, mism
 Send a full-table overview, then readable close-ups taken straight on. Label each image with its location using your numbering: **Section = level from top to bottom; Row = column from left to right**. For example, Section 1 Row 2 is the top level in the second column from the left.
 
 If one close-up cannot cover the whole shelf, include a few overlapping slots in the next photo. Keep house numbers, St / Ha / Pa suffixes, street names and slot boundaries visible. I can transcribe those labels, so you do not need to type the address list yourself. Any unclear labels will still need checking.
+
+## Readable strip and touch controls
+
+`renderFocus()` displays nearby slots in large type, preserving their order and printed street blocks. It derives the window from `focusId`, not from the active letter. `focusFromPointer()` maps a mouse or captured finger position on the overview to a slot. A touch gesture only inspects; a large button in the readable strip submits an answer. `paintFocus()` synchronizes hints and answer outlines. Both views hide address labels in memory mode.
