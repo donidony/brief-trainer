@@ -4,7 +4,7 @@ A browser game for practicing the address positions on a letter-sorting table. T
 
 ## Play
 
-Open `index.html` locally, or visit the repository's GitHub Pages website after publishing. Choose practice mode to see labels or memory mode to hide them. Each round contains 20 letters.
+Open `index.html` locally, or visit the repository's GitHub Pages website after publishing. Choose practice mode to see labels or memory mode to hide them. Each round contains every slot in the selected area once: 399 letters for the full table.
 
 This table uses the original document's numbering: **Section 1 is the top level; Section 4 is the bottom. Row 1 is the far-left column; Row 4 is the far-right column.** Slots run from left to right inside each intersection.
 
@@ -25,7 +25,7 @@ The game stores edits and best scores in the current browser. They do not automa
 
 ## Learn and modify
 
-Read `CODE-GUIDE.md` and open `learning.html` in a text editor. No build tools or external libraries are required. The learning copy has a separate browser-storage entry and a `ROUND_SIZE` setting.
+Read `CODE-GUIDE.md` and open `learning.html` in a text editor. No build tools or external libraries are required. The learning copy has a separate browser-storage entry and the same automatic session length.
 
 ## Photo label layout
 

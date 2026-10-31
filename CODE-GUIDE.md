@@ -56,15 +56,9 @@ The divider colors come from a separate array inside `renderShelf()`:
 
 These four entries are the colors for the four levels, from top to bottom. `r - 1` converts level numbers 1–4 into array positions 0–3.
 
-### Make rounds shorter
+### Session length follows the addresses
 
-Search for this JavaScript setting:
-
-```js
-const ROUND_SIZE = 20;
-```
-
-Change `20` to `10`, save, then refresh. The learning copy uses this setting for the question count, final score and progress bar. Use a positive whole number; try 5, 10 or 20.
+`newRound()` shuffles all slots in the selected area and assigns them to `queue`. The session length is `queue.length`: 399 letters for the full table, or the number of slots in a selected section. Each slot appears once. Progress, final scores and completion all use that length. Best scores are stored separately for each area and practice mode.
 
 ### Make the dividers taller
 
@@ -131,7 +125,7 @@ For small label corrections, the game's **Edit addresses** button is easier than
 | `printedGroups()` | Keeps the original printed street-label blocks separate, including repeated street names |
 | `renderShelf()` | Draws all four columns and four levels, with labels underneath |
 | `paint()` | Adds correct/hint outlines and disables answered slots |
-| `setZoom(value)` | Changes the entire shelf bank's width |
+| `setZoom(value)` | Scales the entire shelf bank |
 | `feedback(text, kind)` | Displays feedback, optionally using success/error colors |
 | `stats()` | Updates score, accuracy, streak, best score and progress |
 | `newRound()` | Chooses a fresh set of letters and resets round counters |
@@ -149,7 +143,7 @@ slots.filter(s => s.section === r && s.row === n)
 
 Label groups are explicit data. Two neighboring blocks both labeled Sonnenbadweg stay separate when they have different `labelGroup` IDs. Do not merge them by street name. The source list currently defines 147 printed blocks across the 16 shelf bands.
 
-The `.slot` button contains the colored `.pocket` first, then the house-number `.label`. The separate `.street-rail` follows the entire line of buttons. Both use the same weighted CSS grid to keep numbers under their pockets and street blocks under their intended numbers. Full names wrap across lines rather than being shortened with CSS ellipses. The minimum table width is 1800 pixels so labels stay readable; smaller screens can scroll sideways.
+The `.slot` button contains the colored `.pocket` first, then the house-number `.label`. The separate `.street-rail` follows the entire line of buttons. Both use the same CSS grid measured from the photo label positions to keep numbers under their pockets and street blocks under their intended numbers. Full names wrap across lines rather than being shortened with CSS ellipses. `photoStart` and `photoEnd` store each slot’s measured position from 0 to 1 within its cabinet. Text length never changes these positions. The minimum width keeps house numbers readable; zoom out for an overview or scroll sideways.
 
 ## Important state variables
 
