@@ -7,7 +7,7 @@
 
 :root{font-family:Arial,Helvetica,sans-serif;color:#24352e;background:#f4f3ed;font-synthesis:none;--green:#254f3e;--yellow:#f4c54c}*{box-sizing:border-box}body{margin:0}button,select,input{font:inherit}button,select{cursor:pointer}button{border:1px solid #cfd6cb;background:#fffefa;color:inherit;border-radius:7px;padding:9px 13px}button:hover{filter:brightness(.96)}button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid #2278bc;outline-offset:2px}button:disabled{cursor:default;opacity:.55}header{margin:auto;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;gap:15px}.brand{display:flex;align-items:center;gap:11px}.logo{background:var(--yellow);font-size:23px;border-radius:10px;padding:7px 11px}.brand b{font-size:19px}.brand small{display:block;color:#728076;margin-top:3px;font-size:11px}.header-actions{display:flex;gap:7px;font-size:12px}main{padding:0 24px 25px}.intro{display:flex;align-items:center;justify-content:space-between;gap:20px;margin:3px 0 17px}.eyebrow{font-size:9px;letter-spacing:1.8px;font-weight:bold;text-transform:uppercase;color:#6d7e70}h1{font-size:27px;letter-spacing:-.8px;margin:6px 0}.intro p{margin:0;color:#69776c;font-size:12px}.stats{display:flex;gap:27px;flex-shrink:0}.stat strong{font-size:23px;display:block}.stat span{font-size:9px;color:#6d7e70}.desk{display:grid;grid-template-columns:minmax(230px,1fr) minmax(230px,1.2fr) minmax(280px,1fr);gap:25px;background:#e8ece4;border:1px solid #d7ded2;border-radius:11px;padding:14px 18px;position:sticky;top:0;z-index:10;box-shadow:0 3px 10px #1c352210}.desk h2{font-size:10px;font-weight:normal;text-transform:uppercase;letter-spacing:1px;color:#6b7b6d;margin:0 0 7px}.envelope{background:#fffdf7;border:1px solid #dfddce;box-shadow:0 3px 8px #293b2810;padding:9px 44px 9px 13px;position:relative;border-radius:3px;min-height:68px;display:flex;flex-wrap:wrap;gap:0 8px;align-content:center;align-items:baseline}.stamp{position:absolute;right:10px;top:10px;border:2px dotted #a1ad97;padding:4px;font-size:15px;color:#738269}.envelope small{display:block;flex-basis:100%;color:#8c9387;font-size:8px;letter-spacing:1px;margin:0 0 3px}.address{font-size:18px;font-weight:bold;line-height:1.3;overflow-wrap:anywhere}.number{font-size:20px}.primary{background:var(--green);color:white;border-color:var(--green)}.desk-actions{display:flex;gap:7px}.desk-actions button{font-size:12px}.next{margin-left:auto}.feedback{min-height:35px;font-size:11px;line-height:1.4;padding-top:8px}.feedback.good{color:#236043}.feedback.bad{color:#9a3a29}.progress{height:4px;background:#ced8c9;border-radius:4px;margin:6px 0;overflow:hidden}.progress span{display:block;height:100%;background:var(--green)}.round-label{font-size:10px;display:flex;justify-content:space-between;color:#687b68}.settings{display:grid;grid-template-columns:1fr 1fr;gap:6px 10px;align-content:start}.settings label{font-size:10px;display:grid;gap:5px}.settings select{font-size:11px;padding:8px 5px;border:1px solid #c6d1c0;background:#f8faf5;border-radius:5px;color:#24352e;width:100%}.note{grid-column:1/-1;font-size:10px;line-height:1.4;color:#73816e;margin:0}
 .shelves{margin-top:16px;min-width:0}.view-toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}.view-toolbar b{font-size:15px}.view-toolbar small{font-size:11px;color:#687769;margin-left:10px}.table-controls{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.table-controls button{min-height:42px;padding:8px 12px;font-size:12px}.table-controls .zoom-step{font-size:22px;min-width:44px;padding:3px 10px}.view-help{font-size:12px;line-height:1.4;color:#62735f;margin:6px 0 9px}
-.workbench{position:relative;overflow:hidden;width:100%;height:clamp(360px,calc(100dvh - 270px),680px);background:#d7d7cb;border:1px solid #b7bdad;border-radius:9px;touch-action:none;user-select:none;cursor:grab;overscroll-behavior:contain}.workbench.is-dragging{cursor:grabbing}.workbench:focus-visible{outline:3px solid #2278bc;outline-offset:2px}
+.workbench{position:relative;overflow:hidden;width:100%;height:clamp(360px,calc(100dvh - 270px),680px);background:#d7d7cb;border:1px solid #b7bdad;border-radius:9px;touch-action:none;user-select:none;cursor:grab;overscroll-behavior:contain}.map-viewport.is-dragging{cursor:grabbing}.workbench>.table-controls{position:absolute;width:auto;top:7px;left:8px;right:8px;min-height:44px;z-index:2;justify-content:center;margin:0}.map-viewport{position:absolute;inset:60px 0 0;overflow:hidden;touch-action:none;cursor:grab;user-select:none}.workbench:focus-visible{outline:3px solid #2278bc;outline-offset:2px}
 /* This is one fixed scene. Screen size and zoom never change its grid or order. */
 .cabinet-bank{position:absolute;left:0;top:0;width:8000px;height:2680px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;padding:16px;transform-origin:0 0;will-change:transform}
 .cabinet{min-width:0;min-height:0;border:8px solid #f1eee2;border-top-color:#fffdf2;border-bottom-color:#c4c2b1;display:grid;grid-template-rows:64px repeat(4,minmax(0,1fr));background:#d8d7c7;box-shadow:0 5px 10px #17291d44}
@@ -27,7 +27,7 @@ dialog{border:0;border-radius:15px;width:min(950px,94vw);max-height:90vh;padding
 </style>
 <header><div class="brand"><span class="logo" aria-hidden="true">✉</span><div><b>Brief Trainer</b><small>Your addresses. Your shelf. Your rhythm.</small></div></div><div class="header-actions"><button id="edit">Edit addresses</button><button id="restart">New round</button></div></header>
 <main><div class="intro"><div><div class="eyebrow">A little practice for your daily route</div><h1>Know every letter’s place.</h1><p>Read the address. Find its slot. Build your memory.</p></div><div class="stats"><div class="stat"><strong id="score">0</strong><span>LETTERS SORTED</span></div><div class="stat"><strong id="accuracy">—</strong><span>ACCURACY</span></div><div class="stat"><strong id="streak">0</strong><span>STREAK</span></div></div></div>
-<div class="play-area"><aside class="desk"><div class="letter-panel"><h2 id="task-heading">Your next letter</h2><div class="envelope" id="letter"><div class="stamp" aria-hidden="true">✉</div><small>PLEASE DELIVER TO</small><div class="address" id="street"></div><div class="address number" id="number"></div></div></div><div class="action-panel"><div class="desk-actions"><button id="hint">Show me</button><button id="skip">Skip</button><button class="primary next" id="next" hidden>Next letter →</button></div><div class="feedback" id="feedback" role="status" aria-live="polite">Choose the matching slot on the shelf.</div><div class="progress"><span id="progress"></span></div><div class="round-label"><span id="round-label">Preparing addresses…</span><span id="best"></span></div></div><div class="settings"><label>Letters to practice<select id="scope"><option value="all" selected>All four sections</option><option value="1">Section 1 · Top</option><option value="2">Section 2 · Second level</option><option value="3">Section 3 · Third level</option><option value="4">Section 4 · Bottom</option></select></label><label>How to practice<select id="mode"><option value="practice">Practice · labels visible</option><option value="memory">Memory · labels hidden</option></select></label><p class="note" id="mode-note">Your numbering: sections top to bottom; rows left to right. All positions stay visible.</p></div></aside><section class="shelves" aria-label="Your sorting shelf"><div class="view-toolbar"><div><b>Your sorting table · fixed layout</b><small>Four columns · Four shelf levels</small></div><div class="table-controls"><button class="zoom-step" id="zoom-out" aria-label="Zoom out">−</button><button class="zoom-step" id="zoom-in" aria-label="Zoom in">+</button><button id="read-numbers">Read numbers</button><button id="fit-table">Fit table</button></div></div><p class="view-help">Pinch to zoom, or use + / −. Drag to move around. Tap a slot to zoom closer, then tap its number to sort.</p><div class="workbench" id="workbench" aria-label="Fixed four-column sorting table. Pinch or use the zoom buttons, and drag to move."><div class="cabinet-bank" id="shelf"></div></div><div class="inspect" id="inspect" aria-live="polite">Full street names appear here when you point to or focus a number.</div><p class="shelf-help">Your numbering: Section 1 is the top level and Section 4 is the bottom level. Row 1 is far left and Row 4 is far right. The same four columns and four shelf levels stay fixed on every device. Every number keeps its photo position. Zoom and drag to read; Fit table returns to the whole table. Each session includes every slot in the selected area once.</p></section></div><div class="footer"><span id="data-info"></span><span>Works offline · Progress stays in this browser</span></div></main>
+<div class="play-area"><aside class="desk"><div class="letter-panel"><h2 id="task-heading">Your next letter</h2><div class="envelope" id="letter"><div class="stamp" aria-hidden="true">✉</div><small>PLEASE DELIVER TO</small><div class="address" id="street"></div><div class="address number" id="number"></div></div></div><div class="action-panel"><div class="desk-actions"><button id="hint">Show me</button><button id="skip">Skip</button><button class="primary next" id="next" hidden>Next letter →</button></div><div class="feedback" id="feedback" role="status" aria-live="polite">Choose the matching slot on the shelf.</div><div class="progress"><span id="progress"></span></div><div class="round-label"><span id="round-label">Preparing addresses…</span><span id="best"></span></div></div><div class="settings"><label>Letters to practice<select id="scope"><option value="all" selected>All four sections</option><option value="1">Section 1 · Top</option><option value="2">Section 2 · Second level</option><option value="3">Section 3 · Third level</option><option value="4">Section 4 · Bottom</option></select></label><label>How to practice<select id="mode"><option value="practice">Practice · labels visible</option><option value="memory">Memory · labels hidden</option></select></label><p class="note" id="mode-note">Your numbering: sections top to bottom; rows left to right. All positions stay visible.</p></div></aside><section class="shelves" aria-label="Your sorting shelf"><div class="view-toolbar"><div><b>Your sorting table · fixed layout</b><small>Four columns · Four shelf levels</small></div></div><p class="view-help">Pinch to zoom, or use + / −. Drag to move around. Tap a slot to zoom closer, then tap its number to sort.</p><div class="workbench" id="workbench" aria-label="Fixed four-column sorting table. Pinch or use the zoom buttons, and drag to move."><div class="table-controls"><button class="zoom-step" id="zoom-out" aria-label="Zoom out">−</button><button class="zoom-step" id="zoom-in" aria-label="Zoom in">+</button><button id="read-numbers">Read numbers</button><button id="fit-table">Fit table</button></div><div class="map-viewport" id="map-viewport"><div class="cabinet-bank" id="shelf"></div></div></div><div class="inspect" id="inspect" aria-live="polite">Full street names appear here when you point to or focus a number.</div><p class="shelf-help">Your numbering: Section 1 is the top level and Section 4 is the bottom level. Row 1 is far left and Row 4 is far right. The same four columns and four shelf levels stay fixed on every device. Every number keeps its photo position. Zoom and drag to read; Fit table returns to the whole table. Each session includes every slot in the selected area once.</p></section></div><div class="footer"><span id="data-info"></span><span>Works offline · Progress stays in this browser</span></div></main>
 <dialog id="editor"><div class="dialog-head"><h2>Your address labels</h2><button id="close-editor" aria-label="Close address editor">✕</button></div><p>Your document numbering is preserved: sections run top to bottom, rows run left to right. Labels include St, Ha, Pa and *. Adjacent matching street labels are combined for easier reading. Incomplete printed suffixes remain as visible on the labels. Edit uncertain or repeated labels here; shelf positions stay fixed. Changes start a new round.</p><div class="edit-tools"><input id="search" placeholder="Find a street or number…" aria-label="Search address labels"><button id="export">Export backup</button><button id="import">Import backup</button><input id="file" type="file" accept="application/json,.json" hidden></div><div class="edit-scroll"><table><thead><tr><th>Section ↓ / Row → / Slot</th><th>Street</th><th>Number including St / Pa</th></tr></thead><tbody id="edit-body"></tbody></table></div><p id="edit-status" role="status"></p><div class="dialog-bottom"><button id="cancel-edit">Cancel</button><button class="primary" id="save-edit">Save changes</button></div></dialog>
 <script>
 'use strict';
@@ -133,7 +133,7 @@ function applyCamera(){
 function fitTable(){camera={x:0,y:0,scale:fitScale(),isFit:true};applyCamera()}
 function resizeCamera(){
  const centre={x:(viewWidth/2-camera.x)/camera.scale,y:(viewHeight/2-camera.y)/camera.scale};
- viewWidth=$('workbench').clientWidth||1000;viewHeight=$('workbench').clientHeight||520;
+ viewWidth=$('map-viewport').clientWidth||1000;viewHeight=$('map-viewport').clientHeight||520;
  if(camera.isFit){fitTable();return}
  camera.x=viewWidth/2-centre.x*camera.scale;camera.y=viewHeight/2-centre.y*camera.scale;applyCamera();
 }
@@ -152,7 +152,7 @@ function revealSlot(s){
  camera.x=viewWidth/2-point.x*camera.scale;camera.y=viewHeight/2-point.y*camera.scale;applyCamera();
 }
 function readNumbers(){
- const point=slotAnchor(ORIGINAL[0]);camera={scale:1.6,x:16,y:viewHeight/2-point.y*1.6,isFit:false};applyCamera();
+ const point=slotAnchor(ORIGINAL[0]);camera={scale:1.6,x:16,y:viewHeight/2-point.y*1.6,isFit:false};applyCamera();$('workbench').scrollIntoView({block:'nearest',behavior:'auto'});
 }
 function activateSlot(id,button){
  const s=slots.find(o=>o.id===id);if(!s||answered||done)return;
@@ -161,16 +161,16 @@ function activateSlot(id,button){
 }
 $('zoom-in').onclick=()=>zoomAt(camera.scale*1.6);
 $('zoom-out').onclick=()=>zoomAt(camera.scale/1.6);
-$('fit-table').onclick=fitTable;$('read-numbers').onclick=readNumbers;
-function localPoint(e){const rect=$('workbench').getBoundingClientRect();return {x:e.clientX-rect.left,y:e.clientY-rect.top}}
+$('fit-table').onclick=()=>{fitTable();$('workbench').scrollIntoView({block:'nearest',behavior:'auto'})};$('read-numbers').onclick=readNumbers;
+function localPoint(e){const rect=$('map-viewport').getBoundingClientRect();return {x:e.clientX-rect.left,y:e.clientY-rect.top}}
 function resetGestureAnchor(){
  if(pointers.size>=2){
   const [a,b]=[...pointers.values()];
   pinchStart={distance:Math.max(1,Math.hypot(b.x-a.x,b.y-a.y)),x:(a.x+b.x)/2,y:(a.y+b.y)/2,camera:{...camera}};dragStart=null;
  }else if(pointers.size===1){const p=[...pointers.values()][0];dragStart={x:p.x,y:p.y,camera:{...camera}};pinchStart=null}
- else{dragStart=pinchStart=null;$('workbench').classList.remove('is-dragging')}
+ else{dragStart=pinchStart=null;$('map-viewport').classList.remove('is-dragging')}
 }
-$('workbench').onpointerdown=e=>{
+$('map-viewport').onpointerdown=e=>{
  if(e.button>0)return;
  const point=localPoint(e),button=e.target.closest?.('.slot');
  if(pointers.size===0)gestureMoved=false;
@@ -178,7 +178,7 @@ $('workbench').onpointerdown=e=>{
  if(pointers.size>1)gestureMoved=true;
  resetGestureAnchor();e.currentTarget.setPointerCapture(e.pointerId);e.preventDefault();
 };
-$('workbench').onpointermove=e=>{
+$('map-viewport').onpointermove=e=>{
  const previous=pointers.get(e.pointerId);if(!previous)return;
  const point=localPoint(e);pointers.set(e.pointerId,{...previous,...point});
  if(pointers.size>=2&&pinchStart){
@@ -191,7 +191,7 @@ $('workbench').onpointermove=e=>{
   if(Math.hypot(point.x-previous.startX,point.y-previous.startY)>6)gestureMoved=true;
   if(gestureMoved){camera.x=dragStart.camera.x+point.x-dragStart.x;camera.y=dragStart.camera.y+point.y-dragStart.y;camera.isFit=false;applyCamera()}
  }
- if(gestureMoved)$('workbench').classList.add('is-dragging');e.preventDefault();
+ if(gestureMoved)$('map-viewport').classList.add('is-dragging');e.preventDefault();
 };
 function endPointer(e,cancelled=false){
  const p=pointers.get(e.pointerId);if(!p)return;
@@ -202,14 +202,14 @@ function endPointer(e,cancelled=false){
  resetGestureAnchor();e.preventDefault();
  if(select)activateSlot(p.button.dataset.id,p.button);
 }
-$('workbench').onpointerup=e=>endPointer(e);
-$('workbench').onpointercancel=e=>endPointer(e,true);
-$('workbench').addEventListener('wheel',e=>{
+$('map-viewport').onpointerup=e=>endPointer(e);
+$('map-viewport').onpointercancel=e=>endPointer(e,true);
+$('map-viewport').addEventListener('wheel',e=>{
  const point=localPoint(e);
  if(e.ctrlKey){zoomAt(camera.scale*Math.exp(-e.deltaY*.01),point.x,point.y);e.preventDefault()}
  else if(!camera.isFit){camera.x-=e.shiftKey?e.deltaY:e.deltaX;camera.y-=e.shiftKey?0:e.deltaY;applyCamera();e.preventDefault()}
 },{passive:false});
-if(typeof ResizeObserver!=='undefined')new ResizeObserver(resizeCamera).observe($('workbench'));
+if(typeof ResizeObserver!=='undefined')new ResizeObserver(resizeCamera).observe($('map-viewport'));
 else if(typeof window!=='undefined')window.addEventListener('resize',resizeCamera);
 
 function paint(){document.querySelectorAll('.slot').forEach(b=>{b.disabled=answered||done;b.classList.remove('correct','hinted');if((answered||helped)&&allMatches().some(s=>s.id===b.dataset.id))b.classList.add(answered?'correct':'hinted')})}

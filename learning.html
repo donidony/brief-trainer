@@ -316,8 +316,27 @@ h1 {
   cursor:grab;
   overscroll-behavior:contain
 }
-.workbench.is-dragging {
+.map-viewport.is-dragging {
   cursor:grabbing
+}
+.workbench>.table-controls {
+  position:absolute;
+  width:auto;
+  top:7px;
+  left:8px;
+  right:8px;
+  min-height:44px;
+  z-index:2;
+  justify-content:center;
+  margin:0
+}
+.map-viewport {
+  position:absolute;
+  inset:60px 0 0;
+  overflow:hidden;
+  touch-action:none;
+  cursor:grab;
+  user-select:none
 }
 .workbench:focus-visible {
   outline:3px solid #2278bc;
@@ -927,6 +946,11 @@ td:first-child {
               Four columns · Four shelf levels
             </small>
           </div>
+        </div>
+        <p class="view-help">
+          Pinch to zoom, or use + / −. Drag to move around. Tap a slot to zoom closer, then tap its number to sort.
+        </p>
+        <div class="workbench" id="workbench" aria-label="Fixed four-column sorting table. Pinch or use the zoom buttons, and drag to move.">
           <div class="table-controls">
             <button class="zoom-step" id="zoom-out" aria-label="Zoom out">
               −
@@ -941,13 +965,10 @@ td:first-child {
               Fit table
             </button>
           </div>
-        </div>
-        <p class="view-help">
-          Pinch to zoom, or use + / −. Drag to move around. Tap a slot to zoom closer, then tap its number to sort.
-        </p>
-        <div class="workbench" id="workbench" aria-label="Fixed four-column sorting table. Pinch or use the zoom buttons, and drag to move.">
-          <!-- JavaScript renderShelf() fills this initially empty container. -->
-          <div class="cabinet-bank" id="shelf">
+          <div class="map-viewport" id="map-viewport">
+            <!-- JavaScript renderShelf() fills this initially empty container. -->
+            <div class="cabinet-bank" id="shelf">
+            </div>
           </div>
         </div>
         <div class="inspect" id="inspect" aria-live="polite">
@@ -1252,8 +1273,8 @@ function resizeCamera() {
     x:(viewWidth/2-camera.x)/camera.scale,y:(viewHeight/2-camera.y)/camera.scale
   }
   ;
-  viewWidth=$('workbench').clientWidth||1000;
-  viewHeight=$('workbench').clientHeight||520;
+  viewWidth=$('map-viewport').clientWidth||1000;
+  viewHeight=$('map-viewport').clientHeight||520;
   if(camera.isFit) {
     fitTable();
     return
@@ -1305,6 +1326,10 @@ function readNumbers() {
   }
   ;
   applyCamera();
+  $('workbench').scrollIntoView( {
+    block:'nearest',behavior:'auto'
+  }
+  );
 }
 /*
  * At overview size, a tap zooms closer without counting an attempt. At readable size, a tap sorts the letter.
@@ -1321,10 +1346,17 @@ function activateSlot(id,button) {
 }
 $('zoom-in').onclick=()=>zoomAt(camera.scale*1.6);
 $('zoom-out').onclick=()=>zoomAt(camera.scale/1.6);
-$('fit-table').onclick=fitTable;
+$('fit-table').onclick=()=> {
+  fitTable();
+  $('workbench').scrollIntoView( {
+    block:'nearest',behavior:'auto'
+  }
+  )
+}
+;
 $('read-numbers').onclick=readNumbers;
 function localPoint(e) {
-  const rect=$('workbench').getBoundingClientRect();
+  const rect=$('map-viewport').getBoundingClientRect();
   return  {
     x:e.clientX-rect.left,y:e.clientY-rect.top
   }
@@ -1352,10 +1384,10 @@ function resetGestureAnchor() {
   }
   else {
     dragStart=pinchStart=null;
-    $('workbench').classList.remove('is-dragging')
+    $('map-viewport').classList.remove('is-dragging')
   }
 }
-$('workbench').onpointerdown=e=> {
+$('map-viewport').onpointerdown=e=> {
   if(e.button>0)return;
   const point=localPoint(e),button=e.target.closest?.('.slot');
   if(pointers.size===0)gestureMoved=false;
@@ -1369,7 +1401,7 @@ $('workbench').onpointerdown=e=> {
   e.preventDefault();
 }
 ;
-$('workbench').onpointermove=e=> {
+$('map-viewport').onpointermove=e=> {
   const previous=pointers.get(e.pointerId);
   if(!previous)return;
   const point=localPoint(e);
@@ -1396,7 +1428,7 @@ $('workbench').onpointermove=e=> {
       applyCamera()
     }
   }
-  if(gestureMoved)$('workbench').classList.add('is-dragging');
+  if(gestureMoved)$('map-viewport').classList.add('is-dragging');
   e.preventDefault();
 }
 ;
@@ -1415,9 +1447,9 @@ function endPointer(e,cancelled=false) {
   e.preventDefault();
   if(select)activateSlot(p.button.dataset.id,p.button);
 }
-$('workbench').onpointerup=e=>endPointer(e);
-$('workbench').onpointercancel=e=>endPointer(e,true);
-$('workbench').addEventListener('wheel',e=> {
+$('map-viewport').onpointerup=e=>endPointer(e);
+$('map-viewport').onpointercancel=e=>endPointer(e,true);
+$('map-viewport').addEventListener('wheel',e=> {
   const point=localPoint(e);  if(e.ctrlKey) {
     zoomAt(camera.scale*Math.exp(-e.deltaY*.01),point.x,point.y);e.preventDefault()
   }
@@ -1429,7 +1461,7 @@ $('workbench').addEventListener('wheel',e=> {
   passive:false
 }
 );
-if(typeof ResizeObserver!=='undefined')new ResizeObserver(resizeCamera).observe($('workbench'));
+if(typeof ResizeObserver!=='undefined')new ResizeObserver(resizeCamera).observe($('map-viewport'));
 else if(typeof window!=='undefined')window.addEventListener('resize',resizeCamera);
 /*
  * Update slot outlines and disabled states.
