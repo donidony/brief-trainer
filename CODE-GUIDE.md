@@ -6,13 +6,11 @@ The game is one self-contained HTML file. It works locally without a server. Ope
 
 HTML provides the letter, buttons, table container and address editor. CSS controls colors, spacing and responsive layout. JavaScript builds the address buttons, checks answers and saves edits in the browser.
 
-## Fixed table and zoom
+## Restored v2 layout
 
-The layout is one fixed scene, 8000 × 2680 logical pixels. It always contains four columns and four shelf levels. Screen size never stacks columns or wraps a sequence of numbers. Slot widths use the measured `photoStart` and `photoEnd` values. Adjacent matching street labels may share an abbreviated label, while every slot stays in its original position.
+The presentation, CSS and shelf-rendering function match the supplied `Brief-Trainer-v2.html`. Four columns stay side by side, each containing four shelf levels. Numbers appear on the shelf edge, with adjacent street labels underneath.
 
-The scene is larger than a device screen. `Fit table` scales it down to an overview. `Read numbers` zooms to the first number labels. The + and − buttons and two-finger pinch change magnification; dragging moves the camera. At overview size a tap zooms closer, and a second tap on a readable number sorts the letter.
-
-The camera uses a CSS transform on the whole scene. It never rebuilds or reorders the slots. Gesture movement and pinch release cannot submit an answer. Browser page zoom remains available outside the table.
+The original Zoom slider changes the table width; Fit table restores 100%. The later camera, pinch handlers and separate readable viewer have been removed. Current address data, saved edits and full-length sessions remain.
 
 ## Address records
 
@@ -25,7 +23,7 @@ Every object in `ORIGINAL` represents one slot:
 
 Sections 1–4 run top to bottom. Rows 1–4 identify the physical table columns from left to right. `position` preserves the original order within that intersection. Numbers are strings so `33 St 1`, `114-116` and parcel suffixes remain intact.
 
-The original photo measurements determine the fixed slot widths. Edited labels and imported backups cannot override the original slot geometry.
+Photo measurements remain in the address records for reference. The restored v2 renderer uses equal-width slots within each shelf band.
 
 ## Street labels
 
@@ -52,20 +50,12 @@ The original photo measurements determine the fixed slot widths. Edited labels a
 
 The question count is `queue.length`, rather than a fixed 20. A full-table session has 399 letters. Selecting a section uses its own slot count. Best scores are tracked separately for each section and practice mode.
 
-## Camera functions
+## Original zoom controls
 
-| Function | Purpose |
-| --- | --- |
-| `fitTable()` | Fits all four columns and four levels into the viewport. |
-| `readNumbers()` | Starts a readable view at the first number labels. |
-| `zoomAt(scale, x, y)` | Zooms around a screen point without moving the world point beneath it. |
-| `resizeCamera()` | Adapts the view to a resized screen without rearranging the scene. |
-| `slotAnchor(slot)` | Locates the original label position for hints. |
-| `activateSlot(id, button)` | Zooms an overview tap or submits a readable tap. |
-| `endPointer(event)` | Completes a tap, drag or pinch safely. |
+`setZoom(value)` changes the width of the entire shelf bank. `100` is its normal width; `180` means 180%. The workbench can scroll when zoomed in. Fit table restores 100% and returns to the left edge.
 
-## Small changes to try
+## Changes to try
 
-Change `.building-number` to adjust the base number size. Change `.building-suffix` to adjust St/Pa details. Keep the scene geometry constants and corresponding CSS dimensions in sync. Do not add responsive column stacking or wrapped number groups if you want to preserve the physical table.
+Edit the CSS `.slot .label` and `.street-group` rules to change number and street-label appearance. The `renderShelf()` loops use Row for horizontal columns and Section for vertical levels.
 
-Use Edit addresses for corrections. Export a backup before trying larger changes. The learning copy has a separate storage key.
+Use Edit addresses to correct labels, and export a backup before larger changes. The learning copy uses a separate browser-storage key.

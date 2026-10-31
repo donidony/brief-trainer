@@ -1,13 +1,9 @@
 # Brief Trainer
 
-A self-contained browser game for memorizing a physical letter sorting table. Open index.html locally or visit GitHub Pages. No build step or external dependencies are needed.
+Self-contained address sorting game. Open index.html locally or visit GitHub Pages.
 
-- Fixed four-column, four-level layout on phones, tablets and computers.
-- 399 slots retain their original photo positions and order.
-- Pinch to zoom, drag to move; +/−, Read numbers and Fit table buttons.
-- Tap an overview slot to zoom closer, then tap its number to sort.
-- Adjacent same-street labels share a short label; full addresses remain in the data.
-- Each round covers every slot in the selected area once.
-- Memory mode, hints, editable address labels and JSON backups.
+The layout and controls are restored from the supplied Brief-Trainer-v2.html: four columns, four shelf levels, equal-width slots, street labels underneath, original Zoom slider and Fit table button.
 
-Read CODE-GUIDE.md or learning.html for the commented source. The learning copy uses its own storage key.
+The current 399 addresses and saved edits are retained. Each session covers every slot in the selected practice area once. Memory mode, hints, scoring and JSON backups remain available.
+
+See CODE-GUIDE.md and learning.html for the commented source.

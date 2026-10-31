@@ -262,296 +262,227 @@ h1 {
   margin:0
 }
 .shelves {
-  margin-top:16px;
+  margin-top:15px;
   min-width:0
 }
 .view-toolbar {
   display:flex;
-  justify-content:space-between;
   align-items:center;
-  gap:12px;
-  flex-wrap:wrap;
-  margin-bottom:8px
+  justify-content:space-between;
+  gap:15px;
+  margin-bottom:10px
 }
 .view-toolbar b {
-  font-size:15px
+  font-size:13px
 }
 .view-toolbar small {
-  font-size:11px;
-  color:#687769;
+  font-size:10px;
+  color:#7b8274;
   margin-left:10px
 }
-.table-controls {
+.zoom-tools {
   display:flex;
   align-items:center;
-  gap:6px;
-  flex-wrap:wrap
+  gap:10px;
+  font-size:11px
 }
-.table-controls button {
-  min-height:42px;
-  padding:8px 12px;
-  font-size:12px
+.zoom-tools input {
+  width:110px;
+  accent-color:#254f3e
 }
-.table-controls .zoom-step {
-  font-size:22px;
-  min-width:44px;
-  padding:3px 10px
-}
-.view-help {
-  font-size:12px;
-  line-height:1.4;
-  color:#62735f;
-  margin:6px 0 9px
+.zoom-tools button {
+  font-size:10px;
+  padding:5px 9px
 }
 .workbench {
-  position:relative;
-  overflow:hidden;
-  width:100%;
-  height:clamp(360px,calc(100dvh - 270px),680px);
-  background:#d7d7cb;
-  border:1px solid #b7bdad;
+  overflow:auto;
   border-radius:9px;
-  touch-action:none;
-  user-select:none;
-  cursor:grab;
-  overscroll-behavior:contain
+  border:1px solid #ccc9bd;
+  background:#dcd9cf;
+  scrollbar-width:thin
 }
-.map-viewport.is-dragging {
-  cursor:grabbing
-}
-.workbench>.table-controls {
-  position:absolute;
-  width:auto;
-  top:7px;
-  left:8px;
-  right:8px;
-  min-height:44px;
-  z-index:2;
-  justify-content:center;
-  margin:0
-}
-.map-viewport {
-  position:absolute;
-  inset:60px 0 0;
-  overflow:hidden;
-  touch-action:none;
-  cursor:grab;
-  user-select:none
-}
-.workbench:focus-visible {
-  outline:3px solid #2278bc;
-  outline-offset:2px
-}
-/* This is one fixed scene. Screen size and zoom never change its grid or order. */
-/* FIXED TABLE SCENE: 8000 by 2680 logical pixels with four columns and four levels. The camera transforms this scene without rearranging addresses. */
+/* V2 TABLE: four side-by-side columns and four shelf levels, restored from the supplied reference. The Zoom slider changes table width; Fit table restores 100 percent. */
 .cabinet-bank {
-  position:absolute;
-  left:0;
-  top:0;
-  width:8000px;
-  height:2680px;
   display:grid;
   grid-template-columns:repeat(4,minmax(0,1fr));
-  gap:16px;
-  padding:16px;
-  transform-origin:0 0;
-  will-change:transform
+  width:100%;
+  gap:5px;
+  padding:7px;
+  align-items:stretch
 }
 /* ONE TABLE COLUMN: a Row heading followed by Sections 1 through 4. Each section contains street groups and large number buttons. */
 .cabinet {
-  min-width:0;
-  min-height:0;
-  border:8px solid #f1eee2;
-  border-top-color:#fffdf2;
-  border-bottom-color:#c4c2b1;
+  --pocket-height:83px;
   display:grid;
-  grid-template-rows:64px repeat(4,minmax(0,1fr));
-  background:#d8d7c7;
-  box-shadow:0 5px 10px #17291d44
+  grid-template-rows:26px repeat(4,calc(var(--pocket-height) + 74px));
+  align-content:start;
+  min-width:0;
+  background:#dedacf;
+  border:5px solid #f2f0e6;
+  border-top-width:7px;
+  border-bottom-width:10px;
+  box-shadow:0 2px 4px #27352a30
 }
 .cabinet-heading {
   display:flex;
   align-items:center;
   justify-content:space-between;
-  padding:0 12px;
-  background:#f1eee2;
-  font-size:30px
+  background:#f2f0e6;
+  font-size:10px;
+  padding:0 3px 7px;
+  color:#555f50;
+  gap:5px
 }
 .cabinet-heading small {
-  font-size:22px;
-  color:#717a65
+  font-size:8px;
+  color:#7d8273
 }
 .shelf-row {
-  min-width:0;
-  min-height:0;
-  display:grid;
-  grid-template-rows:32px minmax(0,1fr) 64px;
-  border-bottom:8px solid #aaa994;
-  background:#dedccc
+  padding:0;
+  background:#dedacf
 }
 .row-heading {
+  height:17px;
+  font-size:8px;
+  padding:3px 5px 0;
+  color:#858577;
+  background:#d9d6ca;
   display:flex;
-  align-items:center;
-  justify-content:space-between;
-  padding:4px 7px;
-  font-size:21px;
-  background:#d9d8c9;
-  color:#65705b
+  justify-content:space-between
 }
-.row-heading span:last-child {
-  font-size:18px
-}
-.slot-line,/* SHORT STREET LABEL: one label below a consecutive group of numbers. The full name remains in the data and accessible labels. */
-.street-rail {
+.slot-line {
   display:grid;
   gap:0;
   min-width:0;
+  background:linear-gradient(#282f29,#666b5a 72%,#c0bcaa);
   padding:0 2px
-}
-.slot-line {
-  background:linear-gradient(#29342a,#626b55 75%,#adaf99)
 }
 /* ONE CLICKABLE SLOT: transparent button containing the colored pocket and the number label below it. The street rail is created separately underneath the row. */
 .slot {
-  display:flex;
-  flex-direction:column;
   min-width:0;
-  min-height:0;
   padding:0;
   border:0;
   border-radius:0;
   background:transparent;
+  display:flex;
+  flex-direction:column;
   position:relative;
-  color:#26372c;
-  touch-action:none
+  color:#25352b;
+  overflow:visible
 }
 .slot:disabled {
   opacity:1
 }
 .slot .pocket {
-  display:block;
   position:relative;
+  display:block;
   width:100%;
-  flex:1;
-  min-height:0;
-  border-left:3px solid var(--folder);
-  border-right:1px solid #17271c99;
-  border-radius:5px 0 0 0;
-  background:linear-gradient(110deg,#0006,#0000 70%),linear-gradient(12deg,var(--folder),#0000 65%);
-  box-shadow:inset 2px 0 #fff4
+  height:var(--pocket-height);
+  flex-shrink:0;
+  border-left:2px solid var(--folder);
+  border-right:1px solid #1116;
+  border-radius:4px 0 0 0;
+  background:linear-gradient(105deg,#1117 0%,#0000 65%),linear-gradient(15deg,var(--folder),#0000 60%);
+  box-shadow:inset 2px 0 #fff3
 }
 .slot .pocket:after {
   content:'';
   position:absolute;
-  inset:20px 15% 0 23%;
-  border-right:2px solid #ffffff33;
-  transform:skewY(-15deg);
-  border-radius:0 8px 0 0
+  inset:17px 13% 0 23%;
+  border-radius:0 7px 0 0;
+  background:linear-gradient(35deg,#0002,#0000);
+  border-right:1px solid #fff2;
+  transform:skewY(-20deg)
 }
 .slot .label {
-  width:100%;
-  height:64px;
-  flex:0 0 64px;
-  background:#f3e7b9;
-  border-top:4px solid #e9dec2;
-  border-right:1px solid #c0b27d;
   display:flex;
-  flex-direction:column;
   align-items:center;
   justify-content:center;
-  gap:3px;
-  padding:3px 1px;
-  line-height:1.1;
-  min-width:0
-}
-.building-number {
-  font-size:20px;
-  font-weight:800;
-  letter-spacing:-.35px;
-  line-height:1.1;
-  white-space:nowrap;
-  font-variant-numeric:tabular-nums
-}
-.building-number.long {
-  font-size:18px
-}
-.building-suffix {
-  font-size:16px;
-  font-weight:bold;
-  line-height:1.1;
-  white-space:nowrap
-}
-.street-rail {
+  flex:1;
+  width:100%;
+  height:38px;
+  flex:0 0 38px;
+  padding:3px 0 2px;
   background:#f3e7b9;
-  border-bottom:8px solid #a4a28d;
-  min-height:0
+  border-right:1px solid #cbbf92;
+  border-top:3px solid #e9dec3;
+  font-size:clamp(7px,.64vw,11px);
+  font-weight:bold;
+  line-height:1.05;
+  overflow-wrap:anywhere;
+  white-space:normal;
+  color:#3e4234
+}
+.slot .label.compound {
+  font-size:clamp(6px,.55vw,9px)
+}
+/* SHORT STREET LABEL: one label below a consecutive group of numbers. The full name remains in the data and accessible labels. */
+.street-rail {
+  display:grid;
+  gap:0;
+  background:#f3e7b9;
+  padding:0 2px;
+  border-bottom:7px solid #aaa692;
+  min-height:19px
 }
 .street-group {
-  display:flex;
-  align-items:center;
-  justify-content:center;
   min-width:0;
-  font-size:20px;
-  line-height:1.15;
-  white-space:nowrap;
-  overflow:hidden;
-  padding:4px 2px;
-  border-right:1px solid #c1b47d;
-  color:#46513b;
-  font-weight:bold
-}
-.street-group span {
-  min-width:0;
+  font-size:clamp(6px,.58vw,10px);
+  font-weight:normal;
+  text-align:center;
   overflow:hidden;
   text-overflow:ellipsis;
-  white-space:nowrap
+  white-space:nowrap;
+  padding:2px 1px;
+  border-right:1px solid #cbbf92;
+  color:#454b38
 }
-.slot:hover .label,.slot:focus-visible .label {
-  background:#fff4c6
+.slot:hover .pocket,.slot:focus-visible .pocket {
+  filter:brightness(1.4)
+}
+.slot:hover .label {
+  background:#fff9db
 }
 .slot.correct {
-  outline:5px solid #21a35a;
-  outline-offset:-3px;
-  z-index:1
-}
-.slot.wrong {
-  outline:5px solid #e34c39;
-  outline-offset:-3px;
-  z-index:1
-}
-.slot.hinted {
-  outline:5px solid #ed8021;
-  outline-offset:-3px;
-  z-index:1
-}
-.slot:focus-visible {
-  outline:5px solid #2278bc;
-  outline-offset:-3px;
+  outline:3px solid #21a35a;
+  outline-offset:-1px;
   z-index:2
 }
-.inspect {
-  padding:9px 12px;
-  margin-top:10px;
-  border:1px solid #d4dbcb;
-  border-radius:6px;
-  background:#e9ede2;
-  font-size:13px;
-  line-height:1.4;
-  min-height:38px
+.slot.wrong {
+  outline:3px solid #e34c39;
+  outline-offset:-1px;
+  z-index:2
+}
+.slot.hinted {
+  outline:3px solid #ed8021;
+  outline-offset:-1px;
+  z-index:2
 }
 .shelf-help {
-  font-size:12px;
+  font-size:11px;
   line-height:1.5;
-  color:#687769;
-  margin:9px 0
+  color:#75806e;
+  margin:9px 2px 0
+}
+.inspect {
+  min-height:35px;
+  display:flex;
+  align-items:center;
+  background:#ebece3;
+  border:1px solid #dde0d2;
+  border-radius:6px;
+  padding:7px 12px;
+  font-size:12px;
+  color:#4d5f4e;
+  margin-top:10px
 }
 .footer {
   display:flex;
   justify-content:space-between;
   gap:10px;
-  font-size:11px;
-  color:#798774;
-  margin-top:15px
+  font-size:10px;
+  color:#82907d;
+  margin-top:18px
 }
 /* ADDRESS EDITOR: a native modal dialog. ::backdrop styles the dimmed background. */
 dialog {
@@ -633,10 +564,26 @@ td:first-child {
 [hidden] {
   display:none!important
 }
-@media(max-width:1100px) {
+@media(min-width:1700px) {
+  .cabinet {
+    --pocket-height:105px
+  }
+}
+/* RESPONSIVE RULES: use a simpler controls layout on smaller screens. A minimum table width keeps slots usable; scroll sideways to reach all columns. */
+@media(max-width:950px) {
+  header {
+    padding:14px 15px
+  }
+  .brand small {
+    display:none
+  }
+  main {
+    padding:0 12px 20px
+  }
   .desk {
     grid-template-columns:1fr 1.1fr;
-    gap:12px
+    gap:12px;
+    position:static
   }
   .settings {
     grid-column:1/-1;
@@ -646,132 +593,82 @@ td:first-child {
   .settings .note {
     grid-column:auto
   }
-  .intro h1 {
-    font-size:24px
+  .cabinet-bank {
+    min-width:1050px
   }
   .intro p {
     font-size:11px
   }
+  .intro h1 {
+    font-size:23px
+  }
+  .stats {
+    gap:16px
+  }
   .view-toolbar small {
     display:none
   }
+  .slot .label {
+    font-size:9px
+  }
+  .slot .label.compound {
+    font-size:8px
+  }
+  .street-group {
+    font-size:8px
+  }
 }
-@media(max-width:620px) {
-  header {
-    padding:10px 12px;
-    gap:8px
+@media(max-width:560px) {
+  .intro {
+    display:block
   }
-  .brand b {
-    font-size:16px
+  .stats {
+    margin-top:10px;
+    gap:28px
   }
-  .brand small {
-    display:none
-  }
-  .logo {
-    padding:5px 8px;
+  .stat strong {
     font-size:20px
+  }
+  .desk {
+    grid-template-columns:1fr;
+    padding:12px
+  }
+  .settings {
+    grid-column:auto;
+    grid-template-columns:1fr 1fr
+  }
+  .settings .note {
+    grid-column:1/-1
+  }
+  .envelope {
+    min-height:63px
   }
   .header-actions {
     gap:4px
   }
   .header-actions button {
-    font-size:10px;
     padding:7px;
-    min-height:36px
+    font-size:10px
   }
-  main {
-    padding:0 10px 20px
+  .brand b {
+    font-size:16px
   }
-  .intro {
-    justify-content:flex-end;
-    margin:0 0 8px
-  }
-  .intro>div:first-child {
-    display:none
-  }
-  .stats {
-    gap:18px
-  }
-  .stat strong {
-    font-size:19px
-  }
-  .stat span {
-    font-size:8px
-  }
-  .desk {
-    grid-template-columns:1fr;
-    gap:7px;
-    padding:9px;
-    position:sticky;
-    top:0
-  }
-  .desk h2 {
-    display:none
-  }
-  .envelope {
-    min-height:55px
-  }
-  .address {
-    font-size:17px
-  }
-  .number {
-    font-size:19px
-  }
-  .desk-actions button {
-    min-height:40px
-  }
-  .feedback {
-    min-height:28px;
-    padding-top:5px;
-    font-size:12px
-  }
-  .progress {
-    margin:4px 0
-  }
-  .round-label {
-    font-size:11px
-  }
-  .settings {
-    grid-column:auto;
-    grid-template-columns:1fr 1fr;
-    gap:7px
-  }
-  .settings .note {
-    display:none
-  }
-  .settings select {
-    font-size:12px;
-    padding:6px 3px
-  }
-  .settings label {
-    font-size:11px
-  }
-  .shelves {
-    margin-top:12px
-  }
-  .view-toolbar {
-    gap:8px
-  }
-  .view-toolbar b {
-    font-size:14px
-  }
-  .table-controls {
-    width:100%;
-    gap:5px
-  }
-  .table-controls button {
-    min-height:44px;
-    flex:1;
+  .logo {
+    font-size:19px;
     padding:6px 8px
   }
-  .table-controls .zoom-step {
-    flex:0 0 44px
+  .view-toolbar {
+    align-items:start
   }
-  .view-help {
+  .view-toolbar b {
     font-size:11px
   }
-  .workbench {
-    height:clamp(340px,calc(100dvh - 290px),600px)
+  .zoom-tools {
+    gap:5px;
+    font-size:10px
+  }
+  .zoom-tools input {
+    width:70px
   }
   .footer {
     display:block;
@@ -893,7 +790,7 @@ td:first-child {
           </div>
           <div class="round-label">
             <span id="round-label">
-              Preparing addresses…
+              Letter 1 of 20
             </span>
             <span id="best">
             </span>
@@ -940,42 +837,35 @@ td:first-child {
         <div class="view-toolbar">
           <div>
             <b>
-              Your sorting table · fixed layout
+              Your complete sorting table
             </b>
             <small>
-              Four columns · Four shelf levels
+              Sections top to bottom · Rows left to right
             </small>
           </div>
-        </div>
-        <p class="view-help">
-          Pinch to zoom, or use + / −. Drag to move around. Tap a slot to zoom closer, then tap its number to sort.
-        </p>
-        <div class="workbench" id="workbench" aria-label="Fixed four-column sorting table. Pinch or use the zoom buttons, and drag to move.">
-          <div class="table-controls">
-            <button class="zoom-step" id="zoom-out" aria-label="Zoom out">
-              −
-            </button>
-            <button class="zoom-step" id="zoom-in" aria-label="Zoom in">
-              +
-            </button>
-            <button id="read-numbers">
-              Read numbers
-            </button>
-            <button id="fit-table">
+          <div class="zoom-tools">
+            <label for="zoom">
+              Zoom
+            </label>
+            <input id="zoom" type="range" min="100" max="250" step="10" value="100">
+            <output id="zoom-value" for="zoom">
+              100%
+            </output>
+            <button id="fit">
               Fit table
             </button>
           </div>
-          <div class="map-viewport" id="map-viewport">
-            <!-- JavaScript renderShelf() fills this initially empty container. -->
-            <div class="cabinet-bank" id="shelf">
-            </div>
+        </div>
+        <div class="workbench" id="workbench">
+          <!-- JavaScript renderShelf() fills this initially empty container. -->
+          <div class="cabinet-bank" id="shelf">
           </div>
         </div>
         <div class="inspect" id="inspect" aria-live="polite">
-          Full street names appear here when you point to or focus a number.
+          Hover over or focus a slot to read its full address here.
         </div>
         <p class="shelf-help">
-          Your numbering: Section 1 is the top level and Section 4 is the bottom level. Row 1 is far left and Row 4 is far right. The same four columns and four shelf levels stay fixed on every device. Every number keeps its photo position. Zoom and drag to read; Fit table returns to the whole table. Each session includes every slot in the selected area once.
+          Your numbering: Section 1 is the top level and Section 4 is the bottom level. Row 1 is far left and Row 4 is far right. Zoom in for larger labels; on smaller screens, move sideways across the table.
         </p>
       </section>
     </div>
@@ -998,7 +888,7 @@ td:first-child {
       </button>
     </div>
     <p>
-      Your document numbering is preserved: sections run top to bottom, rows run left to right. Labels include St, Ha, Pa and *. Adjacent matching street labels are combined for easier reading. Incomplete printed suffixes remain as visible on the labels. Edit uncertain or repeated labels here; shelf positions stay fixed. Changes start a new round.
+      Your document numbering is preserved: sections run top to bottom, rows run left to right. Labels include St, Ha, Pa and *. Each item separated by | became a separate slot. Edit uncertain or repeated labels here; shelf positions stay fixed. Changes start a new round.
     </p>
     <div class="edit-tools">
       <input id="search" placeholder="Find a street or number…" aria-label="Search address labels">
@@ -1108,82 +998,22 @@ function allMatches() {
   return current?slots.filter(s=>key(s)===key(current)):[]
 }
 /*
- * Combine consecutive addresses on the same street within a shelf band.
- * Only the label is merged; every number remains a separate button in order.
- */
-function printedGroups(members) {
-  const groups=[];
-  let first=0;
-  while(first<members.length) {
-    let last=first+1;
-    while(last<members.length&&members[last].street.trim().toLocaleLowerCase('de-AT')===members[first].street.trim().toLocaleLowerCase('de-AT'))last++;
-    groups.push( {
-      id:'merged-'+members[first].id,first,count:last-first,text:members[first].street
-    }
-    );
-    first=last;
-  }
-  return groups;
-}
-/*
- * Shorten street labels for display. Full street names remain in the letter, saved data, editor and accessible button names. Never shorten house numbers.
- */
-function streetLabel(street) {
-  const special= {
-    'Messerschmidtgasse':'Messerschm.g.',
-    'Scheibenbergstraße':'Scheibenbergstr.',
-    'Brunnenstubenweg':'Brunnenstubenw.',
-    'Schönbrunner Graben':'Schönbr. Graben',
-    'Josef-Bindtner-Gasse':'J.-Bindtner-G.',
-    'Josef-Redl-Gasse':'J.-Redl-G.',
-    'KLG Schafbergsiedlung Gruppe D':'KLG Schafberg D',
-    'KLG Schafbergsi':'KLG Schafberg'
-  }
-  ;
-  return special[street]||street.replace(/Straße/g,'Str.').replace(/straße/g,'str.').replace(/gasse/g,'g.').replace(/weg/g,'w.');
-}
-function numberParts(number) {
-  const pieces=number.split(/\s+/);
-  const head=pieces[0]==='Pa'&&pieces.length>1?pieces.splice(0,2).join(' '):pieces.shift();
-  return  {
-    head,tail:pieces.join(' ')
-  }
-  ;
-}
-function slotMinimum(s) {
-  return Math.max(24,Math.ceil(numberParts(s.number).head.length*6.2+8))
-}
-function numberLabel(s) {
-  const label=el('span',undefined,'label'+(s.number.length>4?' compound':''));
-  if(mode==='memory') {
-    label.textContent='?';
-    return label
-  }
-  const parts=numberParts(s.number),head=el('span',parts.head,'building-number');
-  const original=ORIGINAL.find(o=>o.id===s.id);
-  const available=(original.photoEnd-original.photoStart)*1960-4;
-  const estimated=[...parts.head].reduce((sum,ch)=>sum+(ch===' '?.3:ch==='-'?.4:.62),0);
-  head.style.fontSize=Math.min(20,Math.floor(available/estimated))+'px';
-  label.append(head);
-  if(parts.tail)label.append(el('span',' '+parts.tail,'building-suffix'));
-  return label;
-}
-/*
  * Build the entire visible table from the address data.
  * IMPORTANT: n is a horizontal column, called Row in your numbering.
  * r is a vertical level, called Section in your numbering.
  * Outer loop: Row 1 (far left) to Row 4 (far right).
  * Inner loop: Section 1 (top) to Section 4 (bottom).
  * The buttons contain a colored pocket ABOVE a house-number label.
- * Every level is one unbroken line of number buttons. Photo coordinates determine the grid tracks. The same four columns and four levels remain fixed on all screens; camera transforms provide zoom and pan.
+ * This renderer and the styles match the supplied Brief-Trainer-v2.html reference. Each shelf uses equal-width slots with a shared number/street grid. Street labels are grouped by neighbouring street names. The original zoom slider changes the table width.
  */
 function renderShelf() {
   const shelf=$('shelf');
   shelf.replaceChildren();
-  $('inspect').textContent=mode==='practice'?'Zoom in to read the numbers. Full street names appear here when you point to or focus a slot.':'Memory mode · Find the address by its position. Use Show me if you need help.';
+  $('inspect').textContent=mode==='practice'?'Hover over or focus a slot to read its full address here.':'Memory mode · Find the address by its position. Use Show me if you need help.';
   for(let n=1;n<=4;n++) {
     const cabinet=el('section',undefined,'cabinet');
     cabinet.dataset.row=String(n);
+    cabinet.style.gridColumn=String(n);
     cabinet.setAttribute('aria-label','Row '+n+' '+names[n-1]);
     const heading=el('div',undefined,'cabinet-heading');
     heading.append(el('b','Row '+n),el('small',names[n-1]));
@@ -1192,46 +1022,29 @@ function renderShelf() {
       const row=el('div',undefined,'shelf-row');
       row.dataset.section=String(r);
       row.dataset.row=String(n);
-      const members=slots.filter(s=>s.section===r&&s.row===n),groups=printedGroups(members);
+      row.style.gridRow=String(r+1);
+      const members=slots.filter(s=>s.section===r&&s.row===n);
       const h=el('div',undefined,'row-heading');
       h.append(el('span','Section '+r+' · '+['Top','Second','Third','Bottom'][r-1]),el('span',members.length+' slots'));
       row.append(h);
       const line=el('div',undefined,'slot-line'),rail=el('div',undefined,'street-rail');
-      const columns=members.map(s=> {
-        const original=ORIGINAL.find(o=>o.id===s.id);return `minmax(0,${original.photoEnd-original.photoStart}fr)`
-      }
-      ).join(' ');
-      line.style.gridTemplateColumns=rail.style.gridTemplateColumns=columns;
-      for(const s of members) {
-        const b=el('button',undefined,'slot');
-        b.dataset.id=s.id;
-        b.style.setProperty('--folder',['#e8b83c','#28725c','#284b72','#e8b83c'][r-1]);
-        const pocket=el('span',undefined,'pocket');
-        pocket.setAttribute('aria-hidden','true');
-        b.append(pocket,numberLabel(s));
-        b.setAttribute('aria-label',mode==='practice'?`${s.street} ${s.number}. Section ${r}, row ${n}, slot ${s.position}`:`Section ${r}, row ${n}, slot ${s.position}`);
-        if(mode==='practice')b.title=s.street+' '+s.number;
-        const inspect=()=> {
-          $('inspect').textContent=mode==='practice'?`${s.street} ${s.number} · Section ${r}, row ${n}, slot ${s.position}`:`Section ${r}, row ${n}, slot ${s.position}`
+      line.style.gridTemplateColumns=rail.style.gridTemplateColumns=`repeat(${members.length},minmax(0,1fr))`;
+      members.forEach(s=> {
+        const b=el('button',undefined,'slot');b.dataset.id=s.id;     b.style.setProperty('--folder',['#e8b83c','#28725c','#284b72','#e8b83c'][r-1]);     const pocket=el('span',undefined,'pocket');pocket.setAttribute('aria-hidden','true');     b.append(pocket,el('span',mode==='practice'?s.number:'?', 'label'+(s.number.length>4?' compound':'')));     const label=mode==='practice'?`${s.street} ${s.number}. Section ${r}, row ${n}, slot ${s.position}`:`Section ${r}, row ${n}, slot ${s.position}`;     b.setAttribute('aria-label',label);if(mode==='practice')b.title=s.street+' '+s.number;     const inspect=()=> {
+          $('inspect').textContent=mode==='practice'?`${s.street} ${s.number}  ·  Section ${r}, row ${n}, slot ${s.position}`:`Section ${r}, row ${n}, slot ${s.position}`
         }
-        ;
-        b.onpointerenter=inspect;
-        b.onfocus=inspect;
-        b.onclick=e=> {
-          if(e?.detail>0&&Date.now()<suppressClickUntil)return;
-          choose(s,b)
-        }
-        ;
-        line.append(b);
+        ;     b.onpointerenter=inspect;b.onfocus=inspect;b.onclick=()=>choose(s,b);line.append(b);
       }
-      for(const group of groups) {
-        const label=el('div',undefined,'street-group');
-        label.dataset.group=group.id;
-        label.setAttribute('lang','de');
-        label.style.gridColumn=`${group.first+1} / ${group.first+group.count+1}`;
-        label.append(el('span',mode==='practice'?streetLabel(group.text):''));
-        if(mode==='practice')label.title=group.text;
+      );
+      let first=0;
+      while(first<members.length) {
+        let last=first+1;
+        while(last<members.length&&members[last].street===members[first].street)last++;
+        const label=el('span',mode==='practice'?members[first].street:'', 'street-group');
+        label.style.gridColumn=`${first+1} / ${last+1}`;
+        if(mode==='practice')label.title=members[first].street;
         rail.append(label);
+        first=last;
       }
       row.append(line,rail);
       cabinet.append(row);
@@ -1239,230 +1052,22 @@ function renderShelf() {
     shelf.append(cabinet);
   }
 }
-const TABLE_WIDTH=8000,TABLE_HEIGHT=2680;
-let camera= {
-  x:0,y:0,scale:1,isFit:true
-}
-,viewWidth=1000,viewHeight=520,suppressClickUntil=0;
-const pointers=new Map();
-let gestureMoved=false,pinchStart=null,dragStart=null;
-function fitScale() {
-  return Math.min((viewWidth-24)/TABLE_WIDTH,(viewHeight-24)/TABLE_HEIGHT)
-}
-function applyCamera() {
-  const width=TABLE_WIDTH*camera.scale,height=TABLE_HEIGHT*camera.scale;
-  camera.x=width<=viewWidth?(viewWidth-width)/2:Math.max(viewWidth-width-16,Math.min(16,camera.x));
-  camera.y=height<=viewHeight?(viewHeight-height)/2:Math.max(viewHeight-height-16,Math.min(16,camera.y));
-  $('shelf').style.transform=`translate(${camera.x}px,${camera.y}px) scale(${camera.scale})`;
-}
 /*
- * Fit the whole fixed table inside the visible area. No addresses move; only the camera scale and translation change.
+ * Change the width of the whole shelf bank.
+ * 100 fits all four columns; 180 means 180 percent wide.
+ * The surrounding workbench lets the player scroll sideways.
  */
-function fitTable() {
-  camera= {
-    x:0,y:0,scale:fitScale(),isFit:true
-  }
-  ;
-  applyCamera()
+function setZoom(value) {
+  $('zoom').value=String(value);
+  $('zoom-value').textContent=value+'%';
+  $('shelf').style.width=value+'%'
 }
-/*
- * Update the viewport dimensions. Preserve the inspected world location when zoomed in, or fit the whole scene when overview mode is active.
- */
-function resizeCamera() {
-  const centre= {
-    x:(viewWidth/2-camera.x)/camera.scale,y:(viewHeight/2-camera.y)/camera.scale
-  }
-  ;
-  viewWidth=$('map-viewport').clientWidth||1000;
-  viewHeight=$('map-viewport').clientHeight||520;
-  if(camera.isFit) {
-    fitTable();
-    return
-  }
-  camera.x=viewWidth/2-centre.x*camera.scale;
-  camera.y=viewHeight/2-centre.y*camera.scale;
-  applyCamera();
-}
-/*
- * Zoom around a screen point so the location under the fingers or cursor remains under that point.
- */
-function zoomAt(scale,x=viewWidth/2,y=viewHeight/2) {
-  const world= {
-    x:(x-camera.x)/camera.scale,y:(y-camera.y)/camera.scale
-  }
-  ;
-  camera.scale=Math.max(Math.min(.02,fitScale()),Math.min(3,scale));
-  camera.x=x-world.x*camera.scale;
-  camera.y=y-world.y*camera.scale;
-  camera.isFit=false;
-  applyCamera();
-}
-/*
- * Find a number label using its original photo coordinates. The scene dimensions, borders and headings match the fixed CSS geometry.
- */
-function slotAnchor(s) {
-  const original=ORIGINAL.find(o=>o.id===s.id),cabWidth=(TABLE_WIDTH-80)/4,cabHeight=TABLE_HEIGHT-32;
-  const rowHeight=(cabHeight-80)/4;
-  return  {
-    x:16+(s.row-1)*(cabWidth+16)+10+(original.photoStart+original.photoEnd)/2*(cabWidth-20),y:88+(s.section-1)*rowHeight+rowHeight-104
-  }
-  ;
-}
-function revealSlot(s) {
-  const point=slotAnchor(s);
-  camera.scale=Math.max(1.6,camera.scale);
-  camera.isFit=false;
-  camera.x=viewWidth/2-point.x*camera.scale;
-  camera.y=viewHeight/2-point.y*camera.scale;
-  applyCamera();
-}
-/*
- * Zoom to readable size near the first numbers, without revealing the current letter’s answer.
- */
-function readNumbers() {
-  const point=slotAnchor(ORIGINAL[0]);
-  camera= {
-    scale:1.6,x:16,y:viewHeight/2-point.y*1.6,isFit:false
-  }
-  ;
-  applyCamera();
-  $('workbench').scrollIntoView( {
-    block:'nearest',behavior:'auto'
-  }
-  );
-}
-/*
- * At overview size, a tap zooms closer without counting an attempt. At readable size, a tap sorts the letter.
- */
-function activateSlot(id,button) {
-  const s=slots.find(o=>o.id===id);
-  if(!s||answered||done)return;
-  if(camera.scale<.75) {
-    revealSlot(s);
-    feedback('Zoomed in. Tap a number to sort this letter.');
-    return
-  }
-  choose(s,button);
-}
-$('zoom-in').onclick=()=>zoomAt(camera.scale*1.6);
-$('zoom-out').onclick=()=>zoomAt(camera.scale/1.6);
-$('fit-table').onclick=()=> {
-  fitTable();
-  $('workbench').scrollIntoView( {
-    block:'nearest',behavior:'auto'
-  }
-  )
+$('zoom').oninput=e=>setZoom(e.target.value);
+$('fit').onclick=()=> {
+  setZoom(100);
+  $('workbench').scrollLeft=0
 }
 ;
-$('read-numbers').onclick=readNumbers;
-function localPoint(e) {
-  const rect=$('map-viewport').getBoundingClientRect();
-  return  {
-    x:e.clientX-rect.left,y:e.clientY-rect.top
-  }
-}
-function resetGestureAnchor() {
-  if(pointers.size>=2) {
-    const [a,b]=[...pointers.values()];
-    pinchStart= {
-      distance:Math.max(1,Math.hypot(b.x-a.x,b.y-a.y)),x:(a.x+b.x)/2,y:(a.y+b.y)/2,camera: {
-        ...camera
-      }
-    }
-    ;
-    dragStart=null;
-  }
-  else if(pointers.size===1) {
-    const p=[...pointers.values()][0];
-    dragStart= {
-      x:p.x,y:p.y,camera: {
-        ...camera
-      }
-    }
-    ;
-    pinchStart=null
-  }
-  else {
-    dragStart=pinchStart=null;
-    $('map-viewport').classList.remove('is-dragging')
-  }
-}
-$('map-viewport').onpointerdown=e=> {
-  if(e.button>0)return;
-  const point=localPoint(e),button=e.target.closest?.('.slot');
-  if(pointers.size===0)gestureMoved=false;
-  pointers.set(e.pointerId, {
-    ...point,startX:point.x,startY:point.y,button
-  }
-  );
-  if(pointers.size>1)gestureMoved=true;
-  resetGestureAnchor();
-  e.currentTarget.setPointerCapture(e.pointerId);
-  e.preventDefault();
-}
-;
-$('map-viewport').onpointermove=e=> {
-  const previous=pointers.get(e.pointerId);
-  if(!previous)return;
-  const point=localPoint(e);
-  pointers.set(e.pointerId, {
-    ...previous,...point
-  }
-  );
-  if(pointers.size>=2&&pinchStart) {
-    const [a,b]=[...pointers.values()],x=(a.x+b.x)/2,y=(a.y+b.y)/2;
-    const start=pinchStart.camera,ratio=Math.hypot(b.x-a.x,b.y-a.y)/pinchStart.distance;
-    camera.scale=Math.max(Math.min(.02,fitScale()),Math.min(3,start.scale*ratio));
-    camera.x=x-(pinchStart.x-start.x)/start.scale*camera.scale;
-    camera.y=y-(pinchStart.y-start.y)/start.scale*camera.scale;
-    camera.isFit=false;
-    gestureMoved=true;
-    applyCamera();
-  }
-  else if(dragStart) {
-    if(Math.hypot(point.x-previous.startX,point.y-previous.startY)>6)gestureMoved=true;
-    if(gestureMoved) {
-      camera.x=dragStart.camera.x+point.x-dragStart.x;
-      camera.y=dragStart.camera.y+point.y-dragStart.y;
-      camera.isFit=false;
-      applyCamera()
-    }
-  }
-  if(gestureMoved)$('map-viewport').classList.add('is-dragging');
-  e.preventDefault();
-}
-;
-/*
- * Finish a drag or pinch. Submit only a stationary single-pointer tap; never submit after movement, multiple fingers or cancellation.
- */
-function endPointer(e,cancelled=false) {
-  const p=pointers.get(e.pointerId);
-  if(!p)return;
-  const select=!cancelled&&!gestureMoved&&pointers.size===1&&p.button;
-  pointers.delete(e.pointerId);
-  suppressClickUntil=Date.now()+500;
-  if(e.currentTarget.hasPointerCapture?.(e.pointerId))e.currentTarget.releasePointerCapture(e.pointerId);
-  if(cancelled)gestureMoved=true;
-  resetGestureAnchor();
-  e.preventDefault();
-  if(select)activateSlot(p.button.dataset.id,p.button);
-}
-$('map-viewport').onpointerup=e=>endPointer(e);
-$('map-viewport').onpointercancel=e=>endPointer(e,true);
-$('map-viewport').addEventListener('wheel',e=> {
-  const point=localPoint(e);  if(e.ctrlKey) {
-    zoomAt(camera.scale*Math.exp(-e.deltaY*.01),point.x,point.y);e.preventDefault()
-  }
-  else if(!camera.isFit) {
-    camera.x-=e.shiftKey?e.deltaY:e.deltaX;camera.y-=e.shiftKey?0:e.deltaY;applyCamera();e.preventDefault()
-  }
-}
-, {
-  passive:false
-}
-);
-if(typeof ResizeObserver!=='undefined')new ResizeObserver(resizeCamera).observe($('map-viewport'));
-else if(typeof window!=='undefined')window.addEventListener('resize',resizeCamera);
 /*
  * Update slot outlines and disabled states.
  * Green means answered; orange means a hint; red is applied in choose().
@@ -1588,9 +1193,9 @@ function hint() {
   section=target.section;
   renderShelf();
   paint();
-  revealSlot(target);
-  $('workbench').scrollIntoView( {
-    block:'nearest',behavior:'auto'
+  const b=document.querySelector(`[data-id="${target.id}"]`);
+  b?.scrollIntoView( {
+    block:'nearest',inline:'center',behavior:'auto'
   }
   );
   feedback(`Section ${target.section}, row ${target.row}, slot ${target.position}. Select the outlined slot to place this letter.`);
@@ -1638,7 +1243,6 @@ $('skip').onclick=()=> {
   const t=allMatches()[0];
   section=t.section;
   renderShelf();
-  revealSlot(t);
   answered=true;
   paint();
   feedback(`Skipped: section ${t.section}, row ${t.row}, slot ${t.position}. The matching slot is outlined.`);
@@ -1743,9 +1347,8 @@ $('file').onchange=async e=> {
   e.target.value=''
 }
 ;
-resizeCamera();
 /* STARTUP: show the dataset size, start the first round and explain any browser-storage limitation. */
-$('data-info').textContent=`${slots.length} slots · Fixed 4 × 4 table`;
+$('data-info').textContent=`${slots.length} slots · 4 sections · Your uploaded layout`;
 newRound();
 if(!storageOK)feedback('Browser storage is unavailable. You can still play; export any address edits to keep them.');
 
