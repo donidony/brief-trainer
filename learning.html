@@ -713,9 +713,56 @@ td:first-child {
     scroll-behavior:auto!important
   }
 }
+.desk {
+  position:static
+}
+.focus-task {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:10px;
+  padding:8px 10px;
+  background:#f6efd8;
+  border-left:4px solid #f4c54c;
+  border-radius:4px
+}
+.focus-task small {
+  font-size:9px;
+  letter-spacing:1px;
+  display:block;
+  color:#67725d;
+  margin-bottom:3px
+}
+.focus-task strong {
+  font-size:17px;
+  line-height:1.3;
+  display:block;
+  overflow-wrap:anywhere
+}
+.focus-task button {
+  flex-shrink:0;
+  min-height:44px;
+  font-size:13px
+}
+.focus-feedback {
+  font-size:12px;
+  line-height:1.4;
+  min-height:18px;
+  margin-top:7px
+}
+.focus-feedback.good {
+  color:#236043
+}
+.focus-feedback.bad {
+  color:#9a3a29
+}
 /* The overview preserves position;
 this strip provides readable type and touch targets. */
 .focus-panel {
+  position:sticky;
+  top:8px;
+  z-index:9;
   margin:0 0 16px;
   padding:14px 16px 10px;
   background:#fffdf5;
@@ -875,8 +922,12 @@ this strip provides readable type and touch targets. */
   header {
     padding:9px 12px
   }
+  .intro>div:first-child {
+    display:none
+  }
   .intro {
     display:flex;
+    justify-content:flex-end;
     align-items:center;
     gap:10px;
     margin-bottom:9px
@@ -946,6 +997,7 @@ this strip provides readable type and touch targets. */
     width:52px
   }
   .focus-panel {
+    top:5px;
     padding:10px 9px 8px;
     margin-bottom:10px
   }
@@ -959,9 +1011,23 @@ this strip provides readable type and touch targets. */
     font-size:11px
   }
   .focus-address {
-    font-size:18px;
-    min-height:48px;
+    display:none
+  }
+  .focus-task {
+    padding:7px 8px;
+    gap:8px;
     margin-bottom:7px
+  }
+  .focus-task strong {
+    font-size:16px
+  }
+  .focus-task button {
+    font-size:12px;
+    padding:7px
+  }
+  .focus-feedback {
+    font-size:11px;
+    min-height:16px
   }
   .focus-number {
     font-size:16px
@@ -1214,6 +1280,18 @@ this strip provides readable type and touch targets. */
           </div>
         </div>
         <section class="focus-panel" id="focus-panel" aria-label="Magnified sorting shelf">
+          <div class="focus-task">
+            <div>
+              <small>
+                LETTER TO SORT
+              </small>
+              <strong id="focus-target">
+              </strong>
+            </div>
+            <button id="focus-continue" class="primary" hidden>
+              Next letter →
+            </button>
+          </div>
           <div class="focus-heading">
             <div>
               <h2>
@@ -1237,8 +1315,10 @@ this strip provides readable type and touch targets. */
           </div>
           <div class="focus-rail" id="focus-rail">
           </div>
+          <div id="focus-feedback" class="focus-feedback">
+          </div>
           <p class="focus-help">
-            Move your mouse across the table below to magnify it. On a phone, drag your finger across the table. Tap a large slot here to sort your letter.
+            Mouse over or drag across the overview. Select a large slot above to sort.
           </p>
         </section>
         <div class="workbench" id="workbench">
@@ -1495,6 +1575,9 @@ function renderFocus() {
  * Keep large buttons in sync with correct answers and hints. Disable them once the current letter has been answered.
  */
 function paintFocus() {
+  $('focus-target').textContent=done?`Session complete · ${score} / ${queue.length}`:current?current.street+' '+current.number:'';
+  $('focus-continue').hidden=!(answered||done);
+  $('focus-continue').textContent=done?'New session':'Next letter →';
   const matches=allMatches();
   for(const b of $('focus-line').children) {
     b.disabled=answered||done;
@@ -1506,6 +1589,7 @@ function moveFocus(direction) {
   const members=focusMembers(),index=members.findIndex(s=>s.id===focusId);
   focusSlot(members[Math.max(0,Math.min(members.length-1,index+direction*Math.max(1,focusCount-1)))]);
 }
+$('focus-continue').onclick=()=>$('next').click();
 $('focus-prev').onclick=()=>moveFocus(-1);
 $('focus-next').onclick=()=>moveFocus(1);
 /*
@@ -1661,7 +1745,9 @@ function paint() {
  */
 function feedback(text,kind='') {
   $('feedback').textContent=text;
-  $('feedback').className='feedback '+kind
+  $('feedback').className='feedback '+kind;
+  $('focus-feedback').textContent=text;
+  $('focus-feedback').className='focus-feedback '+kind
 }
 /*
  * Refresh the score, accuracy, streak and progress bar.
@@ -1739,7 +1825,10 @@ function choose(s,b) {
     $('hint').disabled=$('skip').disabled=true;
     paint();
     stats();
-    $('next').focus()
+    $('focus-continue').focus( {
+      preventScroll:true
+    }
+    )
   }
   else {
     if(!hadError&&!helped)attempts++;
@@ -1815,6 +1904,7 @@ $('skip').onclick=()=> {
   const t=allMatches()[0];
   section=t.section;
   renderShelf();
+  focusSlot(t);
   answered=true;
   paint();
   feedback(`Skipped: section ${t.section}, row ${t.row}, slot ${t.position}. The matching slot is outlined.`);
