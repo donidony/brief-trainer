@@ -1,6 +1,6 @@
 # Brief Trainer: code guide
 
-The game is one self-contained HTML file. It works locally without a server. Open `learning.html` in a text editor to read the commented version.
+The game is one self-contained HTML file. It works locally without a server. Open `Brief-Trainer-Learning.html` in a text editor to read the commented version.
 
 ## HTML, CSS and JavaScript
 
@@ -59,3 +59,12 @@ The question count is `queue.length`, rather than a fixed 20. A full-table sessi
 Edit the CSS `.slot .label` and `.street-group` rules to change number and street-label appearance. The `renderShelf()` loops use Row for horizontal columns and Section for vertical levels.
 
 Use Edit addresses to correct labels, and export a backup before larger changes. The learning copy uses a separate browser-storage key.
+
+
+## Switching between sorting tables
+
+The TABLES object now contains tables 38, 39, 40 and 42. Each table has a name, a column count (four or five), and a slots array. The table-select dropdown chooses the active table. The storageKey function gives each table its own saved labels and scores. Table 38 keeps its existing storage key so earlier edits remain available.
+
+The isConfirmed function keeps labels containing brackets or question marks out of the question queue while preserving their shelf positions. Use Review unclear labels in the game, correct the label, and remove the uncertainty marks to make that address playable.
+
+To add another table in the future, add its data to TABLES and an option to table-select. Use a unique table ID and unique slot IDs, preserve the document order, and set columns to match the actual cabinet. Section always runs top to bottom; row runs left to right.
