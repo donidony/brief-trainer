@@ -301,7 +301,7 @@ h1 {
   background:#dcd9cf;
   scrollbar-width:thin
 }
-/* V2 TABLE: four side-by-side columns and four shelf levels, restored from the supplied reference. The Zoom slider changes table width; Fit table restores 100 percent. */
+/* V2 TABLE: four or five side-by-side columns and four shelf levels, restored from the supplied reference. The Zoom slider changes table width; Fit table restores 100 percent. */
 .cabinet-bank {
   display:grid;
   grid-template-columns:repeat(var(--columns,4),minmax(0,1fr));
@@ -971,7 +971,7 @@ td:first-child {
         <div class="inspect" id="inspect" aria-live="polite">
           Hover over or focus a slot to read its full address here.
         </div>
-        <p class="shelf-help">
+        <p class="shelf-help" id="layout-help">
           Your numbering: Section 1 is the top level and Section 4 is the bottom level. Row 1 is far left and Row 4 is far right. Zoom in for larger labels; on smaller screens, move sideways across the table.
         </p>
       </section>
@@ -1110,6 +1110,7 @@ function persist() {
 function updateTableInfo() {
   const pending=slots.filter(s=>!isConfirmed(s)).length,confirmed=slots.length-pending;
   $('table-select').value=tableId;
+  $('layout-help').textContent='Your numbering: Section 1 is the top level and Section 4 is the bottom level. Row 1 is far left and Row '+TABLES[tableId].columns+' is far right. Zoom in for larger labels; on smaller screens, move sideways across the table.';
   $('table-status').textContent=TABLES[tableId].columns+' columns · '+confirmed+' playable addresses'+(pending?' · '+pending+' need checking':'');
   $('review-labels').hidden=!pending;
   $('review-labels').textContent='Review unclear labels ('+pending+')';
@@ -1141,7 +1142,7 @@ function allMatches() {
  * Build the entire visible table from the address data.
  * IMPORTANT: n is a horizontal column, called Row in your numbering.
  * r is a vertical level, called Section in your numbering.
- * Outer loop: Row 1 (far left) to Row 4 (far right).
+ * Outer loop: all horizontal cabinet columns, four or five for the selected table.
  * Inner loop: Section 1 (top) to Section 4 (bottom).
  * The buttons contain a colored pocket ABOVE a house-number label.
  * This renderer and the styles match the supplied Brief-Trainer-v2.html reference. Each shelf uses equal-width slots with a shared number/street grid. Street labels are grouped by neighbouring street names. The original zoom slider changes the table width.
@@ -1196,7 +1197,7 @@ function renderShelf() {
 }
 /*
  * Change the width of the whole shelf bank.
- * 100 fits all four columns; 180 means 180 percent wide.
+ * 100 fits all columns of the selected table; 180 means 180 percent wide.
  * The surrounding workbench lets the player scroll sideways.
  */
 function setZoom(value) {
