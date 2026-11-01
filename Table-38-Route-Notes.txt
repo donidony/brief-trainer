@@ -1,0 +1,33 @@
+TABLE 38 — PROVISIONAL MOPED ROUTE
+
+Start: Wallrißstraße 43, Wien
+Finish: Josef-Redl-Gasse 2, Wien
+
+13.67 km of computed road travel; approximately 78 minutes of routing-engine travel time, excluding deliveries and walking.
+383 of 399 slots matched to registered addresses or shared street entrances. There are 345 approach points, not 345 independently verified mailboxes.
+
+Open Table-38-Moped-Route.html in a browser. Each section links to Valhalla with the motor_scooter profile. Its public server limits routes to 10 locations. The GPX contains the complete precomputed track; import it into a navigation app that supports following GPX tracks without recalculating them as bicycle routes. Voice navigation and background GPS depend on that app; the HTML guide is not live GPS navigation.
+
+The order is an efficiency heuristic, not a proven shortest route. Final legs use Valhalla motor_scooter at 45 km/h. Only mapped road approaches are included. Street signs, closures, access permissions, mailbox entrances and walking connections need checking. The route does not use bicycle-only shortcuts. Do not treat a straight-line street-access offset as a measured walking path.
+
+UNPLACED LABELS — excluded from navigation:
+Bastiengasse 62 — section 3, row 2
+KLG Schafbergsi Pa 33 — section 3, row 3
+KLG Schafbergsi Pa 33 — section 3, row 3
+KLG Schafbergsi Pa 31 — section 3, row 3
+Naaffgasse 55 — section 3, row 4
+Naaffgasse 76a — section 4, row 2
+Schönbrunner Graben 24a — section 4, row 3
+KLG Schaf Pa 19 — section 4, row 3
+KLG Schaf Pa 10 — section 4, row 3
+KLG 18a Pa 3 — section 4, row 3
+KLG Schafbergsi Pa 7 — section 4, row 3
+KLG Schafbergsi Pa 6 — section 4, row 3
+KLG Schafbergsi Pa 5 — section 4, row 3
+Ladenburghöhe 47 12 Pa 10 — section 4, row 4
+Ladenburghöhe 49 — section 4, row 4
+Josef-Redl-Gasse 10 Pa 1 — section 4, row 4
+
+Some other entries use a shared building approach or a parent building number rather than a separately verified staircase/parcel entrance. These are annotated in the guide.
+
+Sources: City of Vienna ADRESSENOGD (CC BY 4.0, https://data.wien.gv.at); © OpenStreetMap contributors (ODbL, https://www.openstreetmap.org/copyright); routing: Valhalla/FOSSGIS (https://valhalla.openstreetmap.de), calculated 2026-11-01. No live traffic or closure verification.
